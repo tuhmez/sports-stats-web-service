@@ -1,0 +1,10 @@
+version: '3.7'
+
+services:
+  sports-stats-web-service:
+    build: .
+    image: sports-stats-web-service:latest
+    container_name: sports-stats-service
+    ports:
+      - 5000:5000
+    restart: always
