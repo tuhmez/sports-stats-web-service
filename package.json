@@ -4,6 +4,7 @@
   "description": "Web service to retrieve sports data",
   "main": "index.js",
   "scripts": {
+    "prestart": "rm -rf build/ && npm run build",
     "start": "node build/index.js",
     "predev": "npm run swagger",
     "prebuild": "npm run swagger",
