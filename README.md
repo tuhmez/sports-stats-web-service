@@ -24,6 +24,8 @@ Currently (Aug, 9, 2022) the API is unpublished to the public.
 
 When running the server, a Swagger dashboard will also run alongside the base server. This dashboard contains interfaces to explore the API and its inputs and outputs.
 
+* Base route - `{SERVER_LOCATION}`:5000/
+
 * Swagger Dashboard - `{SERVER_LOCATION}`:5000/docs
 
 * Available MLB routes - `{SERVER_LOCATION}`:5000/mlb
