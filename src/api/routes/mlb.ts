@@ -27,30 +27,104 @@ export class MLBRoutes {
       return res.send(response);
     });
 
-    router.get("/mlb/game/:gameId/feed", async (_req, res) => {
-      const gameId = _req.params.gameId as string;
+    router.get("/mlb/game/feed", async (_req, res) => {
+      const gameId = _req.query.gameId as string;
+      const teamLocation = _req.query.teamLocation as string;
+      const teamName = _req.query.teamName as string;
 
-      if (!gameId || gameId === '') return res.send('Game ID invalid!');
+      const month = _req.query.month as string;
+      const day = _req.query.day as string;
+      const year = _req.query.year as string;
 
-      const response = await mlbController.getFeed(gameId);
+      if (
+        (!gameId || gameId === '') &&
+        (!teamLocation || teamLocation === '' || !teamName || teamName === '')
+      ) {
+        return res.send('Game ID/Team Location and Team Name invalid!');
+      }
+
+      const response = await mlbController.getFeed(
+        gameId,
+        teamLocation,
+        teamName,
+        month,
+        day,
+        year
+      );
+      return res.send(response);
+
+
+    });
+
+    router.get("/mlb/game/boxscore", async (_req, res) => {
+      const gameId = _req.query.gameId as string;
+      const teamLocation = _req.query.teamLocation as string;
+      const teamName = _req.query.teamName as string;
+
+      const month = _req.query.month as string;
+      const day = _req.query.day as string;
+      const year = _req.query.year as string;
+
+      if (
+        (!gameId || gameId === '') &&
+        (!teamLocation || teamLocation === '' || !teamName || teamName === '')
+      ) {
+        return res.send('Game ID/Team Location and Team Name invalid!');
+      }
+
+      const response = await mlbController.getBoxscore(
+        gameId,
+        teamLocation,
+        teamName,
+        month,
+        day,
+        year
+      );
       return res.send(response);
     });
 
-    router.get("/mlb/game/:gameId/boxscore", async (_req, res) => {
-      const gameId = _req.params.gameId as string;
+    router.get("/mlb/game/probables", async (_req, res) => {
+      const gameId = _req.query.gameId as string;
+      const teamLocation = _req.query.teamLocation as string;
+      const teamName = _req.query.teamName as string;
 
-      if (!gameId || gameId === '') return res.send('Game ID invalid!');
+      const month = _req.query.month as string;
+      const day = _req.query.day as string;
+      const year = _req.query.year as string;
 
-      const response = await mlbController.getBoxscore(gameId);
+      if (
+        (!gameId || gameId === '') &&
+        (!teamLocation || teamLocation === '' || !teamName || teamName === '')
+      ) {
+        return res.send('Game ID/Team Location and Team Name invalid!');
+      }
+
+      const response = await mlbController.getGameProbables(
+        gameId,
+        teamLocation,
+        teamName,
+        month,
+        day,
+        year
+      );
       return res.send(response);
     });
 
-    router.get("/mlb/game/:gameId/probables", async (_req, res) => {
-      const gameId = _req.params.gameId as string;
+    router.get("/mlb/game/:teamLocation-:teamName", async (_req, res) => {
+      const teamLocation = _req.params.teamLocation as string;
+      const teamName = _req.params.teamName as string;
 
-      if (!gameId || gameId === '') return res.send('Game ID invalid!');
+      const month = _req.query.month as string;
+      const day = _req.query.day as string;
+      const year = _req.query.year as string;
 
-      const response = await mlbController.getGameProbables(gameId);
+      const response = await mlbController.getGameForTeam(
+        teamLocation,
+        teamName,
+        month,
+        day,
+        year
+      );
       return res.send(response);
     });
 
@@ -63,49 +137,90 @@ export class MLBRoutes {
       return res.send(response);
     });
 
-    router.get("/mlb/team/:teamId", async (_req, res) => {
-      const teamId = _req.params.teamId as string;
+    router.get("/mlb/team", async (_req, res) => {
+      const teamId = _req.query.teamId as string;
+      const teamLocation = _req.query.teamLocation as string;
+      const teamName = _req.query.teamName as string;
 
-      if (!teamId || teamId === '') return res.send('Team ID invalid!');
+      if (
+        (!teamId || teamId === '') &&
+        (!teamLocation || teamLocation === '' || !teamName || teamName === '')
+      ) {
+        return res.send('Team ID/Team Location and Team Name invalid!');
+      }
 
-      const response = await mlbController.getTeam(teamId);
+      const response = await mlbController.getTeam(
+        teamId,
+        teamLocation,
+        teamName
+      );
       return res.send(response);
     });
 
-    router.get("/mlb/team/:teamId/logo", async (_req, res) => {
-      const teamId = _req.params.teamId as string;
+    router.get("/mlb/team/logo", async (_req, res) => {
+      const teamId = _req.query.teamId as string;
+      const teamLocation = _req.query.teamLocation as string;
+      const teamName = _req.query.teamName as string;
 
-      if (!teamId || teamId === '') return res.send('Team ID invalid!');
+      if (
+        (!teamId || teamId === '') &&
+        (!teamLocation || teamLocation === '' || !teamName || teamName === '')
+      ) {
+        return res.send('Team ID/Team Location and Team Name invalid!');
+      }
 
-      const response = await mlbController.getTeamLogo(teamId);
+      const response = await mlbController.getTeamLogo(teamId, teamLocation, teamName);
       return res.send(response);
     });
 
-    router.get("/mlb/team/:teamId/leaders", async (_req, res) => {
-      const teamId = _req.params.teamId as string;
+    router.get("/mlb/team/leaders", async (_req, res) => {
+      const teamId = _req.query.teamId as string;
+      const teamLocation = _req.query.teamLocation as string;
+      const teamName = _req.query.teamName as string;
 
-      if (!teamId || teamId === '') return res.send('Team ID invalid!');
+      if (
+        (!teamId || teamId === '') &&
+        (!teamLocation || teamLocation === '' || !teamName || teamName === '')
+      ) {
+        return res.send('Team ID/Team Location and Team Name invalid!');
+      }
 
-      const response = await mlbController.getTeamLeaders(teamId);
+      const response = await mlbController.getTeamLeaders(
+        teamId,
+        teamLocation,
+        teamName
+      );
       return res.send(response);
     });
 
-    router.get("/mlb/team/:teamId/roster", async (_req, res) => {
-      const teamId = _req.params.teamId as string;
+    router.get("/mlb/team/roster", async (_req, res) => {
+      const teamId = _req.query.teamId as string;
+      const teamLocation = _req.query.teamLocation as string;
+      const teamName = _req.query.teamName as string;
 
-      if (!teamId || teamId === '') return res.send('Team ID invalid!');
+      if (
+        (!teamId || teamId === '') &&
+        (!teamLocation || teamLocation === '' || !teamName || teamName === '')
+      ) {
+        return res.send('Team ID/Team Location and Team Name invalid!');
+      }
 
-      const response = await mlbController.getRoster(teamId);
+      const response = await mlbController.getRoster(
+        teamId,
+        teamLocation,
+        teamName,
+      );
       return res.send(response);
     });
 
-    router.get("/mlb/team/colors/:teamLocation-:teamName", async (_req, res) => {
-      const teamLocation = _req.params.teamLocation as string;
-      const teamName = _req.params.teamName;
+    router.get("/mlb/team/colors", async (_req, res) => {
+      const teamId = _req.query.teamId as string;
+      const teamLocation = _req.query.teamLocation as string;
+      const teamName = _req.query.teamName as string;
 
-      if (!teamLocation || teamLocation === '' || !teamName || teamName === '') return res.send('Team Location and/or Team Name is invalid!');
+      if ((!teamId || teamId === '') && (!teamLocation || teamLocation === '' || !teamName || teamName === '')) return res.send('Team Id and Team Location and/or Team Name is invalid!');
 
-      const response = await mlbController.getTeamColors(teamLocation, teamName);
+      const response = await mlbController.getTeamColors(teamId, teamLocation, teamName);
 
       if (!Array.isArray(response)) return res.send(response);
 

@@ -7,8 +7,21 @@ export interface IGamesResponse {
   dates: IGameDate[];
 }
 
+export interface IGameByTeamNameResponse {
+  totalGames: number;
+  totalGamesInProgress: number;
+  games: IGame[];
+}
+
 export interface IGameFeedResponse {
   copyright: string;
+  gamePk: number;
+  metaData: IGameMetadata;
+  gameData: IGameData;
+  liveData: IGameLiveData;
+}
+
+export interface IGameFeedByTeamNameResponse {
   gamePk: number;
   metaData: IGameMetadata;
   gameData: IGameData;
@@ -20,6 +33,10 @@ export interface IGameBoxscoreResponse extends IBoxscore {};
 export interface ITeamResponse {
   copyright: string;
   teams: ITeam[];
+}
+
+export interface ITeamByTeamNameResponse {
+  team: ITeam;
 }
 
 export interface IRosterResponse {

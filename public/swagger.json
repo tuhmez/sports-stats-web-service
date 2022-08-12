@@ -4320,6 +4320,31 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"IGameFeedByTeamNameResponse": {
+				"properties": {
+					"gamePk": {
+						"type": "number",
+						"format": "double"
+					},
+					"metaData": {
+						"$ref": "#/components/schemas/IGameMetadata"
+					},
+					"gameData": {
+						"$ref": "#/components/schemas/IGameData"
+					},
+					"liveData": {
+						"$ref": "#/components/schemas/IGameLiveData"
+					}
+				},
+				"required": [
+					"gamePk",
+					"metaData",
+					"gameData",
+					"liveData"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"IGameBoxscoreResponse": {
 				"properties": {
 					"teams": {
@@ -4501,6 +4526,31 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"IGameByTeamNameResponse": {
+				"properties": {
+					"totalGames": {
+						"type": "number",
+						"format": "double"
+					},
+					"totalGamesInProgress": {
+						"type": "number",
+						"format": "double"
+					},
+					"games": {
+						"items": {
+							"$ref": "#/components/schemas/IGame"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"totalGames",
+					"totalGamesInProgress",
+					"games"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"ITeamResponse": {
 				"properties": {
 					"copyright": {
@@ -4516,6 +4566,18 @@
 				"required": [
 					"copyright",
 					"teams"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ITeamByTeamNameResponse": {
+				"properties": {
+					"team": {
+						"$ref": "#/components/schemas/ITeam"
+					}
+				},
+				"required": [
+					"team"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -4768,6 +4830,7 @@
 				"security": [],
 				"parameters": [
 					{
+						"description": "- The numerical month",
 						"in": "query",
 						"name": "month",
 						"required": false,
@@ -4776,6 +4839,7 @@
 						}
 					},
 					{
+						"description": "- The numerical day",
 						"in": "query",
 						"name": "day",
 						"required": false,
@@ -4784,6 +4848,7 @@
 						}
 					},
 					{
+						"description": "- The year",
 						"in": "query",
 						"name": "year",
 						"required": false,
@@ -4794,12 +4859,12 @@
 				]
 			}
 		},
-		"/mlb/game/{gameId}/feed": {
+		"/mlb/game/feed": {
 			"get": {
 				"operationId": "GetFeed",
 				"responses": {
 					"200": {
-						"description": "Ok",
+						"description": "Returns the feed(s) for found game(s).",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -4808,6 +4873,12 @@
 											"$ref": "#/components/schemas/IGameFeedResponse"
 										},
 										{
+											"items": {
+												"$ref": "#/components/schemas/IGameFeedByTeamNameResponse"
+											},
+											"type": "array"
+										},
+										{
 											"$ref": "#/components/schemas/IError"
 										}
 									]
@@ -4816,16 +4887,62 @@
 						}
 					}
 				},
-				"description": "Gets the game feed for the given game id.",
+				"description": "Gets the game feed for the given game ID or team location and team name, with optional date.",
 				"tags": [
 					"MLB"
 				],
 				"security": [],
 				"parameters": [
 					{
-						"in": "path",
+						"description": "- The game ID",
+						"in": "query",
 						"name": "gameId",
-						"required": true,
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The team's location",
+						"in": "query",
+						"name": "teamLocation",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The team's name",
+						"in": "query",
+						"name": "teamName",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The numerical month",
+						"in": "query",
+						"name": "month",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The numerical day",
+						"in": "query",
+						"name": "day",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The year",
+						"in": "query",
+						"name": "year",
+						"required": false,
 						"schema": {
 							"type": "string"
 						}
@@ -4833,12 +4950,12 @@
 				]
 			}
 		},
-		"/mlb/game/{gameId}/boxscore": {
+		"/mlb/game/boxscore": {
 			"get": {
 				"operationId": "GetBoxscore",
 				"responses": {
 					"200": {
-						"description": "Ok",
+						"description": "- The boxscore(s) for the given game(s).",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -4847,43 +4964,10 @@
 											"$ref": "#/components/schemas/IGameBoxscoreResponse"
 										},
 										{
-											"$ref": "#/components/schemas/IError"
-										}
-									]
-								}
-							}
-						}
-					}
-				},
-				"description": "Gets the boxscore for the given game id.",
-				"tags": [
-					"MLB"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "path",
-						"name": "gameId",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/mlb/game/{gameId}/probables": {
-			"get": {
-				"operationId": "GetGameProbables",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"anyOf": [
-										{
-											"$ref": "#/components/schemas/IProbablesResponse"
+											"items": {
+												"$ref": "#/components/schemas/IGameBoxscoreResponse"
+											},
+											"type": "array"
 										},
 										{
 											"$ref": "#/components/schemas/IError"
@@ -4894,15 +4978,229 @@
 						}
 					}
 				},
+				"description": "Gets the boxscore for the given game ID or team location and team name, with optional date.",
 				"tags": [
 					"MLB"
 				],
 				"security": [],
 				"parameters": [
 					{
-						"in": "path",
+						"description": "- The game ID",
+						"in": "query",
 						"name": "gameId",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The team's location",
+						"in": "query",
+						"name": "teamLocation",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The team's name",
+						"in": "query",
+						"name": "teamName",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The numerical month",
+						"in": "query",
+						"name": "month",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The numerical day",
+						"in": "query",
+						"name": "day",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The year",
+						"in": "query",
+						"name": "year",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/mlb/game/probables": {
+			"get": {
+				"operationId": "GetGameProbables",
+				"responses": {
+					"200": {
+						"description": "- The probables(s) for the given game(s).",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/IProbablesResponse"
+										},
+										{
+											"items": {
+												"$ref": "#/components/schemas/IProbablesResponse"
+											},
+											"type": "array"
+										},
+										{
+											"$ref": "#/components/schemas/IError"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"description": "Gets the game probables for the given game ID or team location and team name, with optional date",
+				"tags": [
+					"MLB"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "- The game ID",
+						"in": "query",
+						"name": "gameId",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The team's location",
+						"in": "query",
+						"name": "teamLocation",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The team's name",
+						"in": "query",
+						"name": "teamName",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The numerical month",
+						"in": "query",
+						"name": "month",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The numerical day",
+						"in": "query",
+						"name": "day",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The year",
+						"in": "query",
+						"name": "year",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/mlb/game/{teamLocation}-{teamName}": {
+			"get": {
+				"operationId": "GetGameForTeam",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/IGameByTeamNameResponse"
+										},
+										{
+											"$ref": "#/components/schemas/IError"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"description": "Gets the game for a given team. Will use current day, unless day, month, and year are passed into function",
+				"tags": [
+					"MLB"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "The team's location (lower case), e.g. milwaukee",
+						"in": "path",
+						"name": "teamLocation",
 						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "The team's name (lower case), e.g. brewers",
+						"in": "path",
+						"name": "teamName",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "The numerical month, e.g. 8",
+						"in": "query",
+						"name": "month",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "The numerical day, e.g. 12",
+						"in": "query",
+						"name": "day",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "The year, e.g. 2022",
+						"in": "query",
+						"name": "year",
+						"required": false,
 						"schema": {
 							"type": "string"
 						}
@@ -4932,6 +5230,7 @@
 						}
 					}
 				},
+				"description": "Gets all teams associated with the MLB (may include Spring Leagues, Minor Leagues, etc.)",
 				"tags": [
 					"MLB"
 				],
@@ -4939,7 +5238,7 @@
 				"parameters": []
 			}
 		},
-		"/mlb/team/{teamId}": {
+		"/mlb/team": {
 			"get": {
 				"operationId": "GetTeam",
 				"responses": {
@@ -4953,6 +5252,9 @@
 											"$ref": "#/components/schemas/ITeamResponse"
 										},
 										{
+											"$ref": "#/components/schemas/ITeamByTeamNameResponse"
+										},
+										{
 											"$ref": "#/components/schemas/IError"
 										}
 									]
@@ -4961,15 +5263,35 @@
 						}
 					}
 				},
+				"description": "Gets a team by its team id or team name and team location.",
 				"tags": [
 					"MLB"
 				],
 				"security": [],
 				"parameters": [
 					{
-						"in": "path",
+						"description": "- The MLB team id",
+						"in": "query",
 						"name": "teamId",
-						"required": true,
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The team's location",
+						"in": "query",
+						"name": "teamLocation",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The team's name",
+						"in": "query",
+						"name": "teamName",
+						"required": false,
 						"schema": {
 							"type": "string"
 						}
@@ -4977,7 +5299,7 @@
 				]
 			}
 		},
-		"/mlb/team/{teamId}/logo": {
+		"/mlb/team/logo": {
 			"get": {
 				"operationId": "GetTeamLogo",
 				"responses": {
@@ -4999,16 +5321,35 @@
 						}
 					}
 				},
-				"description": "Gets an SVG of the team logo.",
+				"description": "Gets an SVG of the team logo by team id or team location and team name.",
 				"tags": [
 					"MLB"
 				],
 				"security": [],
 				"parameters": [
 					{
-						"in": "path",
+						"description": "- The MLB team id",
+						"in": "query",
 						"name": "teamId",
-						"required": true,
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The team's location",
+						"in": "query",
+						"name": "teamLocation",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The team's name",
+						"in": "query",
+						"name": "teamName",
+						"required": false,
 						"schema": {
 							"type": "string"
 						}
@@ -5016,7 +5357,7 @@
 				]
 			}
 		},
-		"/mlb/team/{teamId}/leaders": {
+		"/mlb/team/leaders": {
 			"get": {
 				"operationId": "GetTeamLeaders",
 				"responses": {
@@ -5038,15 +5379,35 @@
 						}
 					}
 				},
+				"description": "Gets the team leaders in various offensive and defensive stats via team id or team location and team name",
 				"tags": [
 					"MLB"
 				],
 				"security": [],
 				"parameters": [
 					{
-						"in": "path",
+						"description": "- The MLB team id",
+						"in": "query",
 						"name": "teamId",
-						"required": true,
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The team's location",
+						"in": "query",
+						"name": "teamLocation",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The team's name",
+						"in": "query",
+						"name": "teamName",
+						"required": false,
 						"schema": {
 							"type": "string"
 						}
@@ -5054,7 +5415,7 @@
 				]
 			}
 		},
-		"/mlb/team/{teamId}/roster": {
+		"/mlb/team/roster": {
 			"get": {
 				"operationId": "GetRoster",
 				"responses": {
@@ -5076,15 +5437,96 @@
 						}
 					}
 				},
+				"description": "Gets the team's roster via team id or team location and team name",
 				"tags": [
 					"MLB"
 				],
 				"security": [],
 				"parameters": [
 					{
-						"in": "path",
+						"description": "- The MLB team id",
+						"in": "query",
 						"name": "teamId",
-						"required": true,
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The team's location",
+						"in": "query",
+						"name": "teamLocation",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The team's name",
+						"in": "query",
+						"name": "teamName",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/mlb/team/colors": {
+			"get": {
+				"operationId": "GetTeamColors",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"items": {
+												"type": "string"
+											},
+											"type": "array"
+										},
+										{
+											"$ref": "#/components/schemas/IError"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"description": "Gets the team's color palette via team id or team location and team name",
+				"tags": [
+					"MLB"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "- The MLB team id",
+						"in": "query",
+						"name": "teamId",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The team's location",
+						"in": "query",
+						"name": "teamLocation",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The team's name",
+						"in": "query",
+						"name": "teamName",
+						"required": false,
 						"schema": {
 							"type": "string"
 						}
@@ -5114,12 +5556,14 @@
 						}
 					}
 				},
+				"description": "Gets the player via player id",
 				"tags": [
 					"MLB"
 				],
 				"security": [],
 				"parameters": [
 					{
+						"description": "- The MLB player id",
 						"in": "path",
 						"name": "playerId",
 						"required": true,
@@ -5152,12 +5596,14 @@
 						}
 					}
 				},
+				"description": "Gets the player's current headshot via player id",
 				"tags": [
 					"MLB"
 				],
 				"security": [],
 				"parameters": [
 					{
+						"description": "- The MLB player id",
 						"in": "path",
 						"name": "playerId",
 						"required": true,
@@ -5169,55 +5615,6 @@
 						"in": "query",
 						"name": "magnification",
 						"required": false,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/mlb/team/colors/{teamLocation}-{teamName}": {
-			"get": {
-				"operationId": "GetTeamColors",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"anyOf": [
-										{
-											"items": {
-												"type": "string"
-											},
-											"type": "array"
-										},
-										{
-											"$ref": "#/components/schemas/IError"
-										}
-									]
-								}
-							}
-						}
-					}
-				},
-				"tags": [
-					"MLB"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "path",
-						"name": "teamLocation",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					},
-					{
-						"in": "path",
-						"name": "teamName",
-						"required": true,
 						"schema": {
 							"type": "string"
 						}
