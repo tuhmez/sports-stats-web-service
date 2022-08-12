@@ -1,6 +1,6 @@
 {
   "name": "sports-stats-web-service",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Web service to retrieve sports data",
   "main": "index.js",
   "scripts": {
