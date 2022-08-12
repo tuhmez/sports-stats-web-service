@@ -1,7 +1,10 @@
-import express, { Application, Router } from 'express';
+import express, { Application } from 'express';
 import swaggerUi from 'swagger-ui-express';
+import dotenv from 'dotenv';
 
 import router from './api/routes';
+
+dotenv.config();
 
 const app: Application = express();
 const port = process.env.PORT || 5000;
