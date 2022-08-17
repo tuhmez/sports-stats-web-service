@@ -70,7 +70,7 @@ export async function getTeamIdByTeamAbbreviation(abbreviation: string, route: s
   try {
     const data: ITeamResponse = await (await mlbTransport.get(teamUrl(''))).data;
     
-    const foundTeam = data.teams.find((t) => t.abbreviation.toLowerCase() === abbreviation.toLowerCase());
+    const foundTeam = data.teams.filter((t) => t.abbreviation).find((t) => t.abbreviation.toLowerCase() === abbreviation.toLowerCase());
 
     if (foundTeam) {
       return foundTeam.id.toString();

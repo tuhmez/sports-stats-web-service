@@ -486,12 +486,11 @@ export class MlbController {
       const data = await mlbTransport.get(teamLogosUrl(id));
       return data.data;
     } catch (exception) {
-      const { response } = exception;
       const message = 'Failed to retrieve logo';
-      LogError(response.status, `/mlb/team/logo`, message);
+      LogError(400, `/mlb/team/logo`, message);
       const error: IError = {
         message,
-        statusCode: response.status,
+        statusCode: 400,
       };
       return error;
     }
