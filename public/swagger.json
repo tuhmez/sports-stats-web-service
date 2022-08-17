@@ -4790,7 +4790,7 @@
 	},
 	"info": {
 		"title": "sports-stats-web-service",
-		"version": "0.0.1",
+		"version": "0.0.2",
 		"description": "Web service to retrieve sports data",
 		"license": {
 			"name": "ISC"
@@ -5272,7 +5272,7 @@
 					{
 						"description": "- The MLB team id",
 						"in": "query",
-						"name": "teamId",
+						"name": "id",
 						"required": false,
 						"schema": {
 							"type": "string"
@@ -5281,7 +5281,7 @@
 					{
 						"description": "- The team's location",
 						"in": "query",
-						"name": "teamLocation",
+						"name": "location",
 						"required": false,
 						"schema": {
 							"type": "string"
@@ -5290,7 +5290,16 @@
 					{
 						"description": "- The team's name",
 						"in": "query",
-						"name": "teamName",
+						"name": "name",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The team's abbreviation",
+						"in": "query",
+						"name": "abbreviation",
 						"required": false,
 						"schema": {
 							"type": "string"
@@ -5330,7 +5339,7 @@
 					{
 						"description": "- The MLB team id",
 						"in": "query",
-						"name": "teamId",
+						"name": "id",
 						"required": false,
 						"schema": {
 							"type": "string"
@@ -5339,7 +5348,7 @@
 					{
 						"description": "- The team's location",
 						"in": "query",
-						"name": "teamLocation",
+						"name": "location",
 						"required": false,
 						"schema": {
 							"type": "string"
@@ -5348,7 +5357,16 @@
 					{
 						"description": "- The team's name",
 						"in": "query",
-						"name": "teamName",
+						"name": "name",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The team's abbreviation",
+						"in": "query",
+						"name": "abbreviation",
 						"required": false,
 						"schema": {
 							"type": "string"
@@ -5388,7 +5406,7 @@
 					{
 						"description": "- The MLB team id",
 						"in": "query",
-						"name": "teamId",
+						"name": "id",
 						"required": false,
 						"schema": {
 							"type": "string"
@@ -5397,7 +5415,7 @@
 					{
 						"description": "- The team's location",
 						"in": "query",
-						"name": "teamLocation",
+						"name": "location",
 						"required": false,
 						"schema": {
 							"type": "string"
@@ -5406,7 +5424,16 @@
 					{
 						"description": "- The team's name",
 						"in": "query",
-						"name": "teamName",
+						"name": "name",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The team's abbreviation",
+						"in": "query",
+						"name": "abbreviation",
 						"required": false,
 						"schema": {
 							"type": "string"
@@ -5446,7 +5473,7 @@
 					{
 						"description": "- The MLB team id",
 						"in": "query",
-						"name": "teamId",
+						"name": "id",
 						"required": false,
 						"schema": {
 							"type": "string"
@@ -5455,7 +5482,7 @@
 					{
 						"description": "- The team's location",
 						"in": "query",
-						"name": "teamLocation",
+						"name": "location",
 						"required": false,
 						"schema": {
 							"type": "string"
@@ -5464,7 +5491,16 @@
 					{
 						"description": "- The team's name",
 						"in": "query",
-						"name": "teamName",
+						"name": "name",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The team's abbreviation",
+						"in": "query",
+						"name": "abbreviation",
 						"required": false,
 						"schema": {
 							"type": "string"
@@ -5507,7 +5543,7 @@
 					{
 						"description": "- The MLB team id",
 						"in": "query",
-						"name": "teamId",
+						"name": "id",
 						"required": false,
 						"schema": {
 							"type": "string"
@@ -5516,7 +5552,7 @@
 					{
 						"description": "- The team's location",
 						"in": "query",
-						"name": "teamLocation",
+						"name": "location",
 						"required": false,
 						"schema": {
 							"type": "string"
@@ -5525,7 +5561,16 @@
 					{
 						"description": "- The team's name",
 						"in": "query",
-						"name": "teamName",
+						"name": "name",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The team's abbreviation",
+						"in": "query",
+						"name": "abbreviation",
 						"required": false,
 						"schema": {
 							"type": "string"
@@ -5534,7 +5579,7 @@
 				]
 			}
 		},
-		"/mlb/player/{playerId}": {
+		"/mlb/player": {
 			"get": {
 				"operationId": "GetPlayer",
 				"responses": {
@@ -5564,9 +5609,54 @@
 				"parameters": [
 					{
 						"description": "- The MLB player id",
-						"in": "path",
-						"name": "playerId",
-						"required": true,
+						"in": "query",
+						"name": "id",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The player's first name",
+						"in": "query",
+						"name": "firstName",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The player's last name",
+						"in": "query",
+						"name": "lastName",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The location of the team",
+						"in": "query",
+						"name": "location",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The name of the team",
+						"in": "query",
+						"name": "name",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The abbreviation for the team",
+						"in": "query",
+						"name": "abbreviation",
+						"required": false,
 						"schema": {
 							"type": "string"
 						}
@@ -5574,7 +5664,7 @@
 				]
 			}
 		},
-		"/mlb/player/{playerId}/headshot": {
+		"/mlb/player/headshot": {
 			"get": {
 				"operationId": "GetPlayerHeadshot",
 				"responses": {
@@ -5604,16 +5694,62 @@
 				"parameters": [
 					{
 						"description": "- The MLB player id",
-						"in": "path",
-						"name": "playerId",
+						"in": "query",
+						"name": "id",
 						"required": true,
 						"schema": {
 							"type": "string"
 						}
 					},
 					{
+						"description": "- The specified magnification for the headshot",
 						"in": "query",
 						"name": "magnification",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The player's first name",
+						"in": "query",
+						"name": "firstName",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The player's last name",
+						"in": "query",
+						"name": "lastName",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The location of the team",
+						"in": "query",
+						"name": "location",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The name of the team",
+						"in": "query",
+						"name": "name",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The abbreviation for the team",
+						"in": "query",
+						"name": "abbreviation",
 						"required": false,
 						"schema": {
 							"type": "string"

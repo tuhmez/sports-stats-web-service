@@ -30,6 +30,7 @@ import {
   ITeamLeadersResponse,
   ITeamResponse
 } from '../interfaces';
+import { getTeamIdByFullTeamName, getTeamIdByTeamAbbreviation, getTeamIdByTeamLocation, getTeamIdByTeamName } from '../utils';
 
 const mlbTransport = axios.create();
 
@@ -347,44 +348,71 @@ export class MlbController {
 
   /**
    * Gets a team by its team id or team name and team location.
-   * @param {string} teamId - The MLB team id
-   * @param {string} teamLocation - The team's location
-   * @param {string} teamName - The team's name
+   * @param {string} id - The MLB team id
+   * @param {string} location - The team's location
+   * @param {string} name - The team's name
+   * @param {string} abbreviation - The team's abbreviation
    * @returns {(ITeamResponse | ITeamByTeamNameResponse | IError)}
    */
   @Get('/team')
   public async getTeam(
-    @Query() teamId?: string,
-    @Query() teamLocation?: string,
-    @Query() teamName?: string
+    @Query() id?: string,
+    @Query() location?: string,
+    @Query() name?: string,
+    @Query() abbreviation?: string,
   ): Promise<ITeamResponse | ITeamByTeamNameResponse | IError> {
+    const route = '/mlb/game/team';
     try {
-      if (teamId) {
-        const data = await mlbTransport.get(teamUrl(teamId));
+      if (!id) {
+        let asyncFunctionCall: any;
+        let input: string;
+        let inputType: string;
+        if (location && name) {
+          asyncFunctionCall = getTeamIdByFullTeamName;
+          input = `${location} ${name}`;
+          inputType = 'full team name';
+        } else if (location && !name) {
+          asyncFunctionCall = getTeamIdByTeamLocation;
+          input = location;
+          inputType = 'team location';
+        } else if (!location && name) {
+          asyncFunctionCall = getTeamIdByTeamName;
+          input = name;
+          inputType = 'team name';
+        } else if (abbreviation) {
+          asyncFunctionCall = getTeamIdByTeamAbbreviation;
+          input = abbreviation;
+          inputType = 'team abbreviation';
+        } else {
+          const message = 'Inputs not valid for request';
+          LogError(400, route, message);
+          const error: IError = {
+            message,
+            statusCode: 400
+          };
+          return error;
+        }
+
+        const teamIdResponse: (string | null) = await asyncFunctionCall(input, route);
+
+        if (!teamIdResponse) {
+          const message = `Could not find ${input} via ${inputType} method`;
+          const error: IError = {
+            message,
+            statusCode: 400
+          };
+          return error;
+        }
+
+        id = teamIdResponse;
+      }
+
+        const data = await mlbTransport.get(teamUrl(id));
         const extractedData = data.data;
 
-        return extractedData.messageNumber === 11 ? extractedData.message : extractedData;
-      } else {
-        const inputTeam = `${teamLocation.trim().toLowerCase()} ${teamName.trim().toLowerCase()}`;
-
-        const teams: ITeamResponse = await (await mlbTransport.get(teamUrl(''))).data;
-
-        const foundTeam = teams.teams.find((t) => t.name.toLowerCase() === inputTeam);
-
-        if (!foundTeam) {
-          return {
-            message: `Could not find team: ${inputTeam}`,
-            statusCode: 400,
-          };
-        } else {
-          return {
-            team: foundTeam
-          };
-        }
-      }
-    } catch (exception) {
+        return extractedData.messageNumber === 11 ? extractedData.message : extractedData;    } catch (exception) {
       const { data, response } = exception;
-      LogError(response.status, `/mlb/game/team/${teamId}`, data.message);
+      LogError(response.status, '/mlb/game/team/', data.message);
       const error: IError = {
         message: data.message,
         statusCode: response.status,
@@ -395,41 +423,72 @@ export class MlbController {
 
   /**
    * Gets an SVG of the team logo by team id or team location and team name.
-   * @param {string} teamId - The MLB team id
-   * @param {string} teamLocation - The team's location
-   * @param {string} teamName - The team's name
+   * @param {string} id - The MLB team id
+   * @param {string} location - The team's location
+   * @param {string} name - The team's name
+   * @param {string} abbreviation - The team's abbreviation
    * @returns {(HTMLOrSVGElement | IError)}
    */
   @Get('/team/logo')
   @Produces('image/svg')
   public async getTeamLogo(
-    @Query() teamId?: string,
-    @Query() teamLocation?: string,
-    @Query() teamName?: string,
+    @Query() id?: string,
+    @Query() location?: string,
+    @Query() name?: string,
+    @Query() abbreviation?: string,
   ): Promise<HTMLOrSVGElement | IError> {
+    const route = '/mlb/game/team/logo';
     try {
-      if (!teamId) {
-        const inputTeam = `${teamLocation.trim().toLowerCase()} ${teamName.trim().toLowerCase()}`;
-
-        const teams: ITeamResponse = await (await mlbTransport.get(teamUrl(''))).data;
-
-        const foundTeam = teams.teams.find((t) => t.name.toLowerCase() === inputTeam);
-
-        if (!foundTeam) {
-          return {
-            message: `Could not find team: ${inputTeam}`,
-            statusCode: 400,
-          };
+      if (!id) {
+        let asyncFunctionCall: any;
+        let input: string;
+        let inputType: string;
+        if (location && name) {
+          asyncFunctionCall = getTeamIdByFullTeamName;
+          input = `${location} ${name}`;
+          inputType = 'full team name';
+        } else if (location && !name) {
+          asyncFunctionCall = getTeamIdByTeamLocation;
+          input = location;
+          inputType = 'team location';
+        } else if (!location && name) {
+          asyncFunctionCall = getTeamIdByTeamName;
+          input = name;
+          inputType = 'team name';
+        } else if (abbreviation) {
+          asyncFunctionCall = getTeamIdByTeamAbbreviation;
+          input = abbreviation;
+          inputType = 'team abbreviation';
         } else {
-          teamId = foundTeam.id.toString();
+          const message = 'Inputs not valid for request';
+          LogError(400, route, message);
+          const error: IError = {
+            message,
+            statusCode: 400
+          };
+          return error;
         }
+
+        const teamIdResponse: (string | null) = await asyncFunctionCall(input, route);
+
+        if (!teamIdResponse) {
+          const message = `Could not find ${input} via ${inputType} method`;
+          const error: IError = {
+            message,
+            statusCode: 400
+          };
+          return error;
+        }
+
+        id = teamIdResponse;
       }
-      const data = await mlbTransport.get(teamLogosUrl(teamId));
+
+      const data = await mlbTransport.get(teamLogosUrl(id));
       return data.data;
     } catch (exception) {
       const { response } = exception;
       const message = 'Failed to retrieve logo';
-      LogError(response.status, `/mlb/team/${teamId}/logo`, message);
+      LogError(response.status, `/mlb/team/logo`, message);
       const error: IError = {
         message,
         statusCode: response.status,
@@ -440,41 +499,72 @@ export class MlbController {
 
   /**
    * Gets the team leaders in various offensive and defensive stats via team id or team location and team name
-   * @param {string} teamId - The MLB team id
-   * @param {string} teamLocation - The team's location
-   * @param {string} teamName - The team's name
+   * @param {string} id - The MLB team id
+   * @param {string} location - The team's location
+   * @param {string} name - The team's name
+   * @param {string} abbreviation - The team's abbreviation
    * @returns {(ITeamLeadersResponse | IError)}
    */
   @Get('/team/leaders')
   public async getTeamLeaders(
-    @Query() teamId?: string,
-    @Query() teamLocation?: string,
-    @Query() teamName?: string
+    @Query() id?: string,
+    @Query() location?: string,
+    @Query() name?: string,
+    @Query() abbreviation?: string,
   ): Promise<ITeamLeadersResponse | IError> {
+    const route = "/mlb/team/leaders";
     try {
-      if (!teamId) {
-        const inputTeam = `${teamLocation.trim().toLowerCase()} ${teamName.trim().toLowerCase()}`;
-
-        const teams: ITeamResponse = await (await mlbTransport.get(teamUrl(''))).data;
-
-        const foundTeam = teams.teams.find((t) => t.name.toLowerCase() === inputTeam);
-
-        if (!foundTeam) {
-          return {
-            message: `Could not find team: ${inputTeam}`,
-            statusCode: 400,
-          };
+      if (!id) {
+        let asyncFunctionCall: any;
+        let input: string;
+        let inputType: string;
+        if (location && name) {
+          asyncFunctionCall = getTeamIdByFullTeamName;
+          input = `${location} ${name}`;
+          inputType = 'full team name';
+        } else if (location && !name) {
+          asyncFunctionCall = getTeamIdByTeamLocation;
+          input = location;
+          inputType = 'team location';
+        } else if (!location && name) {
+          asyncFunctionCall = getTeamIdByTeamName;
+          input = name;
+          inputType = 'team name';
+        } else if (abbreviation) {
+          asyncFunctionCall = getTeamIdByTeamAbbreviation;
+          input = abbreviation;
+          inputType = 'team abbreviation';
         } else {
-          teamId = foundTeam.id.toString();
+          const message = 'Inputs not valid for request';
+          LogError(400, route, message);
+          const error: IError = {
+            message,
+            statusCode: 400
+          };
+          return error;
         }
+
+        const teamIdResponse: (string | null) = await asyncFunctionCall(input, route);
+
+        if (!teamIdResponse) {
+          const message = `Could not find ${input} via ${inputType} method`;
+          const error: IError = {
+            message,
+            statusCode: 400
+          };
+          return error;
+        }
+
+        id = teamIdResponse;
       }
-      const data = await mlbTransport.get(teamLeadersUrl(teamId));
+
+      const data = await mlbTransport.get(teamLeadersUrl(id));
       const extractedData = data.data;
 
       return extractedData.messageNumber === 11 ? extractedData.message : extractedData;
     } catch (exception) {
       const { data, response } = exception;
-      LogError(response.status, `/mlb/team/${teamId}/leaders`, data.message);
+      LogError(response.status, `/mlb/team/leaders`, data.message);
       const error: IError = {
         message: data.message,
         statusCode: response.status,
@@ -485,41 +575,72 @@ export class MlbController {
 
   /**
    * Gets the team's roster via team id or team location and team name
-   * @param {string} teamId - The MLB team id
-   * @param {string} teamLocation - The team's location
-   * @param {string} teamName - The team's name
+   * @param {string} id - The MLB team id
+   * @param {string} location - The team's location
+   * @param {string} name - The team's name
+   * @param {string} abbreviation - The team's abbreviation
    * @returns {(IRosterResponse | IError)}
    */
   @Get('/team/roster')
   public async getRoster(
-    @Query() teamId?: string,
-    @Query() teamLocation?: string,
-    @Query() teamName?: string
+    @Query() id?: string,
+    @Query() location?: string,
+    @Query() name?: string,
+    @Query() abbreviation?: string,
   ): Promise<IRosterResponse | IError> {
+    const route = '/mlb/team/roster';
     try {
-      if (!teamId) {
-        const inputTeam = `${teamLocation.trim().toLowerCase()} ${teamName.trim().toLowerCase()}`;
-
-        const teams: ITeamResponse = await (await mlbTransport.get(teamUrl(''))).data;
-
-        const foundTeam = teams.teams.find((t) => t.name.toLowerCase() === inputTeam);
-
-        if (!foundTeam) {
-          return {
-            message: `Could not find team: ${inputTeam}`,
-            statusCode: 400,
-          };
+      if (!id) {
+        let asyncFunctionCall: any;
+        let input: string;
+        let inputType: string;
+        if (location && name) {
+          asyncFunctionCall = getTeamIdByFullTeamName;
+          input = `${location} ${name}`;
+          inputType = 'full team name';
+        } else if (location && !name) {
+          asyncFunctionCall = getTeamIdByTeamLocation;
+          input = location;
+          inputType = 'team location';
+        } else if (!location && name) {
+          asyncFunctionCall = getTeamIdByTeamName;
+          input = name;
+          inputType = 'team name';
+        } else if (abbreviation) {
+          asyncFunctionCall = getTeamIdByTeamAbbreviation;
+          input = abbreviation;
+          inputType = 'team abbreviation';
         } else {
-          teamId = foundTeam.id.toString();
+          const message = 'Inputs not valid for request';
+          LogError(400, route, message);
+          const error: IError = {
+            message,
+            statusCode: 400
+          };
+          return error;
         }
+
+        const teamIdResponse: (string | null) = await asyncFunctionCall(input, route);
+
+        if (!teamIdResponse) {
+          const message = `Could not find ${input} via ${inputType} method`;
+          const error: IError = {
+            message,
+            statusCode: 400
+          };
+          return error;
+        }
+
+        id = teamIdResponse;
       }
-      const data = await mlbTransport.get(rosterUrl(teamId));
+
+      const data = await mlbTransport.get(rosterUrl(id));
       const extractedData = data.data;
 
       return extractedData.messageNumber === 11 ? extractedData.message : extractedData;
     } catch (exception) {
       const { data, response } = exception;
-      LogError(response.status, `/mlb/team/${teamId}/roster`, data.message);
+      LogError(response.status, `/mlb/team/${id}/roster`, data.message);
       const error: IError = {
         message: data.message,
         statusCode: response.status,
@@ -530,25 +651,68 @@ export class MlbController {
 
   /**
    * Gets the team's color palette via team id or team location and team name
-   * @param {string} teamId - The MLB team id
-   * @param {string} teamLocation - The team's location
-   * @param {string} teamName - The team's name
+   * @param {string} id - The MLB team id
+   * @param {string} location - The team's location
+   * @param {string} name - The team's name
+   * @param {string} abbreviation - The team's abbreviation
    * @returns {(string[] | IError)}
    */
   @Get('/team/colors')
   public async getTeamColors(
-    @Query() teamId?: string,
-    @Query() teamLocation?: string,
-    @Query() teamName?: string,
+    @Query() id?: string,
+    @Query() location?: string,
+    @Query() name?: string,
+    @Query() abbreviation?: string,
   ): Promise<string[] | IError> {
-    if (teamId) {
-      const data: ITeamResponse = await (await mlbTransport.get(teamUrl(teamId))).data;
+    const route = '/mlb/team/colors';
+    if (!location && !name) {
+      if (!id) {
+        let asyncFunctionCall: any;
+        let input: string;
+        let inputType: string;
+        if (location && !name) {
+          asyncFunctionCall = getTeamIdByTeamLocation;
+          input = location;
+          inputType = 'team location';
+        } else if (!location && name) {
+          asyncFunctionCall = getTeamIdByTeamName;
+          input = name;
+          inputType = 'team name';
+        } else if (abbreviation) {
+          asyncFunctionCall = getTeamIdByTeamAbbreviation;
+          input = abbreviation;
+          inputType = 'team abbreviation';
+        } else {
+          const message = 'Inputs not valid for request';
+          LogError(400, route, message);
+          const error: IError = {
+            message,
+            statusCode: 400
+          };
+          return error;
+        }
+
+        const teamIdResponse: (string | null) = await asyncFunctionCall(input, route);
+
+        if (!teamIdResponse) {
+          const message = `Could not find ${input} via ${inputType} method`;
+          const error: IError = {
+            message,
+            statusCode: 400
+          };
+          return error;
+        }
+
+        id = teamIdResponse;
+      }
+
+      const data: ITeamResponse = await (await mlbTransport.get(teamUrl(id))).data;
       const team = data.teams[0];
-      teamLocation = team.locationName;
-      teamName = team.teamName;
+      location = team.locationName;
+      name = team.teamName;
     }
     const data = await mlbTransport.get(teamColorCodesPageUrl());
-    const teamToLookFor = `${teamLocation.toLowerCase().trim()} ${teamName.toLowerCase().trim()}`;
+    const teamToLookFor = `${location.toLowerCase().trim()} ${name.toLowerCase().trim()}`;
 
     // cheerio loading the html string
     const $ = load(data.data);
@@ -597,21 +761,68 @@ export class MlbController {
 
   /**
    * Gets the player via player id
-   * @param {string} playerId - The MLB player id
+   * @param {string} id - The MLB player id
+   * @param {string} firstName - The player's first name
+   * @param {string} lastName - The player's last name
+   * @param {string} location - The location of the team
+   * @param {string} name - The name of the team
+   * @param {string} abbreviation - The abbreviation for the team
    * @returns {(IPlayerResponse | IError)}
    */
-  @Get('/player/{playerId}')
+  @Get('/player')
   public async getPlayer(
-    @Path() playerId: string,
+    @Query() id?: string,
+    @Query() firstName?: string,
+    @Query() lastName?: string,
+    @Query() location?: string,
+    @Query() name?: string,
+    @Query() abbreviation?: string,
   ): Promise<IPlayerResponse | IError> {
     try {
-      const data = await mlbTransport.get(playerUrl(playerId));
+      if (!id) {
+        const inputPlayer = `${firstName.trim().toLowerCase()} ${lastName.trim().toLowerCase()}`;
+        
+        const teams: ITeamResponse = await (await mlbTransport.get(teamUrl(''))).data;
+        
+        const foundTeam = teams.teams.find((t) => {
+          if (location && name) {
+            const inputTeam = `${location.trim().toLowerCase()} ${name.trim().toLowerCase()}`;
+            return t.name.toLowerCase() === inputTeam;
+          } else if (abbreviation) {
+            return t.abbreviation.toLowerCase() === abbreviation
+          } else {
+            return false;
+          }
+        });
+
+        if (!foundTeam) {
+          return {
+            message: `Could not find team`,
+            statusCode: 400,
+          };
+        }
+
+        const rosterData: IRosterResponse = await (await mlbTransport.get(rosterUrl(foundTeam.id.toString()))).data;
+
+        const foundPlayer = rosterData.roster.find((r) => r.person.fullName.toLowerCase() === inputPlayer);
+
+        if (!foundPlayer) {
+          return {
+            message: `Could not find player: ${inputPlayer}`,
+            statusCode: 400,
+          };
+        } else {
+          id = foundPlayer.person.id.toString();
+        }
+      }
+
+      const data = await mlbTransport.get(playerUrl(id));
       const extractedData = data.data;
 
       return extractedData.messageNumber === 11 ? extractedData.message : extractedData;
     } catch (exception) {
       const { data, response } = exception;
-      LogError(response.status, `/mlb/player/${playerId}`, data.message);
+      LogError(response.status, `/mlb/player/${id}`, data.message);
       const error: IError = {
         message: data.message,
         statusCode: response.status,
@@ -622,20 +833,67 @@ export class MlbController {
 
   /**
    * Gets the player's current headshot via player id
-   * @param {string} playerId - The MLB player id
+   * @param {string} id - The MLB player id
+   * @param {string} magnification - The specified magnification for the headshot
+   * @param {string} firstName - The player's first name
+   * @param {string} lastName - The player's last name
+   * @param {string} location - The location of the team
+   * @param {string} name - The name of the team
+   * @param {string} abbreviation - The abbreviation for the team
    * @returns {(string | IError)}
    */
-  @Get('/player/{playerId}/headshot')
+  @Get('/player/headshot')
   public async getPlayerHeadshot(
-    @Path() playerId: string,
+    @Query() id: string,
     @Query() magnification?: string,
+    @Query() firstName?: string,
+    @Query() lastName?: string,
+    @Query() location?: string,
+    @Query() name?: string,
+    @Query() abbreviation?: string,
   ): Promise<string | IError> {
     try {
-      await mlbTransport.get(playerUrl(playerId));
-      return playerCurrentHeadshotUrl(playerId, magnification);
+      if (!id) {
+        const inputPlayer = `${firstName.trim().toLowerCase()} ${lastName.trim().toLowerCase()}`;
+
+        const teams: ITeamResponse = await (await mlbTransport.get(teamUrl(''))).data;
+
+        const foundTeam = teams.teams.find((t) => {
+          if (location && name) {
+            const inputTeam = `${location.trim().toLowerCase()} ${name.trim().toLowerCase()}`;
+            return t.name.toLowerCase() === inputTeam;
+          } else if (abbreviation) {
+            return t.abbreviation.toLowerCase() === abbreviation
+          } else {
+            return false;
+          }
+        });
+
+        if (!foundTeam) {
+          return {
+            message: `Could not find team`,
+            statusCode: 400,
+          };
+        }
+
+        const rosterData: IRosterResponse = await (await mlbTransport.get(rosterUrl(foundTeam.id.toString()))).data;
+
+        const foundPlayer = rosterData.roster.find((r) => r.person.fullName.toLowerCase() === inputPlayer);
+
+        if (!foundPlayer) {
+          return {
+            message: `Could not find player: ${inputPlayer}`,
+            statusCode: 400,
+          };
+        } else {
+          id = foundPlayer.person.id.toString();
+        }
+      }
+      await mlbTransport.get(playerUrl(id));
+      return playerCurrentHeadshotUrl(id, magnification);
     } catch (exception) {
       const { data, response } = exception;
-      LogError(response.status, `mlb/player/${playerId}/headshot`, data.message);
+      LogError(response.status, `mlb/player/${id}/headshot`, data.message);
       const error: IError = {
         message: data.message,
         statusCode: response.status,
