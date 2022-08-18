@@ -1270,7 +1270,7 @@ export interface IRecord {
   league: IStandingsLeague;
   standingsType: string;
   sport: IStandingsSport;
-  teamRecords: ITeamRecord
+  teamRecords: ITeamRecord[];
 }
 
 export interface IStreak {

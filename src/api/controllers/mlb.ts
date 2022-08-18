@@ -913,7 +913,7 @@ export class MlbController {
       return await(await mlbTransport.get(standingsUrl())).data;
     } catch (exception) {
       const { data, response } = exception;
-      LogError(response.status, `/mlb/games`, data.message);
+      LogError(response.status, `/mlb/standings`, data.message);
       const error: IError = {
         message: data.message,
         statusCode: response.status
