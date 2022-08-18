@@ -5335,7 +5335,10 @@
 						"$ref": "#/components/schemas/IStandingsSport"
 					},
 					"teamRecords": {
-						"$ref": "#/components/schemas/ITeamRecord"
+						"items": {
+							"$ref": "#/components/schemas/ITeamRecord"
+						},
+						"type": "array"
 					}
 				},
 				"required": [
@@ -6375,6 +6378,7 @@
 						}
 					}
 				},
+				"description": "Gets the current standings for the MLB",
 				"tags": [
 					"MLB"
 				],
