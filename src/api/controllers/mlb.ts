@@ -11,6 +11,7 @@ import {
   playerCurrentHeadshotUrl,
   playerUrl,
   rosterUrl,
+  standingsUrl,
   teamColorCodesPageUrl,
   teamLeadersUrl,
   teamLogosUrl,
@@ -26,6 +27,7 @@ import {
   IPlayerResponse,
   IProbablesResponse,
   IRosterResponse,
+  IStandingsResponse,
   ITeamByTeamNameResponse,
   ITeamLeadersResponse,
   ITeamResponse
@@ -888,7 +890,7 @@ export class MlbController {
           id = foundPlayer.person.id.toString();
         }
       }
-      await mlbTransport.get(playerUrl(id));
+
       return playerCurrentHeadshotUrl(id, magnification);
     } catch (exception) {
       const { data, response } = exception;
@@ -896,6 +898,25 @@ export class MlbController {
       const error: IError = {
         message: data.message,
         statusCode: response.status,
+      };
+      return error;
+    }
+  }
+
+  /**
+   * Gets the current standings for the MLB
+   * @returns {(IStandingsResponse | IError)}
+   */
+  @Get('/standings')
+  public async getStandings(): Promise<IStandingsResponse | IError> {
+    try {
+      return await(await mlbTransport.get(standingsUrl())).data;
+    } catch (exception) {
+      const { data, response } = exception;
+      LogError(response.status, `/mlb/games`, data.message);
+      const error: IError = {
+        message: data.message,
+        statusCode: response.status
       };
       return error;
     }

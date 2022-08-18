@@ -1,31 +1,31 @@
 export interface IGamesResponse {
   copyright: string;
-  totalItems: number;
+  dates: IGameDate[];
   totalEvents: number;
   totalGames: number;
   totalGamesInProgress: number;
-  dates: IGameDate[];
+  totalItems: number;
 }
 
 export interface IGameByTeamNameResponse {
+  games: IGame[];
   totalGames: number;
   totalGamesInProgress: number;
-  games: IGame[];
 }
 
 export interface IGameFeedResponse {
   copyright: string;
-  gamePk: number;
-  metaData: IGameMetadata;
   gameData: IGameData;
+  gamePk: number;
   liveData: IGameLiveData;
+  metaData: IGameMetadata;
 }
 
 export interface IGameFeedByTeamNameResponse {
-  gamePk: number;
-  metaData: IGameMetadata;
   gameData: IGameData;
+  gamePk: number;
   liveData: IGameLiveData;
+  metaData: IGameMetadata;
 }
 
 export interface IGameBoxscoreResponse extends IBoxscore {};
@@ -41,16 +41,16 @@ export interface ITeamByTeamNameResponse {
 
 export interface IRosterResponse {
   copyright: string;
-  roster: ITeamPlayer[];
   link: string;
-  teamId: number;
+  roster: ITeamPlayer[];
   rosterType: string;
+  teamId: number;
 }
 
 export interface IProbablesResponse {
-  probables: IProbables;
-  home: IProbablePlayers[];
   away: IProbablePlayers[];
+  home: IProbablePlayers[];
+  probables: IProbables;
 }
 
 export interface IPlayerResponse {
@@ -61,6 +61,11 @@ export interface IPlayerResponse {
 export interface ITeamLeadersResponse {
   copyright: string;
   teamLeaders: ITeamLeaderCategory[];
+}
+
+export interface IStandingsResponse {
+  copyright: string;
+  records: IRecord[];
 }
 
 export enum GameType {
@@ -83,15 +88,15 @@ export enum GameType {
 export interface ILocation {
   address1: string;
   city: string;
-  state: string;
-  stateAbbrev: string;
-  postalCode: string;
+  county: string;
   defaultCoordinates: {
     latitude: number;
     longitude: number;
   }
-  county: string;
   phone: string;
+  postalCode: string;
+  state: string;
+  stateAbbrev: string;
 }
 
 export interface ITimezone {
@@ -102,24 +107,24 @@ export interface ITimezone {
 
 export interface IFieldInfo {
   capacity: number;
-  turfType: string;
-  roofType: string;
-  leftLine?: number;
+  center?: number;
   left?: number;
   leftCenter?: number;
-  center?: number;
-  rightCenter?: number;
+  leftLine?: number;
   right?: number;
+  rightCenter?: number;
   rightLine?: number;
+  roofType: string;
+  turfType: string;
 }
 
 export interface IGameStatus {
+  abstractGameCode: string;
   abstractGameState: string;
   codedGameState: string;
   detailedState: string;
   statusCode: string;
   startTimeTBD: boolean;
-  abstractGameCode: string;
 }
 
 export interface ITeamShortRecord {
@@ -130,44 +135,63 @@ export interface ITeamShortRecord {
 }
 
 export interface ITeamRecord {
-  gamesPlayed: number;
-  wildCardGamesBack: string;
-  leagueGamesBack: string;
-  springLeagueGamesBack: string;
-  sportGamesBack: string;
-  divisionGamesBack: string;
+  clinched: boolean;
   conferenceGamesBack: string;
-  leagueRecord: ITeamShortRecord;
-  records: any;
+  divisionChamp: boolean;
+  divisionGamesBack: string;
   divisionLeader: boolean;
-  wins: number;
+  divisionRank: string;
+  eliminationNumber: string;
+  gamesBack: string;
+  gamesPlayed: number;
+  hasWildcard: boolean;
+  lastUpdated: string;
+  leagueGamesBack: string;
+  leagueRank: string;
+  leagueRecord: ITeamShortRecord;
   losses: number;
+  magicNumber: string;
+  records: IExpandedRecords;
+  runDifferential: number;
+  runsAllowed: number;
+  runsScored: number;
+  season: string;
+  sportGamesBack: string;
+  sportRank: string;
+  springLeagueGamesBack: string;
+  streak: IStreak;
+  team: ITeam;
+  wildCardEliminationNumber: string;
+  wildCardGamesBack: string;
   winningPercentage: string;
+  wins: number;
 }
 
 export interface ITeam {
+  abbreviation: string;
+  active: boolean;
   allStartStatus: string;
+  clubName: string;
+  division: IDivisionId;
+  fileCode: string;
+  firstYearOfPlay: string;
+  franchiseName: string;
   id: number;
-  name: string;
+  league: ILeagueId;
   link: string;
+  locationName: string;
+  name: string;
+  nextGameSchedule?: IGamesResponse;
+  previousGameSchedule?: IGamesResponse;
   season: number;
-  venue: IVenueId;
+  shortName: string;
+  sport: ISportId;
+  springLeague?: ILeagueId;
   springVenue: IVenueId;
   teamCode: string;
-  fileCode: string;
-  abbreviation: string;
   teamName: string;
-  locationName: string;
-  firstYearOfPlay: string;
-  league: ILeagueId;
-  division: IDivisionId;
-  sport: ISportId;
-  shortName: string;
-  franchiseName: string;
-  clubName: string;
-  active: boolean;
   record?: ITeamRecord;
-  springLeague?: ILeagueId;
+  venue: IVenueId;
 }
 
 export interface IGameTeam {
@@ -1171,3 +1195,129 @@ export interface ITeamLeaderCategory {
   totalSplits: number;
 }
 
+export interface IStandingsDivision {
+  abbreviation: string;
+  active: boolean;
+  hasWildCard: boolean;
+  id: number;
+  league: ILeagueId;
+  link: string;
+  name: string;
+  nameShort: string;
+  numPlayoffTeams: number;
+  season: string;
+  sortOrder: number;
+  sport: ISportId;
+}
+
+export interface ISeasonDateInfo {
+  allStarDate: string;
+  firstDate2ndHalf: string;
+  gameLevelGamedayType: string;
+  lastDate1stHalf: string;
+  offseasonEndDate: string;
+  offseasonStartDate: string;
+  postSeasonEndDate: string;
+  postSeasonStartDate: string;
+  preSeasonEndDate: string;
+  preSeasonStartDate: string;
+  qualifierOutsPitched: number;
+  qualifierPlateAppearances: number;
+  regularSeasonEndDate: string;
+  regularSeasonStartDate: string;
+  seasonEndDate: string;
+  seasonId: string;
+  seasonLevelGamedayType: string;
+  seasonStartDate: string;
+  springEndDate: string;
+  springStartDate: string;
+}
+
+export interface IStandingsLeague {
+  abbreviation: string;
+  active: boolean;
+  conferencesInUse: boolean;
+  divisionsInUse: boolean;
+  hasPlayoffPoints: boolean;
+  hasSplitSeason: boolean;
+  hasWildCard: boolean;
+  id: number;
+  link: string;
+  name: string;
+  nameShort: string;
+  numGames: number;
+  numWildcardTeams: number;
+  orgCode: string;
+  seasonDateInfo: ISeasonDateInfo;
+  seasonState: string;
+  sortOrder: number;
+  sport: ISportId;
+}
+
+export interface IStandingsSport {
+  abbreviation: string;
+  activeStatus: boolean;
+  code: string;
+  id: number;
+  link: string;
+  name: string;
+  sortOrder: number;
+}
+
+export interface IRecord {
+  division: IStandingsDivision;
+  lastUpdated: string;
+  league: IStandingsLeague;
+  standingsType: string;
+  sport: IStandingsSport;
+  teamRecords: ITeamRecord
+}
+
+export interface IStreak {
+  streakCode: string;
+  streakNumber: number;
+  streakType: string;
+}
+
+export interface IExpandedRecords {
+  divisionRecords: IExpandedDivisionRecord[];
+  expectedRecords: IExpandedExpectedRecord[];
+  leagueRecords: IExpandedLeagueRecord[];
+  overallRecords: IExpandedOverallRecord[];
+  splitRecords: IExpandedSplitRecord[];
+}
+
+export interface IExpandedDivisionRecord {
+  division: IDivisionId;
+  losses: number;
+  pct: string;
+  wins: number;
+}
+
+export interface IExpandedExpectedRecord {
+  losses: number;
+  pct: string;
+  type: string;
+  wins: number;
+}
+
+export interface IExpandedLeagueRecord {
+  league: ILeagueId;
+  losses: number;
+  pct: string;
+  wins: number;
+}
+
+export interface IExpandedOverallRecord {
+  losses: number;
+  pct: string;
+  type: string;
+  wins: number;
+}
+
+export interface IExpandedSplitRecord {
+  losses: number;
+  pct: string;
+  type: string;
+  wins: number;
+}

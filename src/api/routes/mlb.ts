@@ -264,5 +264,14 @@ export class MLBRoutes {
     });
 
     // ===== players ===== //
+
+    // ===== standings ===== //
+
+    router.get("/mlb/standings", async (_req, res) => {
+      const response = await mlbController.getStandings();
+      return res.json(response);
+    });
+
+    // ===== standings ===== //
   }
 }

@@ -20,6 +20,9 @@
 			},
 			"IGameStatus": {
 				"properties": {
+					"abstractGameCode": {
+						"type": "string"
+					},
 					"abstractGameState": {
 						"type": "string"
 					},
@@ -34,18 +37,15 @@
 					},
 					"startTimeTBD": {
 						"type": "boolean"
-					},
-					"abstractGameCode": {
-						"type": "string"
 					}
 				},
 				"required": [
+					"abstractGameCode",
 					"abstractGameState",
 					"codedGameState",
 					"detailedState",
 					"statusCode",
-					"startTimeTBD",
-					"abstractGameCode"
+					"startTimeTBD"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -76,21 +76,22 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"IVenueId": {
+			"IDivisionId": {
 				"properties": {
 					"id": {
 						"type": "number",
 						"format": "double"
 					},
-					"link": {
+					"name": {
 						"type": "string"
 					},
-					"name": {
+					"link": {
 						"type": "string"
 					}
 				},
 				"required": [
 					"id",
+					"name",
 					"link"
 				],
 				"type": "object",
@@ -121,23 +122,41 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"IDivisionId": {
+			"IGamesResponse": {
 				"properties": {
-					"id": {
+					"copyright": {
+						"type": "string"
+					},
+					"dates": {
+						"items": {
+							"$ref": "#/components/schemas/IGameDate"
+						},
+						"type": "array"
+					},
+					"totalEvents": {
 						"type": "number",
 						"format": "double"
 					},
-					"name": {
-						"type": "string"
+					"totalGames": {
+						"type": "number",
+						"format": "double"
 					},
-					"link": {
-						"type": "string"
+					"totalGamesInProgress": {
+						"type": "number",
+						"format": "double"
+					},
+					"totalItems": {
+						"type": "number",
+						"format": "double"
 					}
 				},
 				"required": [
-					"id",
-					"name",
-					"link"
+					"copyright",
+					"dates",
+					"totalEvents",
+					"totalGames",
+					"totalGamesInProgress",
+					"totalItems"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -163,88 +182,280 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"ITeamRecord": {
+			"IVenueId": {
 				"properties": {
-					"gamesPlayed": {
+					"id": {
 						"type": "number",
 						"format": "double"
 					},
-					"wildCardGamesBack": {
+					"link": {
 						"type": "string"
 					},
-					"leagueGamesBack": {
+					"name": {
 						"type": "string"
-					},
-					"springLeagueGamesBack": {
-						"type": "string"
-					},
-					"sportGamesBack": {
-						"type": "string"
-					},
-					"divisionGamesBack": {
-						"type": "string"
-					},
-					"conferenceGamesBack": {
-						"type": "string"
-					},
-					"leagueRecord": {
-						"$ref": "#/components/schemas/ITeamShortRecord"
-					},
-					"records": {},
-					"divisionLeader": {
-						"type": "boolean"
-					},
-					"wins": {
-						"type": "number",
-						"format": "double"
+					}
+				},
+				"required": [
+					"id",
+					"link"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IExpandedDivisionRecord": {
+				"properties": {
+					"division": {
+						"$ref": "#/components/schemas/IDivisionId"
 					},
 					"losses": {
 						"type": "number",
 						"format": "double"
 					},
-					"winningPercentage": {
+					"pct": {
+						"type": "string"
+					},
+					"wins": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"division",
+					"losses",
+					"pct",
+					"wins"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IExpandedExpectedRecord": {
+				"properties": {
+					"losses": {
+						"type": "number",
+						"format": "double"
+					},
+					"pct": {
+						"type": "string"
+					},
+					"type": {
+						"type": "string"
+					},
+					"wins": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"losses",
+					"pct",
+					"type",
+					"wins"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IExpandedLeagueRecord": {
+				"properties": {
+					"league": {
+						"$ref": "#/components/schemas/ILeagueId"
+					},
+					"losses": {
+						"type": "number",
+						"format": "double"
+					},
+					"pct": {
+						"type": "string"
+					},
+					"wins": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"league",
+					"losses",
+					"pct",
+					"wins"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IExpandedOverallRecord": {
+				"properties": {
+					"losses": {
+						"type": "number",
+						"format": "double"
+					},
+					"pct": {
+						"type": "string"
+					},
+					"type": {
+						"type": "string"
+					},
+					"wins": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"losses",
+					"pct",
+					"type",
+					"wins"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IExpandedSplitRecord": {
+				"properties": {
+					"losses": {
+						"type": "number",
+						"format": "double"
+					},
+					"pct": {
+						"type": "string"
+					},
+					"type": {
+						"type": "string"
+					},
+					"wins": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"losses",
+					"pct",
+					"type",
+					"wins"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IExpandedRecords": {
+				"properties": {
+					"divisionRecords": {
+						"items": {
+							"$ref": "#/components/schemas/IExpandedDivisionRecord"
+						},
+						"type": "array"
+					},
+					"expectedRecords": {
+						"items": {
+							"$ref": "#/components/schemas/IExpandedExpectedRecord"
+						},
+						"type": "array"
+					},
+					"leagueRecords": {
+						"items": {
+							"$ref": "#/components/schemas/IExpandedLeagueRecord"
+						},
+						"type": "array"
+					},
+					"overallRecords": {
+						"items": {
+							"$ref": "#/components/schemas/IExpandedOverallRecord"
+						},
+						"type": "array"
+					},
+					"splitRecords": {
+						"items": {
+							"$ref": "#/components/schemas/IExpandedSplitRecord"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"divisionRecords",
+					"expectedRecords",
+					"leagueRecords",
+					"overallRecords",
+					"splitRecords"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IStreak": {
+				"properties": {
+					"streakCode": {
+						"type": "string"
+					},
+					"streakNumber": {
+						"type": "number",
+						"format": "double"
+					},
+					"streakType": {
 						"type": "string"
 					}
 				},
 				"required": [
-					"gamesPlayed",
-					"wildCardGamesBack",
-					"leagueGamesBack",
-					"springLeagueGamesBack",
-					"sportGamesBack",
-					"divisionGamesBack",
-					"conferenceGamesBack",
-					"leagueRecord",
-					"records",
-					"divisionLeader",
-					"wins",
-					"losses",
-					"winningPercentage"
+					"streakCode",
+					"streakNumber",
+					"streakType"
 				],
 				"type": "object",
 				"additionalProperties": false
 			},
 			"ITeam": {
 				"properties": {
+					"abbreviation": {
+						"type": "string"
+					},
+					"active": {
+						"type": "boolean"
+					},
 					"allStartStatus": {
+						"type": "string"
+					},
+					"clubName": {
+						"type": "string"
+					},
+					"division": {
+						"$ref": "#/components/schemas/IDivisionId"
+					},
+					"fileCode": {
+						"type": "string"
+					},
+					"firstYearOfPlay": {
+						"type": "string"
+					},
+					"franchiseName": {
 						"type": "string"
 					},
 					"id": {
 						"type": "number",
 						"format": "double"
 					},
-					"name": {
-						"type": "string"
+					"league": {
+						"$ref": "#/components/schemas/ILeagueId"
 					},
 					"link": {
 						"type": "string"
+					},
+					"locationName": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"nextGameSchedule": {
+						"$ref": "#/components/schemas/IGamesResponse"
+					},
+					"previousGameSchedule": {
+						"$ref": "#/components/schemas/IGamesResponse"
 					},
 					"season": {
 						"type": "number",
 						"format": "double"
 					},
-					"venue": {
-						"$ref": "#/components/schemas/IVenueId"
+					"shortName": {
+						"type": "string"
+					},
+					"sport": {
+						"$ref": "#/components/schemas/ISportId"
+					},
+					"springLeague": {
+						"$ref": "#/components/schemas/ILeagueId"
 					},
 					"springVenue": {
 						"$ref": "#/components/schemas/IVenueId"
@@ -252,70 +463,171 @@
 					"teamCode": {
 						"type": "string"
 					},
-					"fileCode": {
-						"type": "string"
-					},
-					"abbreviation": {
-						"type": "string"
-					},
 					"teamName": {
 						"type": "string"
-					},
-					"locationName": {
-						"type": "string"
-					},
-					"firstYearOfPlay": {
-						"type": "string"
-					},
-					"league": {
-						"$ref": "#/components/schemas/ILeagueId"
-					},
-					"division": {
-						"$ref": "#/components/schemas/IDivisionId"
-					},
-					"sport": {
-						"$ref": "#/components/schemas/ISportId"
-					},
-					"shortName": {
-						"type": "string"
-					},
-					"franchiseName": {
-						"type": "string"
-					},
-					"clubName": {
-						"type": "string"
-					},
-					"active": {
-						"type": "boolean"
 					},
 					"record": {
 						"$ref": "#/components/schemas/ITeamRecord"
 					},
-					"springLeague": {
-						"$ref": "#/components/schemas/ILeagueId"
+					"venue": {
+						"$ref": "#/components/schemas/IVenueId"
 					}
 				},
 				"required": [
+					"abbreviation",
+					"active",
 					"allStartStatus",
+					"clubName",
+					"division",
+					"fileCode",
+					"firstYearOfPlay",
+					"franchiseName",
 					"id",
-					"name",
+					"league",
 					"link",
+					"locationName",
+					"name",
 					"season",
-					"venue",
+					"shortName",
+					"sport",
 					"springVenue",
 					"teamCode",
-					"fileCode",
-					"abbreviation",
 					"teamName",
-					"locationName",
-					"firstYearOfPlay",
-					"league",
-					"division",
-					"sport",
-					"shortName",
-					"franchiseName",
-					"clubName",
-					"active"
+					"venue"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ITeamRecord": {
+				"properties": {
+					"clinched": {
+						"type": "boolean"
+					},
+					"conferenceGamesBack": {
+						"type": "string"
+					},
+					"divisionChamp": {
+						"type": "boolean"
+					},
+					"divisionGamesBack": {
+						"type": "string"
+					},
+					"divisionLeader": {
+						"type": "boolean"
+					},
+					"divisionRank": {
+						"type": "string"
+					},
+					"eliminationNumber": {
+						"type": "string"
+					},
+					"gamesBack": {
+						"type": "string"
+					},
+					"gamesPlayed": {
+						"type": "number",
+						"format": "double"
+					},
+					"hasWildcard": {
+						"type": "boolean"
+					},
+					"lastUpdated": {
+						"type": "string"
+					},
+					"leagueGamesBack": {
+						"type": "string"
+					},
+					"leagueRank": {
+						"type": "string"
+					},
+					"leagueRecord": {
+						"$ref": "#/components/schemas/ITeamShortRecord"
+					},
+					"losses": {
+						"type": "number",
+						"format": "double"
+					},
+					"magicNumber": {
+						"type": "string"
+					},
+					"records": {
+						"$ref": "#/components/schemas/IExpandedRecords"
+					},
+					"runDifferential": {
+						"type": "number",
+						"format": "double"
+					},
+					"runsAllowed": {
+						"type": "number",
+						"format": "double"
+					},
+					"runsScored": {
+						"type": "number",
+						"format": "double"
+					},
+					"season": {
+						"type": "string"
+					},
+					"sportGamesBack": {
+						"type": "string"
+					},
+					"sportRank": {
+						"type": "string"
+					},
+					"springLeagueGamesBack": {
+						"type": "string"
+					},
+					"streak": {
+						"$ref": "#/components/schemas/IStreak"
+					},
+					"team": {
+						"$ref": "#/components/schemas/ITeam"
+					},
+					"wildCardEliminationNumber": {
+						"type": "string"
+					},
+					"wildCardGamesBack": {
+						"type": "string"
+					},
+					"winningPercentage": {
+						"type": "string"
+					},
+					"wins": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"clinched",
+					"conferenceGamesBack",
+					"divisionChamp",
+					"divisionGamesBack",
+					"divisionLeader",
+					"divisionRank",
+					"eliminationNumber",
+					"gamesBack",
+					"gamesPlayed",
+					"hasWildcard",
+					"lastUpdated",
+					"leagueGamesBack",
+					"leagueRank",
+					"leagueRecord",
+					"losses",
+					"magicNumber",
+					"records",
+					"runDifferential",
+					"runsAllowed",
+					"runsScored",
+					"season",
+					"sportGamesBack",
+					"sportRank",
+					"springLeagueGamesBack",
+					"streak",
+					"team",
+					"wildCardEliminationNumber",
+					"wildCardGamesBack",
+					"winningPercentage",
+					"wins"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -1341,45 +1653,6 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"IGamesResponse": {
-				"properties": {
-					"copyright": {
-						"type": "string"
-					},
-					"totalItems": {
-						"type": "number",
-						"format": "double"
-					},
-					"totalEvents": {
-						"type": "number",
-						"format": "double"
-					},
-					"totalGames": {
-						"type": "number",
-						"format": "double"
-					},
-					"totalGamesInProgress": {
-						"type": "number",
-						"format": "double"
-					},
-					"dates": {
-						"items": {
-							"$ref": "#/components/schemas/IGameDate"
-						},
-						"type": "array"
-					}
-				},
-				"required": [
-					"copyright",
-					"totalItems",
-					"totalEvents",
-					"totalGames",
-					"totalGamesInProgress",
-					"dates"
-				],
-				"type": "object",
-				"additionalProperties": false
-			},
 			"IError": {
 				"properties": {
 					"message": {
@@ -1393,37 +1666,6 @@
 				"required": [
 					"message",
 					"statusCode"
-				],
-				"type": "object",
-				"additionalProperties": false
-			},
-			"IGameMetadata": {
-				"properties": {
-					"wait": {
-						"type": "number",
-						"format": "double"
-					},
-					"timeStamp": {
-						"type": "string"
-					},
-					"gameEvents": {
-						"items": {
-							"type": "string"
-						},
-						"type": "array"
-					},
-					"logicalEvents": {
-						"items": {
-							"type": "string"
-						},
-						"type": "array"
-					}
-				},
-				"required": [
-					"wait",
-					"timeStamp",
-					"gameEvents",
-					"logicalEvents"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -1718,13 +1960,7 @@
 					"city": {
 						"type": "string"
 					},
-					"state": {
-						"type": "string"
-					},
-					"stateAbbrev": {
-						"type": "string"
-					},
-					"postalCode": {
+					"county": {
 						"type": "string"
 					},
 					"defaultCoordinates": {
@@ -1744,22 +1980,28 @@
 						],
 						"type": "object"
 					},
-					"county": {
+					"phone": {
 						"type": "string"
 					},
-					"phone": {
+					"postalCode": {
+						"type": "string"
+					},
+					"state": {
+						"type": "string"
+					},
+					"stateAbbrev": {
 						"type": "string"
 					}
 				},
 				"required": [
 					"address1",
 					"city",
-					"state",
-					"stateAbbrev",
-					"postalCode",
-					"defaultCoordinates",
 					"county",
-					"phone"
+					"defaultCoordinates",
+					"phone",
+					"postalCode",
+					"state",
+					"stateAbbrev"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -1791,13 +2033,7 @@
 						"type": "number",
 						"format": "double"
 					},
-					"turfType": {
-						"type": "string"
-					},
-					"roofType": {
-						"type": "string"
-					},
-					"leftLine": {
+					"center": {
 						"type": "number",
 						"format": "double"
 					},
@@ -1809,11 +2045,7 @@
 						"type": "number",
 						"format": "double"
 					},
-					"center": {
-						"type": "number",
-						"format": "double"
-					},
-					"rightCenter": {
+					"leftLine": {
 						"type": "number",
 						"format": "double"
 					},
@@ -1821,15 +2053,25 @@
 						"type": "number",
 						"format": "double"
 					},
+					"rightCenter": {
+						"type": "number",
+						"format": "double"
+					},
 					"rightLine": {
 						"type": "number",
 						"format": "double"
+					},
+					"roofType": {
+						"type": "string"
+					},
+					"turfType": {
+						"type": "string"
 					}
 				},
 				"required": [
 					"capacity",
-					"turfType",
-					"roofType"
+					"roofType",
+					"turfType"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -4291,56 +4533,87 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"IGameMetadata": {
+				"properties": {
+					"wait": {
+						"type": "number",
+						"format": "double"
+					},
+					"timeStamp": {
+						"type": "string"
+					},
+					"gameEvents": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"logicalEvents": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"wait",
+					"timeStamp",
+					"gameEvents",
+					"logicalEvents"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"IGameFeedResponse": {
 				"properties": {
 					"copyright": {
 						"type": "string"
 					},
+					"gameData": {
+						"$ref": "#/components/schemas/IGameData"
+					},
 					"gamePk": {
 						"type": "number",
 						"format": "double"
 					},
-					"metaData": {
-						"$ref": "#/components/schemas/IGameMetadata"
-					},
-					"gameData": {
-						"$ref": "#/components/schemas/IGameData"
-					},
 					"liveData": {
 						"$ref": "#/components/schemas/IGameLiveData"
+					},
+					"metaData": {
+						"$ref": "#/components/schemas/IGameMetadata"
 					}
 				},
 				"required": [
 					"copyright",
-					"gamePk",
-					"metaData",
 					"gameData",
-					"liveData"
+					"gamePk",
+					"liveData",
+					"metaData"
 				],
 				"type": "object",
 				"additionalProperties": false
 			},
 			"IGameFeedByTeamNameResponse": {
 				"properties": {
+					"gameData": {
+						"$ref": "#/components/schemas/IGameData"
+					},
 					"gamePk": {
 						"type": "number",
 						"format": "double"
 					},
-					"metaData": {
-						"$ref": "#/components/schemas/IGameMetadata"
-					},
-					"gameData": {
-						"$ref": "#/components/schemas/IGameData"
-					},
 					"liveData": {
 						"$ref": "#/components/schemas/IGameLiveData"
+					},
+					"metaData": {
+						"$ref": "#/components/schemas/IGameMetadata"
 					}
 				},
 				"required": [
-					"gamePk",
-					"metaData",
 					"gameData",
-					"liveData"
+					"gamePk",
+					"liveData",
+					"metaData"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -4384,6 +4657,57 @@
 					"officials",
 					"info",
 					"pitchingNotes"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IProbablePlayerStats": {
+				"properties": {
+					"homeRuns": {
+						"type": "number",
+						"format": "double"
+					},
+					"avg": {
+						"type": "string"
+					},
+					"atBats": {
+						"type": "number",
+						"format": "double"
+					},
+					"rbi": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"homeRuns",
+					"avg",
+					"atBats",
+					"rbi"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IProbablePlayers": {
+				"properties": {
+					"id": {
+						"type": "number",
+						"format": "double"
+					},
+					"boxscoreName": {
+						"type": "string"
+					},
+					"primaryPosition": {
+						"type": "string"
+					},
+					"stats": {
+						"$ref": "#/components/schemas/IProbablePlayerStats"
+					}
+				},
+				"required": [
+					"id",
+					"boxscoreName",
+					"primaryPosition"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -4449,61 +4773,13 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"IProbablePlayerStats": {
-				"properties": {
-					"homeRuns": {
-						"type": "number",
-						"format": "double"
-					},
-					"avg": {
-						"type": "string"
-					},
-					"atBats": {
-						"type": "number",
-						"format": "double"
-					},
-					"rbi": {
-						"type": "number",
-						"format": "double"
-					}
-				},
-				"required": [
-					"homeRuns",
-					"avg",
-					"atBats",
-					"rbi"
-				],
-				"type": "object",
-				"additionalProperties": false
-			},
-			"IProbablePlayers": {
-				"properties": {
-					"id": {
-						"type": "number",
-						"format": "double"
-					},
-					"boxscoreName": {
-						"type": "string"
-					},
-					"primaryPosition": {
-						"type": "string"
-					},
-					"stats": {
-						"$ref": "#/components/schemas/IProbablePlayerStats"
-					}
-				},
-				"required": [
-					"id",
-					"boxscoreName",
-					"primaryPosition"
-				],
-				"type": "object",
-				"additionalProperties": false
-			},
 			"IProbablesResponse": {
 				"properties": {
-					"probables": {
-						"$ref": "#/components/schemas/IProbables"
+					"away": {
+						"items": {
+							"$ref": "#/components/schemas/IProbablePlayers"
+						},
+						"type": "array"
 					},
 					"home": {
 						"items": {
@@ -4511,23 +4787,26 @@
 						},
 						"type": "array"
 					},
-					"away": {
-						"items": {
-							"$ref": "#/components/schemas/IProbablePlayers"
-						},
-						"type": "array"
+					"probables": {
+						"$ref": "#/components/schemas/IProbables"
 					}
 				},
 				"required": [
-					"probables",
+					"away",
 					"home",
-					"away"
+					"probables"
 				],
 				"type": "object",
 				"additionalProperties": false
 			},
 			"IGameByTeamNameResponse": {
 				"properties": {
+					"games": {
+						"items": {
+							"$ref": "#/components/schemas/IGame"
+						},
+						"type": "array"
+					},
 					"totalGames": {
 						"type": "number",
 						"format": "double"
@@ -4535,18 +4814,12 @@
 					"totalGamesInProgress": {
 						"type": "number",
 						"format": "double"
-					},
-					"games": {
-						"items": {
-							"$ref": "#/components/schemas/IGame"
-						},
-						"type": "array"
 					}
 				},
 				"required": [
+					"games",
 					"totalGames",
-					"totalGamesInProgress",
-					"games"
+					"totalGamesInProgress"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -4727,29 +5000,29 @@
 					"copyright": {
 						"type": "string"
 					},
+					"link": {
+						"type": "string"
+					},
 					"roster": {
 						"items": {
 							"$ref": "#/components/schemas/ITeamPlayer"
 						},
 						"type": "array"
 					},
-					"link": {
+					"rosterType": {
 						"type": "string"
 					},
 					"teamId": {
 						"type": "number",
 						"format": "double"
-					},
-					"rosterType": {
-						"type": "string"
 					}
 				},
 				"required": [
 					"copyright",
-					"roster",
 					"link",
-					"teamId",
-					"rosterType"
+					"roster",
+					"rosterType",
+					"teamId"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -4769,6 +5042,328 @@
 				"required": [
 					"copyright",
 					"people"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IStandingsDivision": {
+				"properties": {
+					"abbreviation": {
+						"type": "string"
+					},
+					"active": {
+						"type": "boolean"
+					},
+					"hasWildCard": {
+						"type": "boolean"
+					},
+					"id": {
+						"type": "number",
+						"format": "double"
+					},
+					"league": {
+						"$ref": "#/components/schemas/ILeagueId"
+					},
+					"link": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"nameShort": {
+						"type": "string"
+					},
+					"numPlayoffTeams": {
+						"type": "number",
+						"format": "double"
+					},
+					"season": {
+						"type": "string"
+					},
+					"sortOrder": {
+						"type": "number",
+						"format": "double"
+					},
+					"sport": {
+						"$ref": "#/components/schemas/ISportId"
+					}
+				},
+				"required": [
+					"abbreviation",
+					"active",
+					"hasWildCard",
+					"id",
+					"league",
+					"link",
+					"name",
+					"nameShort",
+					"numPlayoffTeams",
+					"season",
+					"sortOrder",
+					"sport"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ISeasonDateInfo": {
+				"properties": {
+					"allStarDate": {
+						"type": "string"
+					},
+					"firstDate2ndHalf": {
+						"type": "string"
+					},
+					"gameLevelGamedayType": {
+						"type": "string"
+					},
+					"lastDate1stHalf": {
+						"type": "string"
+					},
+					"offseasonEndDate": {
+						"type": "string"
+					},
+					"offseasonStartDate": {
+						"type": "string"
+					},
+					"postSeasonEndDate": {
+						"type": "string"
+					},
+					"postSeasonStartDate": {
+						"type": "string"
+					},
+					"preSeasonEndDate": {
+						"type": "string"
+					},
+					"preSeasonStartDate": {
+						"type": "string"
+					},
+					"qualifierOutsPitched": {
+						"type": "number",
+						"format": "double"
+					},
+					"qualifierPlateAppearances": {
+						"type": "number",
+						"format": "double"
+					},
+					"regularSeasonEndDate": {
+						"type": "string"
+					},
+					"regularSeasonStartDate": {
+						"type": "string"
+					},
+					"seasonEndDate": {
+						"type": "string"
+					},
+					"seasonId": {
+						"type": "string"
+					},
+					"seasonLevelGamedayType": {
+						"type": "string"
+					},
+					"seasonStartDate": {
+						"type": "string"
+					},
+					"springEndDate": {
+						"type": "string"
+					},
+					"springStartDate": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"allStarDate",
+					"firstDate2ndHalf",
+					"gameLevelGamedayType",
+					"lastDate1stHalf",
+					"offseasonEndDate",
+					"offseasonStartDate",
+					"postSeasonEndDate",
+					"postSeasonStartDate",
+					"preSeasonEndDate",
+					"preSeasonStartDate",
+					"qualifierOutsPitched",
+					"qualifierPlateAppearances",
+					"regularSeasonEndDate",
+					"regularSeasonStartDate",
+					"seasonEndDate",
+					"seasonId",
+					"seasonLevelGamedayType",
+					"seasonStartDate",
+					"springEndDate",
+					"springStartDate"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IStandingsLeague": {
+				"properties": {
+					"abbreviation": {
+						"type": "string"
+					},
+					"active": {
+						"type": "boolean"
+					},
+					"conferencesInUse": {
+						"type": "boolean"
+					},
+					"divisionsInUse": {
+						"type": "boolean"
+					},
+					"hasPlayoffPoints": {
+						"type": "boolean"
+					},
+					"hasSplitSeason": {
+						"type": "boolean"
+					},
+					"hasWildCard": {
+						"type": "boolean"
+					},
+					"id": {
+						"type": "number",
+						"format": "double"
+					},
+					"link": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"nameShort": {
+						"type": "string"
+					},
+					"numGames": {
+						"type": "number",
+						"format": "double"
+					},
+					"numWildcardTeams": {
+						"type": "number",
+						"format": "double"
+					},
+					"orgCode": {
+						"type": "string"
+					},
+					"seasonDateInfo": {
+						"$ref": "#/components/schemas/ISeasonDateInfo"
+					},
+					"seasonState": {
+						"type": "string"
+					},
+					"sortOrder": {
+						"type": "number",
+						"format": "double"
+					},
+					"sport": {
+						"$ref": "#/components/schemas/ISportId"
+					}
+				},
+				"required": [
+					"abbreviation",
+					"active",
+					"conferencesInUse",
+					"divisionsInUse",
+					"hasPlayoffPoints",
+					"hasSplitSeason",
+					"hasWildCard",
+					"id",
+					"link",
+					"name",
+					"nameShort",
+					"numGames",
+					"numWildcardTeams",
+					"orgCode",
+					"seasonDateInfo",
+					"seasonState",
+					"sortOrder",
+					"sport"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IStandingsSport": {
+				"properties": {
+					"abbreviation": {
+						"type": "string"
+					},
+					"activeStatus": {
+						"type": "boolean"
+					},
+					"code": {
+						"type": "string"
+					},
+					"id": {
+						"type": "number",
+						"format": "double"
+					},
+					"link": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"sortOrder": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"abbreviation",
+					"activeStatus",
+					"code",
+					"id",
+					"link",
+					"name",
+					"sortOrder"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IRecord": {
+				"properties": {
+					"division": {
+						"$ref": "#/components/schemas/IStandingsDivision"
+					},
+					"lastUpdated": {
+						"type": "string"
+					},
+					"league": {
+						"$ref": "#/components/schemas/IStandingsLeague"
+					},
+					"standingsType": {
+						"type": "string"
+					},
+					"sport": {
+						"$ref": "#/components/schemas/IStandingsSport"
+					},
+					"teamRecords": {
+						"$ref": "#/components/schemas/ITeamRecord"
+					}
+				},
+				"required": [
+					"division",
+					"lastUpdated",
+					"league",
+					"standingsType",
+					"sport",
+					"teamRecords"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IStandingsResponse": {
+				"properties": {
+					"copyright": {
+						"type": "string"
+					},
+					"records": {
+						"items": {
+							"$ref": "#/components/schemas/IRecord"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"copyright",
+					"records"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -5756,6 +6351,35 @@
 						}
 					}
 				]
+			}
+		},
+		"/mlb/standings": {
+			"get": {
+				"operationId": "GetStandings",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/IStandingsResponse"
+										},
+										{
+											"$ref": "#/components/schemas/IError"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"MLB"
+				],
+				"security": [],
+				"parameters": []
 			}
 		},
 		"/ping": {
