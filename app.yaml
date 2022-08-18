@@ -1,2 +1,2 @@
 env: flex
-runtime: nodejs16
+runtime: nodejs16.x.x
