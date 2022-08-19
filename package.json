@@ -4,14 +4,13 @@
   "description": "Web service to retrieve sports data",
   "main": "index.js",
   "scripts": {
-    "prestart": "rm -rf ./build/ && npm run build",
-    "start": "node ./build/index.js",
-    "predev": "npm run swagger",
     "prebuild": "npm run swagger",
     "build": "tsc",
+    "predev": "npm run swagger",
     "dev": "concurrently \"nodemon\" \"nodemon -x tsoa spec\"",
+    "prestart": "rm -rf ./build/ && npm run build",
+    "start": "node ./build/index.js",
     "swagger": "tsoa spec",
-    "gcp-build": "tsc -p .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Chris Tamez",
