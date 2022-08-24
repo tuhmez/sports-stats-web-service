@@ -5494,7 +5494,7 @@
 					{
 						"description": "- The game ID",
 						"in": "query",
-						"name": "gameId",
+						"name": "id",
 						"required": false,
 						"schema": {
 							"type": "string"
@@ -5503,7 +5503,7 @@
 					{
 						"description": "- The team's location",
 						"in": "query",
-						"name": "teamLocation",
+						"name": "location",
 						"required": false,
 						"schema": {
 							"type": "string"
@@ -5512,7 +5512,16 @@
 					{
 						"description": "- The team's name",
 						"in": "query",
-						"name": "teamName",
+						"name": "name",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The team's abbreviation",
+						"in": "query",
+						"name": "abbreviation",
 						"required": false,
 						"schema": {
 							"type": "string"
@@ -5585,7 +5594,7 @@
 					{
 						"description": "- The game ID",
 						"in": "query",
-						"name": "gameId",
+						"name": "id",
 						"required": false,
 						"schema": {
 							"type": "string"
@@ -5594,7 +5603,7 @@
 					{
 						"description": "- The team's location",
 						"in": "query",
-						"name": "teamLocation",
+						"name": "location",
 						"required": false,
 						"schema": {
 							"type": "string"
@@ -5603,7 +5612,16 @@
 					{
 						"description": "- The team's name",
 						"in": "query",
-						"name": "teamName",
+						"name": "name",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The team's abbreviation",
+						"in": "query",
+						"name": "abbreviation",
 						"required": false,
 						"schema": {
 							"type": "string"
@@ -5676,7 +5694,7 @@
 					{
 						"description": "- The game ID",
 						"in": "query",
-						"name": "gameId",
+						"name": "id",
 						"required": false,
 						"schema": {
 							"type": "string"
@@ -5685,7 +5703,7 @@
 					{
 						"description": "- The team's location",
 						"in": "query",
-						"name": "teamLocation",
+						"name": "location",
 						"required": false,
 						"schema": {
 							"type": "string"
@@ -5694,7 +5712,16 @@
 					{
 						"description": "- The team's name",
 						"in": "query",
-						"name": "teamName",
+						"name": "name",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The team's abbreviation",
+						"in": "query",
+						"name": "abbreviation",
 						"required": false,
 						"schema": {
 							"type": "string"
@@ -5730,7 +5757,7 @@
 				]
 			}
 		},
-		"/mlb/game/{teamLocation}-{teamName}": {
+		"/mlb/game": {
 			"get": {
 				"operationId": "GetGameForTeam",
 				"responses": {
@@ -5760,18 +5787,26 @@
 				"parameters": [
 					{
 						"description": "The team's location (lower case), e.g. milwaukee",
-						"in": "path",
-						"name": "teamLocation",
-						"required": true,
+						"in": "query",
+						"name": "location",
+						"required": false,
 						"schema": {
 							"type": "string"
 						}
 					},
 					{
 						"description": "The team's name (lower case), e.g. brewers",
-						"in": "path",
-						"name": "teamName",
-						"required": true,
+						"in": "query",
+						"name": "name",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "abbreviation",
+						"required": false,
 						"schema": {
 							"type": "string"
 						}

@@ -28,25 +28,27 @@ export class MLBRoutes {
     });
 
     router.get("/mlb/game/feed", async (_req, res) => {
-      const gameId = _req.query.gameId as string;
-      const teamLocation = _req.query.teamLocation as string;
-      const teamName = _req.query.teamName as string;
+      const id = _req.query.id as string;
+      const location = _req.query.location as string;
+      const name = _req.query.name as string;
+      const abbreviation = _req.query.abbreviation as string;
 
       const month = _req.query.month as string;
       const day = _req.query.day as string;
       const year = _req.query.year as string;
 
       if (
-        (!gameId || gameId === '') &&
-        (!teamLocation || teamLocation === '' || !teamName || teamName === '')
+        (!id || id === '') &&
+        ((!location || location === '' || !name || name === '') && (!abbreviation || abbreviation === ''))
       ) {
         return res.send('Game ID/Team Location and Team Name invalid!');
       }
 
       const response = await mlbController.getFeed(
-        gameId,
-        teamLocation,
-        teamName,
+        id,
+        location,
+        name,
+        abbreviation,
         month,
         day,
         year
@@ -57,25 +59,27 @@ export class MLBRoutes {
     });
 
     router.get("/mlb/game/boxscore", async (_req, res) => {
-      const gameId = _req.query.gameId as string;
-      const teamLocation = _req.query.teamLocation as string;
-      const teamName = _req.query.teamName as string;
+      const id = _req.query.id as string;
+      const location = _req.query.location as string;
+      const name = _req.query.name as string;
+      const abbreviation = _req.query.abbreviation as string;
 
       const month = _req.query.month as string;
       const day = _req.query.day as string;
       const year = _req.query.year as string;
 
       if (
-        (!gameId || gameId === '') &&
-        (!teamLocation || teamLocation === '' || !teamName || teamName === '')
+        (!id || id === '') &&
+        ((!location || location === '' || !name || name === '') && (!abbreviation || abbreviation === ''))
       ) {
         return res.send('Game ID/Team Location and Team Name invalid!');
       }
 
       const response = await mlbController.getBoxscore(
-        gameId,
-        teamLocation,
-        teamName,
+        id,
+        location,
+        name,
+        abbreviation,
         month,
         day,
         year
@@ -84,25 +88,27 @@ export class MLBRoutes {
     });
 
     router.get("/mlb/game/probables", async (_req, res) => {
-      const gameId = _req.query.gameId as string;
-      const teamLocation = _req.query.teamLocation as string;
-      const teamName = _req.query.teamName as string;
+      const id = _req.query.gameId as string;
+      const location = _req.query.teamLocation as string;
+      const name = _req.query.teamName as string;
+      const abbreviation = _req.query.abbreviation as string;
 
       const month = _req.query.month as string;
       const day = _req.query.day as string;
       const year = _req.query.year as string;
 
       if (
-        (!gameId || gameId === '') &&
-        (!teamLocation || teamLocation === '' || !teamName || teamName === '')
+        (!id || id === '') &&
+        ((!location || location === '' || !name || name === '') && (!abbreviation || abbreviation === ''))
       ) {
         return res.send('Game ID/Team Location and Team Name invalid!');
       }
 
       const response = await mlbController.getGameProbables(
-        gameId,
-        teamLocation,
-        teamName,
+        id,
+        location,
+        name,
+        abbreviation,
         month,
         day,
         year
@@ -110,17 +116,19 @@ export class MLBRoutes {
       return res.json(response);
     });
 
-    router.get("/mlb/game/:teamLocation-:teamName", async (_req, res) => {
-      const teamLocation = _req.params.teamLocation as string;
-      const teamName = _req.params.teamName as string;
+    router.get("/mlb/game", async (_req, res) => {
+      const location = _req.query.location as string;
+      const name = _req.query.name as string;
+      const abbreviation = _req.query.abbreviation as string;
 
       const month = _req.query.month as string;
       const day = _req.query.day as string;
       const year = _req.query.year as string;
 
       const response = await mlbController.getGameForTeam(
-        teamLocation,
-        teamName,
+        location,
+        name,
+        abbreviation,
         month,
         day,
         year
