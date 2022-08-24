@@ -5804,6 +5804,7 @@
 						}
 					},
 					{
+						"description": "- The team's abbreviation",
 						"in": "query",
 						"name": "abbreviation",
 						"required": false,
