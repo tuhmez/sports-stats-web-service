@@ -6,7 +6,7 @@ services:
     image: sports-stats-web-service:latest
     container_name: sports-stats-service
     environment:
-      - VERSION=0.0.5
+      - VERSION=0.0.6
       - PORT=5000
     ports:
       - 5000:5000

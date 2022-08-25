@@ -31,6 +31,7 @@ import {
   IStandingsResponse,
   ITeamByTeamNameResponse,
   ITeamLeadersResponse,
+  ITeamRecord,
   ITeamResponse
 } from '../interfaces';
 import { getTeamIdByFullTeamName, getTeamIdByTeamAbbreviation, getTeamIdByTeamLocation, getTeamIdByTeamName } from '../utils';
@@ -1042,12 +1043,68 @@ export class MlbController {
 
   /**
    * Gets the current standings for the MLB
+   * @param {string} year - The year requested for standings
+   * @param {string} location - The MLB team location
+   * @param {string} name - The MLB team name
+   * @param {string} abbreviation - The MLB team's abbreviation
+   * @param {string} division - The MLB division
    * @returns {(IStandingsResponse | IError)}
    */
   @Get('/standings')
-  public async getStandings(): Promise<IStandingsResponse | IError> {
+  public async getStandings(
+    @Query() month?: string,
+    @Query() day?: string,
+    @Query() year?: string,
+    @Query() location?: string,
+    @Query() name?: string,
+    @Query() abbreviation?: string,
+  ): Promise<IStandingsResponse | ITeamRecord | IError> {
     try {
-      return await(await mlbTransport.get(standingsUrl())).data;
+      if (!month && !day && !year) {
+        const today = new Date();
+        month = (today.getMonth() + 1).toString();
+        day = today.getDate().toString();
+        year = today.getFullYear().toString();
+      }
+
+      const standings: IStandingsResponse = await(await mlbTransport.get(standingsUrl(year, month, day))).data
+
+      if (!location && !name && !abbreviation) return standings;
+
+      const teamRecords = standings.records.find((r) => {
+        return r.teamRecords.find((tr) => {
+          const { team } = tr;
+          if (location && name) {
+            const inputTeam = `${location.trim().toLowerCase()} ${name.trim().toLowerCase()}`;
+            return team.name.toLowerCase() === inputTeam;
+          } else if (abbreviation) {
+            return team.abbreviation.toLowerCase() === abbreviation.toLowerCase();
+          } else {
+            return false;
+          }
+        })
+      });
+
+      if (teamRecords) {
+        const actualTeamRecord = teamRecords.teamRecords.find((tr) => {
+          const { team } = tr;
+          if (location && name) {
+            const inputTeam = `${location.trim().toLowerCase()} ${name.trim().toLowerCase()}`;
+            return team.name.toLowerCase() === inputTeam;
+          } else {
+            return team.abbreviation.toLowerCase() === abbreviation.toLowerCase();
+          }
+        });
+
+        return actualTeamRecord;
+      } else {
+        const inputTeam = location && name ? `${location.toLowerCase()} ${name.toLowerCase()}` : abbreviation.toLowerCase();
+        const error: IError = {
+          message: `Could not find team: ${inputTeam}`,
+          statusCode: 400
+        }
+        return error;
+      }
     } catch (exception) {
       const { data, response } = exception;
       LogError(response.status, `/mlb/standings`, data.message);

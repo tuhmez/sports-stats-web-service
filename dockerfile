@@ -13,6 +13,6 @@ COPY --from=builder /usr/src/app/build ./build/
 COPY --from=builder /usr/src/app/node_modules ./node_modules
 COPY --from=builder /usr/src/app/public ./public
 
-ENV VERSION=0.0.5
+ENV VERSION=0.0.6
 
 ENTRYPOINT [ "node", "build/index.js" ]

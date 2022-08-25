@@ -305,7 +305,21 @@ export class MLBRoutes {
     // ===== standings ===== //
 
     router.get("/mlb/standings", async (_req, res) => {
-      const response = await mlbController.getStandings();
+      const month = _req.query.month as string;
+      const day = _req.query.day as string;
+      const year = _req.query.year as string;
+      const location = _req.query.location as string;
+      const name = _req.query.name as string;
+      const abbreviation = _req.query.abbreviation as string;
+
+      const response = await mlbController.getStandings(
+        month,
+        day,
+        year,
+        location,
+        name,
+        abbreviation,
+      );
       return res.json(response);
     });
 

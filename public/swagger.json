@@ -5420,7 +5420,7 @@
 	},
 	"info": {
 		"title": "sports-stats-web-service",
-		"version": "0.0.4",
+		"version": "0.0.5",
 		"description": "Web service to retrieve sports data",
 		"license": {
 			"name": "ISC"
@@ -6535,6 +6535,9 @@
 											"$ref": "#/components/schemas/IStandingsResponse"
 										},
 										{
+											"$ref": "#/components/schemas/ITeamRecord"
+										},
+										{
 											"$ref": "#/components/schemas/IError"
 										}
 									]
@@ -6548,7 +6551,60 @@
 					"MLB"
 				],
 				"security": [],
-				"parameters": []
+				"parameters": [
+					{
+						"in": "query",
+						"name": "month",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "day",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The year requested for standings",
+						"in": "query",
+						"name": "year",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The MLB team location",
+						"in": "query",
+						"name": "location",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The MLB team name",
+						"in": "query",
+						"name": "name",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The MLB team's abbreviation",
+						"in": "query",
+						"name": "abbreviation",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
 			}
 		},
 		"/ping": {

@@ -13,5 +13,11 @@ export const playerUrl = (playerId: string) => `https://statsapi.mlb.com/api/v1/
 export const teamLeadersUrl = (teamId: string) => `https://statsapi.mlb.com/api/v1/teams/${teamId}/leaders?leaderCategories=wins,saves,earnedRunAverage,strikeouts,walksAndHitsPerInningPitched,battingAverage,runs,homeRuns,runsBattedIn,stolenBases&leaderGameTypes=R&season=2022&hydrate=person,team&limit=1`
 export const playerCurrentHeadshotUrl = (playerId: string, maginification: string = '1') => `https://content.mlb.com/images/headshots/current/60x60/${playerId}@${maginification}x.png`;
 export const teamColorCodesPageUrl = () => `https://teamcolorcodes.com/mlb-color-codes/`;
-export const standingsUrl = () => `https://statsapi.mlb.com/api/v1/standings?leagueId=103,104&season=2022&standingsTypes=regularSeason,springTraining,firstHalf,secondHalf&hydrate=division,conference,sport,league,team(nextSchedule(team,gameType=[R,F,D,L,W,C],inclusive=false),previousSchedule(team,gameType=[R,F,D,L,W,C],inclusive=true))`;
-export const wildcardStandingsUrl = () => `https://statsapi.mlb.com/api/v1/standings?leagueId=103,104&season=2022&date=2022-08-17&standingsTypes=regularSeason,springTraining,firstHalf,secondHalf&hydrate=division,conference,sport,league,team(nextSchedule(team,gameType=[R,F,D,L,W,C],inclusive=false),previousSchedule(team,gameType=[R,F,D,L,W,C],inclusive=true))`;
+export const standingsUrl = (year: string, month?: string, day?: string) => {
+  let url = `https://statsapi.mlb.com/api/v1/standings?leagueId=103,104&season=${year}&standingsTypes=regularSeason,springTraining,firstHalf,secondHalf&hydrate=division,conference,sport,league,team`;
+  if (month && day) {
+    const date = `${year}-${month}-${day}`;
+    url = `${url}&date=${date}`;
+  }
+  return url;
+};
