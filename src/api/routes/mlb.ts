@@ -116,6 +116,35 @@ export class MLBRoutes {
       return res.json(response);
     });
 
+    router.get("/mlb/game/score", async (_req, res) => {
+      const id = _req.query.id as string;
+      const location = _req.query.location as string;
+      const name = _req.query.name as string;
+      const abbreviation = _req.query.abbreviation as string;
+
+      const month = _req.query.month as string;
+      const day = _req.query.day as string;
+      const year = _req.query.year as string;
+
+      if (
+        (!id || id === '') &&
+        ((!location || location === '' || !name || name === '') && (!abbreviation || abbreviation === ''))
+      ) {
+        return res.send('Game ID/Team Location and Team Name invalid!');
+      }
+
+      const response = await mlbController.getGameScore(
+        id,
+        location,
+        name,
+        abbreviation,
+        month,
+        day,
+        year
+      );
+      return res.json(response);
+    });
+
     router.get("/mlb/game", async (_req, res) => {
       const location = _req.query.location as string;
       const name = _req.query.name as string;

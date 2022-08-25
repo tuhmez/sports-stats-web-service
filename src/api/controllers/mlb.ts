@@ -23,6 +23,7 @@ import {
   IGameByTeamNameResponse,
   IGameFeedByTeamNameResponse,
   IGameFeedResponse,
+  IGameScoreResponse,
   IGamesResponse,
   IPlayerResponse,
   IProbablesResponse,
@@ -108,7 +109,6 @@ export class MlbController {
         const data: IGamesResponse = await (await mlbTransport.get(dailyGamesUrl(month, day, year))).data as IGamesResponse;
         if (data.totalGames === 0) return [];
 
-        
         const games = data.dates[0].games.filter((g) => {
           const { away, home } = g.teams;
           const { team: awayTeam } = away;
@@ -303,13 +303,101 @@ export class MlbController {
   }
 
   /**
-   * Gets the game for a given team. Will use current day, unless day, month, and year are passed into function
-   * @param location The team's location (lower case), e.g. milwaukee
-   * @param name The team's name (lower case), e.g. brewers
+   * Gets the score for a game, without much of the extra stuff as the feed request
+   * @param {string} id - The game ID
+   * @param {string} location - The team's location
+   * @param {string} name - The team's name
    * @param {string} abbreviation - The team's abbreviation
-   * @param month The numerical month, e.g. 8
-   * @param day The numerical day, e.g. 12
-   * @param year The year, e.g. 2022
+   * @param {string} month - The numerical month
+   * @param {string} day - The numerical day
+   * @param {string} year - The year
+   * @returns {(IProbablesResponse[]|IError)} - The score(s) for the given game(s).
+   */
+  @Get('/game/score')
+  public async getGameScore(
+    @Query() id?: string,
+    @Query() location?: string,
+    @Query() name?: string,
+    @Query() abbreviation?: string,
+    @Query() month?: string,
+    @Query() day?: string,
+    @Query() year?: string
+  ): Promise<IGameScoreResponse[] | IError> {
+    try {
+      if (id) {
+        const data = await mlbTransport.get(gameFeedUrl(id));
+        const extractedData = data.data;
+        return extractedData.messageNumber === 11 ? extractedData.message : extractedData;
+      } else {
+        if (!month || !day || !year) {
+          const today = new Date();
+          month = (today.getMonth() + 1).toString();
+          day = today.getDate().toString();
+          year = today.getFullYear().toString();
+        }
+        const data: IGamesResponse = await (await mlbTransport.get(dailyGamesUrl(month, day, year))).data as IGamesResponse;
+        if (data.totalGames === 0) return [];
+
+        const games = data.dates[0].games.filter((g) => {
+          const { away, home } = g.teams;
+          const { team: awayTeam } = away;
+          const { name: awayName, abbreviation: awayAbbreviation } = awayTeam;
+          const { team: homeTeam } = home;
+          const { name: homeName, abbreviation: homeAbbreviation } = homeTeam;
+          
+          if (location && name) {
+            const inputTeam = `${location.trim().toLowerCase()} ${name.trim().toLowerCase()}`;
+            return awayName.toLowerCase() === inputTeam || homeName.toLowerCase() === inputTeam;
+          } else if (abbreviation) {
+            return awayAbbreviation.toLowerCase() === abbreviation.toLowerCase() || homeAbbreviation.toLowerCase() === abbreviation.toLowerCase();
+          } else {
+            const error: IError = {
+              message: 'Could not find team!',
+              statusCode: 400,
+            };
+            return error;
+          }
+        });
+
+        const gameFeedsPromises = await Promise.all(games.map((g) => mlbTransport.get(gameFeedUrl(g.gamePk.toString()))));
+
+        return gameFeedsPromises.map((gfp) => {
+          const { gameData, liveData }: IGameFeedResponse = gfp.data;
+          const { linescore } = liveData;
+          const { datetime, game, status } = gameData;
+          const { away, home } = gameData.teams;
+
+          const scoreData: IGameScoreResponse = {
+            linescore,
+            away,
+            home,
+            game,
+            datetime,
+            status,
+          };
+
+          return scoreData;
+        });
+      }
+    } catch (exception) {
+      const { data, response } = exception;
+      LogError(response.status, `/mlb/game/score`, data.message);
+      const error: IError = {
+        message: data.message,
+        statusCode: response.status,
+      };
+      return error;
+    }
+  }
+
+  /**
+   * Gets the game for a given team. Will use current day, unless day, month, and year are passed into function
+   * @param location - The team's location (lower case), e.g. milwaukee
+   * @param name - The team's name (lower case), e.g. brewers
+   * @param {string} abbreviation - The team's abbreviation
+   * @param month - The numerical month, e.g. 8
+   * @param day - The numerical day, e.g. 12
+   * @param year - The year, e.g. 2022
    * @returns {IGameByTeamNameResponse}
    */
   @Get('/game')

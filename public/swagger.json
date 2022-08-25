@@ -4799,6 +4799,38 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"IGameScoreResponse": {
+				"properties": {
+					"linescore": {
+						"$ref": "#/components/schemas/ILinescore"
+					},
+					"away": {
+						"$ref": "#/components/schemas/ITeam"
+					},
+					"home": {
+						"$ref": "#/components/schemas/ITeam"
+					},
+					"game": {
+						"$ref": "#/components/schemas/IGameDataGame"
+					},
+					"datetime": {
+						"$ref": "#/components/schemas/IGameDatetime"
+					},
+					"status": {
+						"$ref": "#/components/schemas/IGameStatus"
+					}
+				},
+				"required": [
+					"linescore",
+					"away",
+					"home",
+					"game",
+					"datetime",
+					"status"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"IGameByTeamNameResponse": {
 				"properties": {
 					"games": {
@@ -5388,7 +5420,7 @@
 	},
 	"info": {
 		"title": "sports-stats-web-service",
-		"version": "0.0.3",
+		"version": "0.0.4",
 		"description": "Web service to retrieve sports data",
 		"license": {
 			"name": "ISC"
@@ -5757,6 +5789,103 @@
 				]
 			}
 		},
+		"/mlb/game/score": {
+			"get": {
+				"operationId": "GetGameScore",
+				"responses": {
+					"200": {
+						"description": "- The score(s) for the given game(s).",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"items": {
+												"$ref": "#/components/schemas/IGameScoreResponse"
+											},
+											"type": "array"
+										},
+										{
+											"$ref": "#/components/schemas/IError"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"description": "Gets the score for a game, without much of the extra stuff as the feed request",
+				"tags": [
+					"MLB"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "- The game ID",
+						"in": "query",
+						"name": "id",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The team's location",
+						"in": "query",
+						"name": "location",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The team's name",
+						"in": "query",
+						"name": "name",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The team's abbreviation",
+						"in": "query",
+						"name": "abbreviation",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The numerical month",
+						"in": "query",
+						"name": "month",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The numerical day",
+						"in": "query",
+						"name": "day",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The year",
+						"in": "query",
+						"name": "year",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
 		"/mlb/game": {
 			"get": {
 				"operationId": "GetGameForTeam",
@@ -5786,7 +5915,7 @@
 				"security": [],
 				"parameters": [
 					{
-						"description": "The team's location (lower case), e.g. milwaukee",
+						"description": "- The team's location (lower case), e.g. milwaukee",
 						"in": "query",
 						"name": "location",
 						"required": false,
@@ -5795,7 +5924,7 @@
 						}
 					},
 					{
-						"description": "The team's name (lower case), e.g. brewers",
+						"description": "- The team's name (lower case), e.g. brewers",
 						"in": "query",
 						"name": "name",
 						"required": false,
@@ -5813,7 +5942,7 @@
 						}
 					},
 					{
-						"description": "The numerical month, e.g. 8",
+						"description": "- The numerical month, e.g. 8",
 						"in": "query",
 						"name": "month",
 						"required": false,
@@ -5822,7 +5951,7 @@
 						}
 					},
 					{
-						"description": "The numerical day, e.g. 12",
+						"description": "- The numerical day, e.g. 12",
 						"in": "query",
 						"name": "day",
 						"required": false,
@@ -5831,7 +5960,7 @@
 						}
 					},
 					{
-						"description": "The year, e.g. 2022",
+						"description": "- The year, e.g. 2022",
 						"in": "query",
 						"name": "year",
 						"required": false,

@@ -68,6 +68,15 @@ export interface IStandingsResponse {
   records: IRecord[];
 }
 
+export interface IGameScoreResponse {
+  linescore: ILinescore;
+  away: ITeam;
+  home: ITeam;
+  game: IGameDataGame;
+  datetime: IGameDatetime;
+  status: IGameStatus;
+}
+
 export enum GameType {
   // All-star
   A = 'A',
