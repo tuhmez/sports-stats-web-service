@@ -269,40 +269,135 @@ export interface IDescription {
   description: string;
 }
 
+export interface IPlayerSplitStats {
+  airOuts: number;
+  atBats: number;
+  atBatsPerHomeRun: string;
+  avg: string;
+  babip: string;
+  balks: number;
+  baseOnBalls: number;
+  battersFaced: number;
+  blownSaves: number;
+  catchersInterference: number;
+  caughtStealing: number;
+  completeGames: number;
+  doubles: number;
+  earnedRuns: number;
+  era: number;
+  gamesFinished: number;
+  gamesPitched: number;
+  gamesPlayed: number;
+  gamesStarted: number;
+  groundOuts: number;
+  groundIntoDoublePlay: number;
+  groundOutsToAirouts: string;
+  hitBatsmen: number;
+  hitByPitch: number;
+  hits: number;
+  hitsPer9Inn: string;
+  holds: number;
+  homeRuns: number;
+  homeRunsPer9: string;
+  inheritedRunners: number;
+  inheritedRunnersScored: number;
+  inningsPitched: string;
+  intentionalWalks: number;
+  leftOnBase: number;
+  losses: number;
+  numberOfPitches: number;
+  obp: string;
+  ops: string;
+  outs: number;
+  pickoffs: number;
+  pitchesPerInning: string;
+  plateAppearances: number;
+  rbi: number;
+  runs: number;
+  runsScoredPer9: string;
+  sacBunts: number;
+  sacFlies: number;
+  saveOpportunities: number;
+  saves: number;
+  shutouts: number;
+  slg: string;
+  stolenBasePercentage: string;
+  stolenBases: number;
+  strikeOuts: number;
+  strikePercentage: string;
+  strikeoutWalkRatio: string;
+  strikeoutsPer9Inn: string;
+  strikes: number;
+  totalBases: number;
+  triples: number;
+  walksPer9Inn: string;
+  whip: string;
+  wildPitches: number;
+  winPercentage: string;
+  wins: number;
+}
+
+export interface IPlayerSplit {
+  gameType: string;
+  league: ILeagueId;
+  player: IPlayerId;
+  season: string;
+  sport: ISportId;
+  stat: IPlayerSplitStats;
+  team: ITeam;
+}
+
+export interface IPlayerExtendedStats {
+  exemption: any[];
+  group: {
+    displayName: string;
+  };
+  splits: IPlayerSplit[];
+  type: {
+    displayName: string;
+  };
+}
+
 export interface IPlayer extends IPlayerId {
-  firstName: string;
-  lastName: string;
-  primaryNumber: string;
-  birthDate: string;
-  currentAge: number;
-  birthCity: string;
-  birthStateProvince: string;
-  birthCountry: string;
-  height: string;
-  weight: number;
   active: boolean;
-  primaryPosition: IPlayerPosition;
-  useName: string;
-  middleName: string;
-  boxscoreName: string;
-  nickName: string;
-  gender: string;
-  isPlayer: boolean;
-  isVerified: boolean;
-  draftYear: number;
-  mlbDebutDate: string;
   batSide: ICode;
-  pitchHand: ICode;
-  nameFirstLast: string;
-  nameSlug: string;
+  birthCity: string;
+  birthCountry: string;
+  birthDate: string;
+  birthStateProvince: string;
+  boxscoreName: string;
+  currentAge: number;
+  currentTeam: ITeam;
   firstLastName: string;
-  lastFirstName: string;
-  lastInitName: string;
-  initLastName: string;
+  firstName: string;
   fullFMLName: string;
   fullLFMName: string;
-  strikeZoneTop: number;
+  fullName: string;
+  gender: string;
+  height: string;
+  id: number;
+  initLastName: string;
+  isPlayer: boolean;
+  isVerified: boolean;
+  lastFirstName: string;
+  lastInitName: string;
+  lastName: string;
+  link: string;
+  mlbDebutDate: string;
+  nameFirstLast: string;
+  nameMatrilineal: string;
+  nameSlug: string;
+  nickName: string;
+  pitchHand: ICode;
+  primaryNumber: string;
+  primaryPosition: IPlayerPosition;
+  stats: IPlayerExtendedStats;
   strikeZoneBottom: number;
+  strikeZoneTop: number;
+  useName: string;
+  weight: number;
+  middleName: string;
+  draftYear: number;
   pronunciation?: string;
 }
 
