@@ -20,10 +20,8 @@ export class MLBRoutes {
 
     // ===== games ===== //
     router.get("/mlb/games", async (_req, res) => {
-      const month = _req.query.month as string;
-      const day = _req.query.day as string;
-      const year = _req.query.year as string;
-      const response = await mlbController.getGames(month, day, year);
+      const date = _req.query.date as string;
+      const response = await mlbController.getGames(date);
       return res.json(response);
     });
 
@@ -33,9 +31,7 @@ export class MLBRoutes {
       const name = _req.query.name as string;
       const abbreviation = _req.query.abbreviation as string;
 
-      const month = _req.query.month as string;
-      const day = _req.query.day as string;
-      const year = _req.query.year as string;
+      const date = _req.query.date as string;
 
       if (
         (!id || id === '') &&
@@ -49,9 +45,7 @@ export class MLBRoutes {
         location,
         name,
         abbreviation,
-        month,
-        day,
-        year
+        date,
       );
       return res.send(response);
 
@@ -64,9 +58,7 @@ export class MLBRoutes {
       const name = _req.query.name as string;
       const abbreviation = _req.query.abbreviation as string;
 
-      const month = _req.query.month as string;
-      const day = _req.query.day as string;
-      const year = _req.query.year as string;
+      const date = _req.query.date as string;
 
       if (
         (!id || id === '') &&
@@ -80,9 +72,7 @@ export class MLBRoutes {
         location,
         name,
         abbreviation,
-        month,
-        day,
-        year
+        date,
       );
       return res.send(response);
     });
@@ -93,9 +83,7 @@ export class MLBRoutes {
       const name = _req.query.teamName as string;
       const abbreviation = _req.query.abbreviation as string;
 
-      const month = _req.query.month as string;
-      const day = _req.query.day as string;
-      const year = _req.query.year as string;
+      const date = _req.query.date as string;
 
       if (
         (!id || id === '') &&
@@ -109,9 +97,7 @@ export class MLBRoutes {
         location,
         name,
         abbreviation,
-        month,
-        day,
-        year
+        date,
       );
       return res.json(response);
     });
@@ -122,9 +108,7 @@ export class MLBRoutes {
       const name = _req.query.name as string;
       const abbreviation = _req.query.abbreviation as string;
 
-      const month = _req.query.month as string;
-      const day = _req.query.day as string;
-      const year = _req.query.year as string;
+      const date = _req.query.date as string;
 
       if (
         (!id || id === '') &&
@@ -138,9 +122,7 @@ export class MLBRoutes {
         location,
         name,
         abbreviation,
-        month,
-        day,
-        year
+        date,
       );
       return res.json(response);
     });
@@ -150,17 +132,13 @@ export class MLBRoutes {
       const name = _req.query.name as string;
       const abbreviation = _req.query.abbreviation as string;
 
-      const month = _req.query.month as string;
-      const day = _req.query.day as string;
-      const year = _req.query.year as string;
+      const date = _req.query.date as string;
 
       const response = await mlbController.getGameForTeam(
         location,
         name,
         abbreviation,
-        month,
-        day,
-        year
+        date,
       );
       return res.json(response);
     });
@@ -276,6 +254,22 @@ export class MLBRoutes {
       return res.json(response);
     });
 
+    router.get("/mlb/player/stats", async(_req, res) => {
+      const id = _req.query.id as string;
+      const firstName = _req.query.firstName as string;
+      const lastName = _req.query.lastName as string;
+      const location = _req.query.location as string;
+      const name = _req.query.name as string;
+      const abbreviation = _req.query.abbreviation as string;
+
+      if (!id && !firstName && !lastName && !location && !name && !abbreviation) {
+        return res.send('Player ID or player information not invalid!');
+      }
+
+      const response = await mlbController.getPlayerStats(id, firstName, lastName, location, name, abbreviation);
+      return res.json(response);
+    });
+
     router.get("/mlb/player/headshot", async (_req, res) => {
       const id = _req.query.id as string;
       const firstName = _req.query.firstName as string;
@@ -305,17 +299,15 @@ export class MLBRoutes {
     // ===== standings ===== //
 
     router.get("/mlb/standings", async (_req, res) => {
-      const month = _req.query.month as string;
-      const day = _req.query.day as string;
       const year = _req.query.year as string;
+      const date = _req.query.date as string;
       const location = _req.query.location as string;
       const name = _req.query.name as string;
       const abbreviation = _req.query.abbreviation as string;
 
       const response = await mlbController.getStandings(
-        month,
-        day,
         year,
+        date,
         location,
         name,
         abbreviation,

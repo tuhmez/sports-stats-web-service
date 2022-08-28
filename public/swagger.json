@@ -1752,6 +1752,22 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"ICode": {
+				"properties": {
+					"code": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"code",
+					"description"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"IPlayerPosition": {
 				"properties": {
 					"code": {
@@ -1776,18 +1792,396 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"ICode": {
+			"IPlayerSplitStats": {
 				"properties": {
-					"code": {
+					"airOuts": {
+						"type": "number",
+						"format": "double"
+					},
+					"atBats": {
+						"type": "number",
+						"format": "double"
+					},
+					"atBatsPerHomeRun": {
 						"type": "string"
 					},
-					"description": {
+					"avg": {
 						"type": "string"
+					},
+					"babip": {
+						"type": "string"
+					},
+					"balks": {
+						"type": "number",
+						"format": "double"
+					},
+					"baseOnBalls": {
+						"type": "number",
+						"format": "double"
+					},
+					"battersFaced": {
+						"type": "number",
+						"format": "double"
+					},
+					"blownSaves": {
+						"type": "number",
+						"format": "double"
+					},
+					"catchersInterference": {
+						"type": "number",
+						"format": "double"
+					},
+					"caughtStealing": {
+						"type": "number",
+						"format": "double"
+					},
+					"completeGames": {
+						"type": "number",
+						"format": "double"
+					},
+					"doubles": {
+						"type": "number",
+						"format": "double"
+					},
+					"earnedRuns": {
+						"type": "number",
+						"format": "double"
+					},
+					"era": {
+						"type": "number",
+						"format": "double"
+					},
+					"gamesFinished": {
+						"type": "number",
+						"format": "double"
+					},
+					"gamesPitched": {
+						"type": "number",
+						"format": "double"
+					},
+					"gamesPlayed": {
+						"type": "number",
+						"format": "double"
+					},
+					"gamesStarted": {
+						"type": "number",
+						"format": "double"
+					},
+					"groundOuts": {
+						"type": "number",
+						"format": "double"
+					},
+					"groundIntoDoublePlay": {
+						"type": "number",
+						"format": "double"
+					},
+					"groundOutsToAirouts": {
+						"type": "string"
+					},
+					"hitBatsmen": {
+						"type": "number",
+						"format": "double"
+					},
+					"hitByPitch": {
+						"type": "number",
+						"format": "double"
+					},
+					"hits": {
+						"type": "number",
+						"format": "double"
+					},
+					"hitsPer9Inn": {
+						"type": "string"
+					},
+					"holds": {
+						"type": "number",
+						"format": "double"
+					},
+					"homeRuns": {
+						"type": "number",
+						"format": "double"
+					},
+					"homeRunsPer9": {
+						"type": "string"
+					},
+					"inheritedRunners": {
+						"type": "number",
+						"format": "double"
+					},
+					"inheritedRunnersScored": {
+						"type": "number",
+						"format": "double"
+					},
+					"inningsPitched": {
+						"type": "string"
+					},
+					"intentionalWalks": {
+						"type": "number",
+						"format": "double"
+					},
+					"leftOnBase": {
+						"type": "number",
+						"format": "double"
+					},
+					"losses": {
+						"type": "number",
+						"format": "double"
+					},
+					"numberOfPitches": {
+						"type": "number",
+						"format": "double"
+					},
+					"obp": {
+						"type": "string"
+					},
+					"ops": {
+						"type": "string"
+					},
+					"outs": {
+						"type": "number",
+						"format": "double"
+					},
+					"pickoffs": {
+						"type": "number",
+						"format": "double"
+					},
+					"pitchesPerInning": {
+						"type": "string"
+					},
+					"plateAppearances": {
+						"type": "number",
+						"format": "double"
+					},
+					"rbi": {
+						"type": "number",
+						"format": "double"
+					},
+					"runs": {
+						"type": "number",
+						"format": "double"
+					},
+					"runsScoredPer9": {
+						"type": "string"
+					},
+					"sacBunts": {
+						"type": "number",
+						"format": "double"
+					},
+					"sacFlies": {
+						"type": "number",
+						"format": "double"
+					},
+					"saveOpportunities": {
+						"type": "number",
+						"format": "double"
+					},
+					"saves": {
+						"type": "number",
+						"format": "double"
+					},
+					"shutouts": {
+						"type": "number",
+						"format": "double"
+					},
+					"slg": {
+						"type": "string"
+					},
+					"stolenBasePercentage": {
+						"type": "string"
+					},
+					"stolenBases": {
+						"type": "number",
+						"format": "double"
+					},
+					"strikeOuts": {
+						"type": "number",
+						"format": "double"
+					},
+					"strikePercentage": {
+						"type": "string"
+					},
+					"strikeoutWalkRatio": {
+						"type": "string"
+					},
+					"strikeoutsPer9Inn": {
+						"type": "string"
+					},
+					"strikes": {
+						"type": "number",
+						"format": "double"
+					},
+					"totalBases": {
+						"type": "number",
+						"format": "double"
+					},
+					"triples": {
+						"type": "number",
+						"format": "double"
+					},
+					"walksPer9Inn": {
+						"type": "string"
+					},
+					"whip": {
+						"type": "string"
+					},
+					"wildPitches": {
+						"type": "number",
+						"format": "double"
+					},
+					"winPercentage": {
+						"type": "string"
+					},
+					"wins": {
+						"type": "number",
+						"format": "double"
 					}
 				},
 				"required": [
-					"code",
-					"description"
+					"airOuts",
+					"atBats",
+					"atBatsPerHomeRun",
+					"avg",
+					"babip",
+					"balks",
+					"baseOnBalls",
+					"battersFaced",
+					"blownSaves",
+					"catchersInterference",
+					"caughtStealing",
+					"completeGames",
+					"doubles",
+					"earnedRuns",
+					"era",
+					"gamesFinished",
+					"gamesPitched",
+					"gamesPlayed",
+					"gamesStarted",
+					"groundOuts",
+					"groundIntoDoublePlay",
+					"groundOutsToAirouts",
+					"hitBatsmen",
+					"hitByPitch",
+					"hits",
+					"hitsPer9Inn",
+					"holds",
+					"homeRuns",
+					"homeRunsPer9",
+					"inheritedRunners",
+					"inheritedRunnersScored",
+					"inningsPitched",
+					"intentionalWalks",
+					"leftOnBase",
+					"losses",
+					"numberOfPitches",
+					"obp",
+					"ops",
+					"outs",
+					"pickoffs",
+					"pitchesPerInning",
+					"plateAppearances",
+					"rbi",
+					"runs",
+					"runsScoredPer9",
+					"sacBunts",
+					"sacFlies",
+					"saveOpportunities",
+					"saves",
+					"shutouts",
+					"slg",
+					"stolenBasePercentage",
+					"stolenBases",
+					"strikeOuts",
+					"strikePercentage",
+					"strikeoutWalkRatio",
+					"strikeoutsPer9Inn",
+					"strikes",
+					"totalBases",
+					"triples",
+					"walksPer9Inn",
+					"whip",
+					"wildPitches",
+					"winPercentage",
+					"wins"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IPlayerSplit": {
+				"properties": {
+					"gameType": {
+						"type": "string"
+					},
+					"league": {
+						"$ref": "#/components/schemas/ILeagueId"
+					},
+					"player": {
+						"$ref": "#/components/schemas/IPlayerId"
+					},
+					"season": {
+						"type": "string"
+					},
+					"sport": {
+						"$ref": "#/components/schemas/ISportId"
+					},
+					"stat": {
+						"$ref": "#/components/schemas/IPlayerSplitStats"
+					},
+					"team": {
+						"$ref": "#/components/schemas/ITeam"
+					}
+				},
+				"required": [
+					"gameType",
+					"league",
+					"player",
+					"season",
+					"sport",
+					"stat",
+					"team"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IPlayerExtendedStats": {
+				"properties": {
+					"exemption": {
+						"items": {},
+						"type": "array"
+					},
+					"group": {
+						"properties": {
+							"displayName": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"displayName"
+						],
+						"type": "object"
+					},
+					"splits": {
+						"items": {
+							"$ref": "#/components/schemas/IPlayerSplit"
+						},
+						"type": "array"
+					},
+					"type": {
+						"properties": {
+							"displayName": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"displayName"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"exemption",
+					"group",
+					"splits",
+					"type"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -1804,94 +2198,38 @@
 					"fullName": {
 						"type": "string"
 					},
-					"firstName": {
+					"active": {
+						"type": "boolean"
+					},
+					"batSide": {
+						"$ref": "#/components/schemas/ICode"
+					},
+					"birthCity": {
 						"type": "string"
 					},
-					"lastName": {
-						"type": "string"
-					},
-					"primaryNumber": {
+					"birthCountry": {
 						"type": "string"
 					},
 					"birthDate": {
+						"type": "string"
+					},
+					"birthStateProvince": {
+						"type": "string"
+					},
+					"boxscoreName": {
 						"type": "string"
 					},
 					"currentAge": {
 						"type": "number",
 						"format": "double"
 					},
-					"birthCity": {
-						"type": "string"
-					},
-					"birthStateProvince": {
-						"type": "string"
-					},
-					"birthCountry": {
-						"type": "string"
-					},
-					"height": {
-						"type": "string"
-					},
-					"weight": {
-						"type": "number",
-						"format": "double"
-					},
-					"active": {
-						"type": "boolean"
-					},
-					"primaryPosition": {
-						"$ref": "#/components/schemas/IPlayerPosition"
-					},
-					"useName": {
-						"type": "string"
-					},
-					"middleName": {
-						"type": "string"
-					},
-					"boxscoreName": {
-						"type": "string"
-					},
-					"nickName": {
-						"type": "string"
-					},
-					"gender": {
-						"type": "string"
-					},
-					"isPlayer": {
-						"type": "boolean"
-					},
-					"isVerified": {
-						"type": "boolean"
-					},
-					"draftYear": {
-						"type": "number",
-						"format": "double"
-					},
-					"mlbDebutDate": {
-						"type": "string"
-					},
-					"batSide": {
-						"$ref": "#/components/schemas/ICode"
-					},
-					"pitchHand": {
-						"$ref": "#/components/schemas/ICode"
-					},
-					"nameFirstLast": {
-						"type": "string"
-					},
-					"nameSlug": {
-						"type": "string"
+					"currentTeam": {
+						"$ref": "#/components/schemas/ITeam"
 					},
 					"firstLastName": {
 						"type": "string"
 					},
-					"lastFirstName": {
-						"type": "string"
-					},
-					"lastInitName": {
-						"type": "string"
-					},
-					"initLastName": {
+					"firstName": {
 						"type": "string"
 					},
 					"fullFMLName": {
@@ -1900,11 +2238,76 @@
 					"fullLFMName": {
 						"type": "string"
 					},
+					"gender": {
+						"type": "string"
+					},
+					"height": {
+						"type": "string"
+					},
+					"initLastName": {
+						"type": "string"
+					},
+					"isPlayer": {
+						"type": "boolean"
+					},
+					"isVerified": {
+						"type": "boolean"
+					},
+					"lastFirstName": {
+						"type": "string"
+					},
+					"lastInitName": {
+						"type": "string"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"mlbDebutDate": {
+						"type": "string"
+					},
+					"nameFirstLast": {
+						"type": "string"
+					},
+					"nameMatrilineal": {
+						"type": "string"
+					},
+					"nameSlug": {
+						"type": "string"
+					},
+					"nickName": {
+						"type": "string"
+					},
+					"pitchHand": {
+						"$ref": "#/components/schemas/ICode"
+					},
+					"primaryNumber": {
+						"type": "string"
+					},
+					"primaryPosition": {
+						"$ref": "#/components/schemas/IPlayerPosition"
+					},
+					"stats": {
+						"$ref": "#/components/schemas/IPlayerExtendedStats"
+					},
+					"strikeZoneBottom": {
+						"type": "number",
+						"format": "double"
+					},
 					"strikeZoneTop": {
 						"type": "number",
 						"format": "double"
 					},
-					"strikeZoneBottom": {
+					"useName": {
+						"type": "string"
+					},
+					"weight": {
+						"type": "number",
+						"format": "double"
+					},
+					"middleName": {
+						"type": "string"
+					},
+					"draftYear": {
 						"type": "number",
 						"format": "double"
 					},
@@ -1915,39 +2318,43 @@
 				"required": [
 					"id",
 					"link",
-					"firstName",
-					"lastName",
-					"primaryNumber",
-					"birthDate",
-					"currentAge",
-					"birthCity",
-					"birthStateProvince",
-					"birthCountry",
-					"height",
-					"weight",
 					"active",
-					"primaryPosition",
-					"useName",
-					"middleName",
-					"boxscoreName",
-					"nickName",
-					"gender",
-					"isPlayer",
-					"isVerified",
-					"draftYear",
-					"mlbDebutDate",
 					"batSide",
-					"pitchHand",
-					"nameFirstLast",
-					"nameSlug",
+					"birthCity",
+					"birthCountry",
+					"birthDate",
+					"birthStateProvince",
+					"boxscoreName",
+					"currentAge",
+					"currentTeam",
 					"firstLastName",
-					"lastFirstName",
-					"lastInitName",
-					"initLastName",
+					"firstName",
 					"fullFMLName",
 					"fullLFMName",
+					"fullName",
+					"gender",
+					"height",
+					"initLastName",
+					"isPlayer",
+					"isVerified",
+					"lastFirstName",
+					"lastInitName",
+					"lastName",
+					"mlbDebutDate",
+					"nameFirstLast",
+					"nameMatrilineal",
+					"nameSlug",
+					"nickName",
+					"pitchHand",
+					"primaryNumber",
+					"primaryPosition",
+					"stats",
+					"strikeZoneBottom",
 					"strikeZoneTop",
-					"strikeZoneBottom"
+					"useName",
+					"weight",
+					"middleName",
+					"draftYear"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -5420,7 +5827,7 @@
 	},
 	"info": {
 		"title": "sports-stats-web-service",
-		"version": "0.0.5",
+		"version": "0.0.6",
 		"description": "Web service to retrieve sports data",
 		"license": {
 			"name": "ISC"
@@ -5460,27 +5867,9 @@
 				"security": [],
 				"parameters": [
 					{
-						"description": "- The numerical month",
+						"description": "- The date in MM/DD/YYYY format",
 						"in": "query",
-						"name": "month",
-						"required": false,
-						"schema": {
-							"type": "string"
-						}
-					},
-					{
-						"description": "- The numerical day",
-						"in": "query",
-						"name": "day",
-						"required": false,
-						"schema": {
-							"type": "string"
-						}
-					},
-					{
-						"description": "- The year",
-						"in": "query",
-						"name": "year",
+						"name": "date",
 						"required": false,
 						"schema": {
 							"type": "string"
@@ -5560,27 +5949,9 @@
 						}
 					},
 					{
-						"description": "- The numerical month",
+						"description": "- The date in MM/DD/YYYY format",
 						"in": "query",
-						"name": "month",
-						"required": false,
-						"schema": {
-							"type": "string"
-						}
-					},
-					{
-						"description": "- The numerical day",
-						"in": "query",
-						"name": "day",
-						"required": false,
-						"schema": {
-							"type": "string"
-						}
-					},
-					{
-						"description": "- The year",
-						"in": "query",
-						"name": "year",
+						"name": "date",
 						"required": false,
 						"schema": {
 							"type": "string"
@@ -5660,27 +6031,9 @@
 						}
 					},
 					{
-						"description": "- The numerical month",
+						"description": "- The date in MM/DD/YYYY format",
 						"in": "query",
-						"name": "month",
-						"required": false,
-						"schema": {
-							"type": "string"
-						}
-					},
-					{
-						"description": "- The numerical day",
-						"in": "query",
-						"name": "day",
-						"required": false,
-						"schema": {
-							"type": "string"
-						}
-					},
-					{
-						"description": "- The year",
-						"in": "query",
-						"name": "year",
+						"name": "date",
 						"required": false,
 						"schema": {
 							"type": "string"
@@ -5760,27 +6113,9 @@
 						}
 					},
 					{
-						"description": "- The numerical month",
+						"description": "- The date in MM/DD/YYYY format",
 						"in": "query",
-						"name": "month",
-						"required": false,
-						"schema": {
-							"type": "string"
-						}
-					},
-					{
-						"description": "- The numerical day",
-						"in": "query",
-						"name": "day",
-						"required": false,
-						"schema": {
-							"type": "string"
-						}
-					},
-					{
-						"description": "- The year",
-						"in": "query",
-						"name": "year",
+						"name": "date",
 						"required": false,
 						"schema": {
 							"type": "string"
@@ -5857,27 +6192,9 @@
 						}
 					},
 					{
-						"description": "- The numerical month",
+						"description": "- The date in MM/DD/YYYY format",
 						"in": "query",
-						"name": "month",
-						"required": false,
-						"schema": {
-							"type": "string"
-						}
-					},
-					{
-						"description": "- The numerical day",
-						"in": "query",
-						"name": "day",
-						"required": false,
-						"schema": {
-							"type": "string"
-						}
-					},
-					{
-						"description": "- The year",
-						"in": "query",
-						"name": "year",
+						"name": "date",
 						"required": false,
 						"schema": {
 							"type": "string"
@@ -5942,27 +6259,9 @@
 						}
 					},
 					{
-						"description": "- The numerical month, e.g. 8",
+						"description": "- The date in MM/DD/YYYY format",
 						"in": "query",
-						"name": "month",
-						"required": false,
-						"schema": {
-							"type": "string"
-						}
-					},
-					{
-						"description": "- The numerical day, e.g. 12",
-						"in": "query",
-						"name": "day",
-						"required": false,
-						"schema": {
-							"type": "string"
-						}
-					},
-					{
-						"description": "- The year, e.g. 2022",
-						"in": "query",
-						"name": "year",
+						"name": "date",
 						"required": false,
 						"schema": {
 							"type": "string"
@@ -6364,7 +6663,92 @@
 						}
 					}
 				},
-				"description": "Gets the player via player id",
+				"description": "Gets the player's basic information",
+				"tags": [
+					"MLB"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "- The MLB player id",
+						"in": "query",
+						"name": "id",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The player's first name",
+						"in": "query",
+						"name": "firstName",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The player's last name",
+						"in": "query",
+						"name": "lastName",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The location of the team",
+						"in": "query",
+						"name": "location",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The name of the team",
+						"in": "query",
+						"name": "name",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The abbreviation for the team",
+						"in": "query",
+						"name": "abbreviation",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/mlb/player/stats": {
+			"get": {
+				"operationId": "GetPlayerStats",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/IPlayerResponse"
+										},
+										{
+											"$ref": "#/components/schemas/IError"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"description": "Gets the player stats",
 				"tags": [
 					"MLB"
 				],
@@ -6553,25 +6937,18 @@
 				"security": [],
 				"parameters": [
 					{
-						"in": "query",
-						"name": "month",
-						"required": false,
-						"schema": {
-							"type": "string"
-						}
-					},
-					{
-						"in": "query",
-						"name": "day",
-						"required": false,
-						"schema": {
-							"type": "string"
-						}
-					},
-					{
 						"description": "- The year requested for standings",
 						"in": "query",
 						"name": "year",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The date in MM/DD/YYYY format",
+						"in": "query",
+						"name": "date",
 						"required": false,
 						"schema": {
 							"type": "string"

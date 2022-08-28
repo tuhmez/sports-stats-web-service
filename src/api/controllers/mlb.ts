@@ -10,6 +10,7 @@ import {
   matchupUrl,
   playerCurrentHeadshotUrl,
   playerUrl,
+  playerStatsUrl,
   rosterUrl,
   standingsUrl,
   teamColorCodesPageUrl,
@@ -35,6 +36,12 @@ import {
   ITeamResponse
 } from '../interfaces';
 import { getTeamIdByFullTeamName, getTeamIdByTeamAbbreviation, getTeamIdByTeamLocation, getTeamIdByTeamName } from '../utils';
+import { validateDate } from '../../utils/date';
+
+const invalidDateError: IError = {
+  message: 'Input date is invalid. Valid format is MM/DD/YYYY (e.g. 10/01/2018)',
+  statusCode: 400,
+}
 
 const mlbTransport = axios.create();
 
@@ -43,25 +50,25 @@ const mlbTransport = axios.create();
 export class MlbController {
   /**
    * Gets a list of all the games for a given day. If any inputs are missing, the date will automatically default to the current date of request.
-   * @param {string} month - The numerical month 
-   * @param {string} day - The numerical day
-   * @param {string} year - The year
+   * @param {string} date - The date in MM/DD/YYYY format
    * @returns {IGamesResponse}
    */
   @Get('/games')
   public async getGames(
-    @Query() month?: string,
-    @Query() day?: string,
-    @Query() year?: string
+    @Query() date?: string,
   ): Promise<IGamesResponse | IError> {
-    if (!month || !day || !year) {
+    if (!date) {
       const today = new Date();
-      month = (today.getMonth() + 1).toString();
-      day = today.getDate().toString();
-      year = today.getFullYear().toString();
+      const month = (today.getMonth() + 1).toString();
+      const day = today.getDate().toString();
+      const year = today.getFullYear().toString();
+      date = `${month}/${day}/${year}`
+    } else {
+      if (!validateDate(date)) return invalidDateError;
     }
+
     try {
-      const data = await mlbTransport.get(dailyGamesUrl(month, day, year));
+      const data = await mlbTransport.get(dailyGamesUrl(date));
       return data.data;
     } catch (exception) {
       const { data, response } = exception;
@@ -80,9 +87,7 @@ export class MlbController {
    * @param {string} location - The team's location
    * @param {string} name - The team's name
    * @param {string} abbreviation - The team's abbreviation
-   * @param {string} month - The numerical month
-   * @param {string} day - The numerical day
-   * @param {string} year - The year
+   * @param {string} date - The date in MM/DD/YYYY format
    * @returns {(IGameFeedResponse|IGameFeedByTeamNameResponse[]|IError)} Returns the feed(s) for found game(s).
    */
   @Get('/game/feed')
@@ -91,9 +96,7 @@ export class MlbController {
     @Query() location?: string,
     @Query() name?: string,
     @Query() abbreviation?: string,
-    @Query() month?: string,
-    @Query() day?: string,
-    @Query() year?: string
+    @Query() date?: string,
   ): Promise<IGameFeedResponse | IGameFeedByTeamNameResponse[] | IError> {
     try {
       if (id) {
@@ -101,13 +104,17 @@ export class MlbController {
         const extractedData = data.data;
         return extractedData.messageNumber === 11 ? extractedData.message : extractedData;
       } else {
-        if (!month || !day || !year) {
+        if (!date) {
           const today = new Date();
-          month = (today.getMonth() + 1).toString();
-          day = today.getDate().toString();
-          year = today.getFullYear().toString();
+          const month = (today.getMonth() + 1).toString();
+          const day = today.getDate().toString();
+          const year = today.getFullYear().toString();
+          date = `${month}/${day}/${year}`
+        } else {
+          if (!validateDate(date)) return invalidDateError;
         }
-        const data: IGamesResponse = await (await mlbTransport.get(dailyGamesUrl(month, day, year))).data as IGamesResponse;
+
+        const data: IGamesResponse = await (await mlbTransport.get(dailyGamesUrl(date))).data as IGamesResponse;
         if (data.totalGames === 0) return [];
 
         const games = data.dates[0].games.filter((g) => {
@@ -162,9 +169,7 @@ export class MlbController {
    * @param {string} location - The team's location
    * @param {string} name - The team's name
    * @param {string} abbreviation - The team's abbreviation
-   * @param {string} month - The numerical month
-   * @param {string} day - The numerical day
-   * @param {string} year - The year
+   * @param {string} date - The date in MM/DD/YYYY format
    * @returns {(IGameBoxscoreResponse|IGameBoxscoreResponse[]|IError)} - The boxscore(s) for the given game(s).
    */
   @Get('/game/boxscore')
@@ -173,9 +178,7 @@ export class MlbController {
     @Query() location?: string,
     @Query() name?: string,
     @Query() abbreviation?: string,
-    @Query() month?: string,
-    @Query() day?: string,
-    @Query() year?: string
+    @Query() date?: string,
   ): Promise<IGameBoxscoreResponse | IGameBoxscoreResponse[] | IError> {
     try {
       if (id) {
@@ -184,16 +187,19 @@ export class MlbController {
 
         return extractedData.messageNumber === 11 ? extractedData.message : extractedData;
       } else {
-        if (!month || !day || !year) {
+        if (!date) {
           const today = new Date();
-          month = (today.getMonth() + 1).toString();
-          day = today.getDate().toString();
-          year = today.getFullYear().toString();
+          const month = (today.getMonth() + 1).toString();
+          const day = today.getDate().toString();
+          const year = today.getFullYear().toString();
+          date = `${month}/${day}/${year}`;
+        } else {
+          if (!validateDate(date)) return invalidDateError;
         }
-        const data: IGamesResponse = await (await mlbTransport.get(dailyGamesUrl(month, day, year))).data as IGamesResponse;
+
+        const data: IGamesResponse = await (await mlbTransport.get(dailyGamesUrl(date))).data as IGamesResponse;
         if (data.totalGames === 0) return [];
 
-        
         const games = data.dates[0].games.filter((g) => {
           const { away, home } = g.teams;
           const { team: awayTeam } = away;
@@ -236,9 +242,7 @@ export class MlbController {
    * @param {string} location - The team's location
    * @param {string} name - The team's name
    * @param {string} abbreviation - The team's abbreviation
-   * @param {string} month - The numerical month
-   * @param {string} day - The numerical day
-   * @param {string} year - The year
+   * @param {string} date - The date in MM/DD/YYYY format
    * @returns {(IProbablesResponse|IProbablesResponse[]|IError)} - The probables(s) for the given game(s).
    */
   @Get('/game/probables')
@@ -247,9 +251,7 @@ export class MlbController {
     @Query() location?: string,
     @Query() name?: string,
     @Query() abbreviation?: string,
-    @Query() month?: string,
-    @Query() day?: string,
-    @Query() year?: string
+    @Query() date?: string,
   ): Promise<IProbablesResponse | IProbablesResponse[] | IError> {
     try {
       if (id) {
@@ -258,13 +260,17 @@ export class MlbController {
 
         return extractedData.messageNumber === 11 ? extractedData.message : extractedData;
       } else {
-        if (!month || !day || !year) {
+        if (!date) {
           const today = new Date();
-          month = (today.getMonth() + 1).toString();
-          day = today.getDate().toString();
-          year = today.getFullYear().toString();
+          const month = (today.getMonth() + 1).toString();
+          const day = today.getDate().toString();
+          const year = today.getFullYear().toString();
+          date = `${month}/${day}/${year}`;
+        } else {
+          if (!validateDate(date)) return invalidDateError;
         }
-        const data: IGamesResponse = await (await mlbTransport.get(dailyGamesUrl(month, day, year))).data as IGamesResponse;
+
+        const data: IGamesResponse = await (await mlbTransport.get(dailyGamesUrl(date))).data as IGamesResponse;
         if (data.totalGames === 0) return [];
 
         const games = data.dates[0].games.filter((g) => {
@@ -309,9 +315,7 @@ export class MlbController {
    * @param {string} location - The team's location
    * @param {string} name - The team's name
    * @param {string} abbreviation - The team's abbreviation
-   * @param {string} month - The numerical month
-   * @param {string} day - The numerical day
-   * @param {string} year - The year
+   * @param {string} date - The date in MM/DD/YYYY format
    * @returns {(IProbablesResponse[]|IError)} - The score(s) for the given game(s).
    */
   @Get('/game/score')
@@ -320,9 +324,7 @@ export class MlbController {
     @Query() location?: string,
     @Query() name?: string,
     @Query() abbreviation?: string,
-    @Query() month?: string,
-    @Query() day?: string,
-    @Query() year?: string
+    @Query() date?: string,
   ): Promise<IGameScoreResponse[] | IError> {
     try {
       if (id) {
@@ -330,13 +332,17 @@ export class MlbController {
         const extractedData = data.data;
         return extractedData.messageNumber === 11 ? extractedData.message : extractedData;
       } else {
-        if (!month || !day || !year) {
+        if (!date) {
           const today = new Date();
-          month = (today.getMonth() + 1).toString();
-          day = today.getDate().toString();
-          year = today.getFullYear().toString();
+          const month = (today.getMonth() + 1).toString();
+          const day = today.getDate().toString();
+          const year = today.getFullYear().toString();
+          date = `${month}/${day}/${year}`;
+        } else {
+          if (!validateDate(date)) return invalidDateError;
         }
-        const data: IGamesResponse = await (await mlbTransport.get(dailyGamesUrl(month, day, year))).data as IGamesResponse;
+
+        const data: IGamesResponse = await (await mlbTransport.get(dailyGamesUrl(date))).data as IGamesResponse;
         if (data.totalGames === 0) return [];
 
         const games = data.dates[0].games.filter((g) => {
@@ -393,12 +399,10 @@ export class MlbController {
 
   /**
    * Gets the game for a given team. Will use current day, unless day, month, and year are passed into function
-   * @param location - The team's location (lower case), e.g. milwaukee
-   * @param name - The team's name (lower case), e.g. brewers
+   * @param {string} location - The team's location (lower case), e.g. milwaukee
+   * @param {string} name - The team's name (lower case), e.g. brewers
    * @param {string} abbreviation - The team's abbreviation
-   * @param month - The numerical month, e.g. 8
-   * @param day - The numerical day, e.g. 12
-   * @param year - The year, e.g. 2022
+   * @param {string} date - The date in MM/DD/YYYY format
    * @returns {IGameByTeamNameResponse}
    */
   @Get('/game')
@@ -406,18 +410,20 @@ export class MlbController {
     @Query() location?: string,
     @Query() name?: string,
     @Query() abbreviation?: string,
-    @Query() month?: string,
-    @Query() day?: string,
-    @Query() year?: string
+    @Query() date?: string,
   ): Promise<IGameByTeamNameResponse | IError> {
-    if (!month || !day || !year) {
+    if (!date) {
       const today = new Date();
-      month = (today.getMonth() + 1).toString();
-      day = today.getDate().toString();
-      year = today.getFullYear().toString();
+      const month = (today.getMonth() + 1).toString();
+      const day = today.getDate().toString();
+      const year = today.getFullYear().toString();
+      date = `${month}/${day}/${year}`;
+    } else {
+      if (!validateDate(date)) return invalidDateError;
     }
+
     try {
-      const data: IGamesResponse = await (await mlbTransport.get(dailyGamesUrl(month, day, year))).data as IGamesResponse;
+      const data: IGamesResponse = await (await mlbTransport.get(dailyGamesUrl(date))).data as IGamesResponse;
       if (data.totalGames === 0) {
         const response: IGameByTeamNameResponse = {
           totalGames: 0,
@@ -899,7 +905,7 @@ export class MlbController {
   }
 
   /**
-   * Gets the player via player id
+   * Gets the player's basic information
    * @param {string} id - The MLB player id
    * @param {string} firstName - The player's first name
    * @param {string} lastName - The player's last name
@@ -956,6 +962,78 @@ export class MlbController {
       }
 
       const data = await mlbTransport.get(playerUrl(id));
+      const extractedData = data.data;
+
+      return extractedData.messageNumber === 11 ? extractedData.message : extractedData;
+    } catch (exception) {
+      const { data, response } = exception;
+      LogError(response.status, `/mlb/player/${id}`, data.message);
+      const error: IError = {
+        message: data.message,
+        statusCode: response.status,
+      };
+      return error;
+    }
+  }
+
+    /**
+   * Gets the player stats
+   * @param {string} id - The MLB player id
+   * @param {string} firstName - The player's first name
+   * @param {string} lastName - The player's last name
+   * @param {string} location - The location of the team
+   * @param {string} name - The name of the team
+   * @param {string} abbreviation - The abbreviation for the team
+   * @returns {(IPlayerResponse | IError)}
+   */
+  @Get('/player/stats')
+  public async getPlayerStats(
+    @Query() id?: string,
+    @Query() firstName?: string,
+    @Query() lastName?: string,
+    @Query() location?: string,
+    @Query() name?: string,
+    @Query() abbreviation?: string,
+  ): Promise<IPlayerResponse | IError> {
+    try {
+      if (!id) {
+        const inputPlayer = `${firstName.trim().toLowerCase()} ${lastName.trim().toLowerCase()}`;
+        
+        const teams: ITeamResponse = await (await mlbTransport.get(teamUrl(''))).data;
+        
+        const foundTeam = teams.teams.find((t) => {
+          if (location && name) {
+            const inputTeam = `${location.trim().toLowerCase()} ${name.trim().toLowerCase()}`;
+            return t.name.toLowerCase() === inputTeam;
+          } else if (abbreviation) {
+            return t.abbreviation.toLowerCase() === abbreviation
+          } else {
+            return false;
+          }
+        });
+
+        if (!foundTeam) {
+          return {
+            message: `Could not find team`,
+            statusCode: 400,
+          };
+        }
+
+        const rosterData: IRosterResponse = await (await mlbTransport.get(rosterUrl(foundTeam.id.toString()))).data;
+
+        const foundPlayer = rosterData.roster.find((r) => r.person.fullName.toLowerCase() === inputPlayer);
+
+        if (!foundPlayer) {
+          return {
+            message: `Could not find player: ${inputPlayer}`,
+            statusCode: 400,
+          };
+        } else {
+          id = foundPlayer.person.id.toString();
+        }
+      }
+
+      const data = await mlbTransport.get(playerStatsUrl(id));
       const extractedData = data.data;
 
       return extractedData.messageNumber === 11 ? extractedData.message : extractedData;
@@ -1044,30 +1122,41 @@ export class MlbController {
   /**
    * Gets the current standings for the MLB
    * @param {string} year - The year requested for standings
+   * @param {string} date - The date in MM/DD/YYYY format
    * @param {string} location - The MLB team location
    * @param {string} name - The MLB team name
    * @param {string} abbreviation - The MLB team's abbreviation
-   * @param {string} division - The MLB division
    * @returns {(IStandingsResponse | IError)}
    */
   @Get('/standings')
   public async getStandings(
-    @Query() month?: string,
-    @Query() day?: string,
     @Query() year?: string,
+    @Query() date?: string,
     @Query() location?: string,
     @Query() name?: string,
     @Query() abbreviation?: string,
   ): Promise<IStandingsResponse | ITeamRecord | IError> {
     try {
-      if (!month && !day && !year) {
+      if (!year && !date) {
         const today = new Date();
-        month = (today.getMonth() + 1).toString();
-        day = today.getDate().toString();
+        const month = (today.getMonth() + 1).toString();
+        const day = today.getDate().toString();
         year = today.getFullYear().toString();
+        date = `${month}/${day}/${year}`;
+      } else if (!year && date) {
+        if (!validateDate(date)) return invalidDateError;
+        year = date.split('/')[2];
+      } else if (year && date) {
+        if (!validateDate(date)) return invalidDateError;
+        if (year !== date.split('/')[2]) {
+          return {
+            message: 'The input year and input date\'s year must match',
+            statusCode: 400,
+          } as IError;
+        }
       }
 
-      const standings: IStandingsResponse = await(await mlbTransport.get(standingsUrl(year, month, day))).data
+      const standings: IStandingsResponse = await(await mlbTransport.get(standingsUrl(year, date))).data
 
       if (!location && !name && !abbreviation) return standings;
 
