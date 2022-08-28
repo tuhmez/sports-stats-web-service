@@ -11,6 +11,9 @@ router.get('/', async (_req, res) => {
   const html = `
     <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
       <h1>Sports Stats Web Service - v${version}</h1>
+      <h3 style="margin: 0;">
+        Author: <a href="https://github.com/tuhmez">Chris Tamez</a>
+      </h3>
       <p>Listed are the base routes for the web service. When clicking the link, you will be redirected to the base of the selected route, where more routes will be listed or data will be returned.</p>
       <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 8px;">
         <a href="${baseURL}docs">Swagger UI</a>
