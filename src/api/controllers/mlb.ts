@@ -1,6 +1,7 @@
-import { Get, Route, Tags, Produces, Path, Query } from 'tsoa';
+import { Get, Route, Tags, Produces, Query } from 'tsoa';
 import axios from 'axios';
 import { load } from 'cheerio';
+import sharp from 'sharp';
 
 import { LogError } from '../../utils';
 import {
@@ -573,16 +574,18 @@ export class MlbController {
    * @param {string} location - The team's location
    * @param {string} name - The team's name
    * @param {string} abbreviation - The team's abbreviation
-   * @returns {(HTMLOrSVGElement | IError)}
+   * @param {string} format - Optional format input, accepts SVG and PNG; if not provided, SVG will be provided
+   * @returns {(HTMLOrSVGElement | Buffer | IError)}
    */
   @Get('/team/logo')
-  @Produces('image/svg')
+  @Produces('image/*')
   public async getTeamLogo(
     @Query() id?: string,
     @Query() location?: string,
     @Query() name?: string,
     @Query() abbreviation?: string,
-  ): Promise<HTMLOrSVGElement | IError> {
+    @Query() format?: string
+  ): Promise<HTMLOrSVGElement | Buffer | IError> {
     const route = '/mlb/game/team/logo';
     try {
       if (!id) {
@@ -629,8 +632,27 @@ export class MlbController {
         id = teamIdResponse;
       }
 
-      const data = await mlbTransport.get(teamLogosUrl(id));
-      return data.data;
+      const response = await mlbTransport.get(teamLogosUrl(id));
+
+      let image = response.data;
+
+      if (format) {
+        if (format.toLowerCase() === "png") {
+          console.log('here')
+          try {
+            image = await sharp(Buffer.from(image)).png().toBuffer();
+          } catch (ex) {
+            const message = "Image conversion from SVG to PNG failed";
+            const error: IError = {
+              message,
+              statusCode: 500
+            };
+            return error;
+          }
+        }
+      }
+
+      return image;
     } catch (exception) {
       const message = 'Failed to retrieve logo';
       LogError(400, `/mlb/team/logo`, message);

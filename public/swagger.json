@@ -6377,11 +6377,15 @@
 					"200": {
 						"description": "Ok",
 						"content": {
-							"image/svg": {
+							"image/*": {
 								"schema": {
 									"anyOf": [
 										{
 											"$ref": "#/components/schemas/HTMLOrSVGElement"
+										},
+										{
+											"type": "string",
+											"format": "byte"
 										},
 										{
 											"$ref": "#/components/schemas/IError"
@@ -6429,6 +6433,15 @@
 						"description": "- The team's abbreviation",
 						"in": "query",
 						"name": "abbreviation",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- Optional format input, accepts SVG and PNG; if not provided, SVG will be provided",
+						"in": "query",
+						"name": "format",
 						"required": false,
 						"schema": {
 							"type": "string"

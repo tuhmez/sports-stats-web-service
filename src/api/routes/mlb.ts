@@ -176,12 +176,13 @@ export class MLBRoutes {
       const location = _req.query.location as string;
       const name = _req.query.name as string;
       const abbreviation = _req.query.abbreviation as string;
+      const format = _req.query.format as string;
 
       if (!id && !location && !name && !abbreviation) {
         return res.send('Inputs invalid, must have a query entry for: id, location, name, or abbreviation');
       }
 
-      const response = await mlbController.getTeamLogo(id, location, name, abbreviation);
+      const response = await mlbController.getTeamLogo(id, location, name, abbreviation, format);
       return res.send(response);
     });
 

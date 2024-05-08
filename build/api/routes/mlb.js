@@ -28,61 +28,68 @@ class MLBRoutes {
         }));
         // ===== games ===== //
         router.get("/mlb/games", (_req, res) => __awaiter(this, void 0, void 0, function* () {
-            const month = _req.query.month;
-            const day = _req.query.day;
-            const year = _req.query.year;
-            const response = yield mlbController.getGames(month, day, year);
+            const date = _req.query.date;
+            const response = yield mlbController.getGames(date);
             return res.json(response);
         }));
         router.get("/mlb/game/feed", (_req, res) => __awaiter(this, void 0, void 0, function* () {
-            const gameId = _req.query.gameId;
-            const teamLocation = _req.query.teamLocation;
-            const teamName = _req.query.teamName;
-            const month = _req.query.month;
-            const day = _req.query.day;
-            const year = _req.query.year;
-            if ((!gameId || gameId === '') &&
-                (!teamLocation || teamLocation === '' || !teamName || teamName === '')) {
+            const id = _req.query.id;
+            const location = _req.query.location;
+            const name = _req.query.name;
+            const abbreviation = _req.query.abbreviation;
+            const date = _req.query.date;
+            if ((!id || id === '') &&
+                ((!location || location === '' || !name || name === '') && (!abbreviation || abbreviation === ''))) {
                 return res.send('Game ID/Team Location and Team Name invalid!');
             }
-            const response = yield mlbController.getFeed(gameId, teamLocation, teamName, month, day, year);
+            const response = yield mlbController.getFeed(id, location, name, abbreviation, date);
             return res.send(response);
         }));
         router.get("/mlb/game/boxscore", (_req, res) => __awaiter(this, void 0, void 0, function* () {
-            const gameId = _req.query.gameId;
-            const teamLocation = _req.query.teamLocation;
-            const teamName = _req.query.teamName;
-            const month = _req.query.month;
-            const day = _req.query.day;
-            const year = _req.query.year;
-            if ((!gameId || gameId === '') &&
-                (!teamLocation || teamLocation === '' || !teamName || teamName === '')) {
+            const id = _req.query.id;
+            const location = _req.query.location;
+            const name = _req.query.name;
+            const abbreviation = _req.query.abbreviation;
+            const date = _req.query.date;
+            if ((!id || id === '') &&
+                ((!location || location === '' || !name || name === '') && (!abbreviation || abbreviation === ''))) {
                 return res.send('Game ID/Team Location and Team Name invalid!');
             }
-            const response = yield mlbController.getBoxscore(gameId, teamLocation, teamName, month, day, year);
+            const response = yield mlbController.getBoxscore(id, location, name, abbreviation, date);
             return res.send(response);
         }));
         router.get("/mlb/game/probables", (_req, res) => __awaiter(this, void 0, void 0, function* () {
-            const gameId = _req.query.gameId;
-            const teamLocation = _req.query.teamLocation;
-            const teamName = _req.query.teamName;
-            const month = _req.query.month;
-            const day = _req.query.day;
-            const year = _req.query.year;
-            if ((!gameId || gameId === '') &&
-                (!teamLocation || teamLocation === '' || !teamName || teamName === '')) {
+            const id = _req.query.gameId;
+            const location = _req.query.teamLocation;
+            const name = _req.query.teamName;
+            const abbreviation = _req.query.abbreviation;
+            const date = _req.query.date;
+            if ((!id || id === '') &&
+                ((!location || location === '' || !name || name === '') && (!abbreviation || abbreviation === ''))) {
                 return res.send('Game ID/Team Location and Team Name invalid!');
             }
-            const response = yield mlbController.getGameProbables(gameId, teamLocation, teamName, month, day, year);
+            const response = yield mlbController.getGameProbables(id, location, name, abbreviation, date);
             return res.json(response);
         }));
-        router.get("/mlb/game/:teamLocation-:teamName", (_req, res) => __awaiter(this, void 0, void 0, function* () {
-            const teamLocation = _req.params.teamLocation;
-            const teamName = _req.params.teamName;
-            const month = _req.query.month;
-            const day = _req.query.day;
-            const year = _req.query.year;
-            const response = yield mlbController.getGameForTeam(teamLocation, teamName, month, day, year);
+        router.get("/mlb/game/score", (_req, res) => __awaiter(this, void 0, void 0, function* () {
+            const id = _req.query.id;
+            const location = _req.query.location;
+            const name = _req.query.name;
+            const abbreviation = _req.query.abbreviation;
+            const date = _req.query.date;
+            if ((!id || id === '') &&
+                ((!location || location === '' || !name || name === '') && (!abbreviation || abbreviation === ''))) {
+                return res.send('Game ID/Team Location and Team Name invalid!');
+            }
+            const response = yield mlbController.getGameScore(id, location, name, abbreviation, date);
+            return res.json(response);
+        }));
+        router.get("/mlb/game", (_req, res) => __awaiter(this, void 0, void 0, function* () {
+            const location = _req.query.location;
+            const name = _req.query.name;
+            const abbreviation = _req.query.abbreviation;
+            const date = _req.query.date;
+            const response = yield mlbController.getGameForTeam(location, name, abbreviation, date);
             return res.json(response);
         }));
         // ===== games ===== //
@@ -107,10 +114,11 @@ class MLBRoutes {
             const location = _req.query.location;
             const name = _req.query.name;
             const abbreviation = _req.query.abbreviation;
+            const format = _req.query.format;
             if (!id && !location && !name && !abbreviation) {
                 return res.send('Inputs invalid, must have a query entry for: id, location, name, or abbreviation');
             }
-            const response = yield mlbController.getTeamLogo(id, location, name, abbreviation);
+            const response = yield mlbController.getTeamLogo(id, location, name, abbreviation, format);
             return res.send(response);
         }));
         router.get("/mlb/team/leaders", (_req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -168,6 +176,19 @@ class MLBRoutes {
             const response = yield mlbController.getPlayer(id, firstName, lastName, location, name, abbreviation);
             return res.json(response);
         }));
+        router.get("/mlb/player/stats", (_req, res) => __awaiter(this, void 0, void 0, function* () {
+            const id = _req.query.id;
+            const firstName = _req.query.firstName;
+            const lastName = _req.query.lastName;
+            const location = _req.query.location;
+            const name = _req.query.name;
+            const abbreviation = _req.query.abbreviation;
+            if (!id && !firstName && !lastName && !location && !name && !abbreviation) {
+                return res.send('Player ID or player information not invalid!');
+            }
+            const response = yield mlbController.getPlayerStats(id, firstName, lastName, location, name, abbreviation);
+            return res.json(response);
+        }));
         router.get("/mlb/player/headshot", (_req, res) => __awaiter(this, void 0, void 0, function* () {
             const id = _req.query.id;
             const firstName = _req.query.firstName;
@@ -185,7 +206,12 @@ class MLBRoutes {
         // ===== players ===== //
         // ===== standings ===== //
         router.get("/mlb/standings", (_req, res) => __awaiter(this, void 0, void 0, function* () {
-            const response = yield mlbController.getStandings();
+            const year = _req.query.year;
+            const date = _req.query.date;
+            const location = _req.query.location;
+            const name = _req.query.name;
+            const abbreviation = _req.query.abbreviation;
+            const response = yield mlbController.getStandings(year, date, location, name, abbreviation);
             return res.json(response);
         }));
         // ===== standings ===== //

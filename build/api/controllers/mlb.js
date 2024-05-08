@@ -31,25 +31,34 @@ const cheerio_1 = require("cheerio");
 const utils_1 = require("../../utils");
 const urls_1 = require("../urls");
 const utils_2 = require("../utils");
+const date_1 = require("../../utils/date");
+const sharp_1 = __importDefault(require("sharp"));
+const invalidDateError = {
+    message: 'Input date is invalid. Valid format is MM/DD/YYYY (e.g. 10/01/2018)',
+    statusCode: 400,
+};
 const mlbTransport = axios_1.default.create();
 let MlbController = class MlbController {
     /**
      * Gets a list of all the games for a given day. If any inputs are missing, the date will automatically default to the current date of request.
-     * @param {string} month - The numerical month
-     * @param {string} day - The numerical day
-     * @param {string} year - The year
+     * @param {string} date - The date in MM/DD/YYYY format
      * @returns {IGamesResponse}
      */
-    getGames(month, day, year) {
+    getGames(date) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!month || !day || !year) {
+            if (!date) {
                 const today = new Date();
-                month = (today.getMonth() + 1).toString();
-                day = today.getDate().toString();
-                year = today.getFullYear().toString();
+                const month = (today.getMonth() + 1).toString();
+                const day = today.getDate().toString();
+                const year = today.getFullYear().toString();
+                date = `${month}/${day}/${year}`;
+            }
+            else {
+                if (!(0, date_1.validateDate)(date))
+                    return invalidDateError;
             }
             try {
-                const data = yield mlbTransport.get((0, urls_1.dailyGamesUrl)(month, day, year));
+                const data = yield mlbTransport.get((0, urls_1.dailyGamesUrl)(date));
                 return data.data;
             }
             catch (exception) {
@@ -65,40 +74,56 @@ let MlbController = class MlbController {
     }
     /**
      * Gets the game feed for the given game ID or team location and team name, with optional date.
-     * @param {string} gameId - The game ID
-     * @param {string} teamLocation - The team's location
-     * @param {string} teamName - The team's name
-     * @param {string} month - The numerical month
-     * @param {string} day - The numerical day
-     * @param {string} year - The year
+     * @param {string} id - The game ID
+     * @param {string} location - The team's location
+     * @param {string} name - The team's name
+     * @param {string} abbreviation - The team's abbreviation
+     * @param {string} date - The date in MM/DD/YYYY format
      * @returns {(IGameFeedResponse|IGameFeedByTeamNameResponse[]|IError)} Returns the feed(s) for found game(s).
      */
-    getFeed(gameId, teamLocation, teamName, month, day, year) {
+    getFeed(id, location, name, abbreviation, date) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                if (gameId) {
-                    const data = yield mlbTransport.get((0, urls_1.gameFeedUrl)(gameId));
+                if (id) {
+                    const data = yield mlbTransport.get((0, urls_1.gameFeedUrl)(id));
                     const extractedData = data.data;
                     return extractedData.messageNumber === 11 ? extractedData.message : extractedData;
                 }
                 else {
-                    if (!month || !day || !year) {
+                    if (!date) {
                         const today = new Date();
-                        month = (today.getMonth() + 1).toString();
-                        day = today.getDate().toString();
-                        year = today.getFullYear().toString();
+                        const month = (today.getMonth() + 1).toString();
+                        const day = today.getDate().toString();
+                        const year = today.getFullYear().toString();
+                        date = `${month}/${day}/${year}`;
                     }
-                    const data = yield (yield mlbTransport.get((0, urls_1.dailyGamesUrl)(month, day, year))).data;
+                    else {
+                        if (!(0, date_1.validateDate)(date))
+                            return invalidDateError;
+                    }
+                    const data = yield (yield mlbTransport.get((0, urls_1.dailyGamesUrl)(date))).data;
                     if (data.totalGames === 0)
                         return [];
-                    const inputTeam = `${teamLocation.trim().toLowerCase()} ${teamName.trim().toLowerCase()}`;
                     const games = data.dates[0].games.filter((g) => {
                         const { away, home } = g.teams;
                         const { team: awayTeam } = away;
-                        const { name: awayName } = awayTeam;
+                        const { name: awayName, abbreviation: awayAbbreviation } = awayTeam;
                         const { team: homeTeam } = home;
-                        const { name: homeName } = homeTeam;
-                        return awayName.toLowerCase() === inputTeam || homeName.toLowerCase() === inputTeam;
+                        const { name: homeName, abbreviation: homeAbbreviation } = homeTeam;
+                        if (location && name) {
+                            const inputTeam = `${location.trim().toLowerCase()} ${name.trim().toLowerCase()}`;
+                            return awayName.toLowerCase() === inputTeam || homeName.toLowerCase() === inputTeam;
+                        }
+                        else if (abbreviation) {
+                            return awayAbbreviation.toLowerCase() === abbreviation.toLowerCase() || homeAbbreviation.toLowerCase() === abbreviation.toLowerCase();
+                        }
+                        else {
+                            const error = {
+                                message: 'Could not find team!',
+                                statusCode: 400,
+                            };
+                            return error;
+                        }
                     });
                     const gameFeedsPromises = yield Promise.all(games.map((g) => mlbTransport.get((0, urls_1.gameFeedUrl)(g.gamePk.toString()))));
                     return gameFeedsPromises.map((gfp) => {
@@ -115,7 +140,7 @@ let MlbController = class MlbController {
             }
             catch (exception) {
                 const { data, response } = exception;
-                (0, utils_1.LogError)(response.status, `/mlb/game/${gameId}/feed`, data.message);
+                (0, utils_1.LogError)(response.status, `/mlb/game/feed`, data.message);
                 const error = {
                     message: data.message,
                     statusCode: response.status,
@@ -126,40 +151,56 @@ let MlbController = class MlbController {
     }
     /**
      * Gets the boxscore for the given game ID or team location and team name, with optional date.
-     * @param {string} gameId - The game ID
-     * @param {string} teamLocation - The team's location
-     * @param {string} teamName - The team's name
-     * @param {string} month - The numerical month
-     * @param {string} day - The numerical day
-     * @param {string} year - The year
+     * @param {string} id - The game ID
+     * @param {string} location - The team's location
+     * @param {string} name - The team's name
+     * @param {string} abbreviation - The team's abbreviation
+     * @param {string} date - The date in MM/DD/YYYY format
      * @returns {(IGameBoxscoreResponse|IGameBoxscoreResponse[]|IError)} - The boxscore(s) for the given game(s).
      */
-    getBoxscore(gameId, teamLocation, teamName, month, day, year) {
+    getBoxscore(id, location, name, abbreviation, date) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                if (gameId) {
-                    const data = yield mlbTransport.get((0, urls_1.gameBoxscoreUrl)(gameId));
+                if (id) {
+                    const data = yield mlbTransport.get((0, urls_1.gameBoxscoreUrl)(id));
                     const extractedData = data.data;
                     return extractedData.messageNumber === 11 ? extractedData.message : extractedData;
                 }
                 else {
-                    if (!month || !day || !year) {
+                    if (!date) {
                         const today = new Date();
-                        month = (today.getMonth() + 1).toString();
-                        day = today.getDate().toString();
-                        year = today.getFullYear().toString();
+                        const month = (today.getMonth() + 1).toString();
+                        const day = today.getDate().toString();
+                        const year = today.getFullYear().toString();
+                        date = `${month}/${day}/${year}`;
                     }
-                    const data = yield (yield mlbTransport.get((0, urls_1.dailyGamesUrl)(month, day, year))).data;
+                    else {
+                        if (!(0, date_1.validateDate)(date))
+                            return invalidDateError;
+                    }
+                    const data = yield (yield mlbTransport.get((0, urls_1.dailyGamesUrl)(date))).data;
                     if (data.totalGames === 0)
                         return [];
-                    const inputTeam = `${teamLocation.trim().toLowerCase()} ${teamName.trim().toLowerCase()}`;
                     const games = data.dates[0].games.filter((g) => {
                         const { away, home } = g.teams;
                         const { team: awayTeam } = away;
-                        const { name: awayName } = awayTeam;
+                        const { name: awayName, abbreviation: awayAbbreviation } = awayTeam;
                         const { team: homeTeam } = home;
-                        const { name: homeName } = homeTeam;
-                        return awayName.toLowerCase() === inputTeam || homeName.toLowerCase() === inputTeam;
+                        const { name: homeName, abbreviation: homeAbbreviation } = homeTeam;
+                        if (location && name) {
+                            const inputTeam = `${location.trim().toLowerCase()} ${name.trim().toLowerCase()}`;
+                            return awayName.toLowerCase() === inputTeam || homeName.toLowerCase() === inputTeam;
+                        }
+                        else if (abbreviation) {
+                            return awayAbbreviation.toLowerCase() === abbreviation.toLowerCase() || homeAbbreviation.toLowerCase() === abbreviation.toLowerCase();
+                        }
+                        else {
+                            const error = {
+                                message: 'Could not find team!',
+                                statusCode: 400,
+                            };
+                            return error;
+                        }
                     });
                     const gameBoxscorePromises = yield Promise.all(games.map((g) => mlbTransport.get((0, urls_1.gameBoxscoreUrl)(g.gamePk.toString()))));
                     return gameBoxscorePromises.map((gsp) => gsp.data);
@@ -167,7 +208,7 @@ let MlbController = class MlbController {
             }
             catch (exception) {
                 const { data, response } = exception;
-                (0, utils_1.LogError)(response.status, `/mlb/game/${gameId}/boxscore`, data.message);
+                (0, utils_1.LogError)(response.status, `/mlb/game/boxscore`, data.message);
                 const error = {
                     message: data.message,
                     statusCode: response.status,
@@ -178,40 +219,56 @@ let MlbController = class MlbController {
     }
     /**
      * Gets the game probables for the given game ID or team location and team name, with optional date
-     * @param {string} gameId - The game ID
-     * @param {string} teamLocation - The team's location
-     * @param {string} teamName - The team's name
-     * @param {string} month - The numerical month
-     * @param {string} day - The numerical day
-     * @param {string} year - The year
+     * @param {string} id - The game ID
+     * @param {string} location - The team's location
+     * @param {string} name - The team's name
+     * @param {string} abbreviation - The team's abbreviation
+     * @param {string} date - The date in MM/DD/YYYY format
      * @returns {(IProbablesResponse|IProbablesResponse[]|IError)} - The probables(s) for the given game(s).
      */
-    getGameProbables(gameId, teamLocation, teamName, month, day, year) {
+    getGameProbables(id, location, name, abbreviation, date) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                if (gameId) {
-                    const data = yield mlbTransport.get((0, urls_1.matchupUrl)(gameId));
+                if (id) {
+                    const data = yield mlbTransport.get((0, urls_1.matchupUrl)(id));
                     const extractedData = data.data;
                     return extractedData.messageNumber === 11 ? extractedData.message : extractedData;
                 }
                 else {
-                    if (!month || !day || !year) {
+                    if (!date) {
                         const today = new Date();
-                        month = (today.getMonth() + 1).toString();
-                        day = today.getDate().toString();
-                        year = today.getFullYear().toString();
+                        const month = (today.getMonth() + 1).toString();
+                        const day = today.getDate().toString();
+                        const year = today.getFullYear().toString();
+                        date = `${month}/${day}/${year}`;
                     }
-                    const data = yield (yield mlbTransport.get((0, urls_1.dailyGamesUrl)(month, day, year))).data;
+                    else {
+                        if (!(0, date_1.validateDate)(date))
+                            return invalidDateError;
+                    }
+                    const data = yield (yield mlbTransport.get((0, urls_1.dailyGamesUrl)(date))).data;
                     if (data.totalGames === 0)
                         return [];
-                    const inputTeam = `${teamLocation.trim().toLowerCase()} ${teamName.trim().toLowerCase()}`;
                     const games = data.dates[0].games.filter((g) => {
                         const { away, home } = g.teams;
                         const { team: awayTeam } = away;
-                        const { name: awayName } = awayTeam;
+                        const { name: awayName, abbreviation: awayAbbreviation } = awayTeam;
                         const { team: homeTeam } = home;
-                        const { name: homeName } = homeTeam;
-                        return awayName.toLowerCase() === inputTeam || homeName.toLowerCase() === inputTeam;
+                        const { name: homeName, abbreviation: homeAbbreviation } = homeTeam;
+                        if (location && name) {
+                            const inputTeam = `${location.trim().toLowerCase()} ${name.trim().toLowerCase()}`;
+                            return awayName.toLowerCase() === inputTeam || homeName.toLowerCase() === inputTeam;
+                        }
+                        else if (abbreviation) {
+                            return awayAbbreviation.toLowerCase() === abbreviation.toLowerCase() || homeAbbreviation.toLowerCase() === abbreviation.toLowerCase();
+                        }
+                        else {
+                            const error = {
+                                message: 'Could not find team!',
+                                statusCode: 400,
+                            };
+                            return error;
+                        }
                     });
                     const gameBoxscorePromises = yield Promise.all(games.map((g) => mlbTransport.get((0, urls_1.matchupUrl)(g.gamePk.toString()))));
                     return gameBoxscorePromises.map((gsp) => gsp.data);
@@ -219,7 +276,89 @@ let MlbController = class MlbController {
             }
             catch (exception) {
                 const { data, response } = exception;
-                (0, utils_1.LogError)(response.status, `/mlb/game/${gameId}/probables`, data.message);
+                (0, utils_1.LogError)(response.status, `/mlb/game/${id}/probables`, data.message);
+                const error = {
+                    message: data.message,
+                    statusCode: response.status,
+                };
+                return error;
+            }
+        });
+    }
+    /**
+     * Gets the score for a game, without much of the extra stuff as the feed request
+     * @param {string} id - The game ID
+     * @param {string} location - The team's location
+     * @param {string} name - The team's name
+     * @param {string} abbreviation - The team's abbreviation
+     * @param {string} date - The date in MM/DD/YYYY format
+     * @returns {(IProbablesResponse[]|IError)} - The score(s) for the given game(s).
+     */
+    getGameScore(id, location, name, abbreviation, date) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                if (id) {
+                    const data = yield mlbTransport.get((0, urls_1.gameFeedUrl)(id));
+                    const extractedData = data.data;
+                    return extractedData.messageNumber === 11 ? extractedData.message : extractedData;
+                }
+                else {
+                    if (!date) {
+                        const today = new Date();
+                        const month = (today.getMonth() + 1).toString();
+                        const day = today.getDate().toString();
+                        const year = today.getFullYear().toString();
+                        date = `${month}/${day}/${year}`;
+                    }
+                    else {
+                        if (!(0, date_1.validateDate)(date))
+                            return invalidDateError;
+                    }
+                    const data = yield (yield mlbTransport.get((0, urls_1.dailyGamesUrl)(date))).data;
+                    if (data.totalGames === 0)
+                        return [];
+                    const games = data.dates[0].games.filter((g) => {
+                        const { away, home } = g.teams;
+                        const { team: awayTeam } = away;
+                        const { name: awayName, abbreviation: awayAbbreviation } = awayTeam;
+                        const { team: homeTeam } = home;
+                        const { name: homeName, abbreviation: homeAbbreviation } = homeTeam;
+                        if (location && name) {
+                            const inputTeam = `${location.trim().toLowerCase()} ${name.trim().toLowerCase()}`;
+                            return awayName.toLowerCase() === inputTeam || homeName.toLowerCase() === inputTeam;
+                        }
+                        else if (abbreviation) {
+                            return awayAbbreviation.toLowerCase() === abbreviation.toLowerCase() || homeAbbreviation.toLowerCase() === abbreviation.toLowerCase();
+                        }
+                        else {
+                            const error = {
+                                message: 'Could not find team!',
+                                statusCode: 400,
+                            };
+                            return error;
+                        }
+                    });
+                    const gameFeedsPromises = yield Promise.all(games.map((g) => mlbTransport.get((0, urls_1.gameFeedUrl)(g.gamePk.toString()))));
+                    return gameFeedsPromises.map((gfp) => {
+                        const { gameData, liveData } = gfp.data;
+                        const { linescore } = liveData;
+                        const { datetime, game, status } = gameData;
+                        const { away, home } = gameData.teams;
+                        const scoreData = {
+                            linescore,
+                            away,
+                            home,
+                            game,
+                            datetime,
+                            status,
+                        };
+                        return scoreData;
+                    });
+                }
+            }
+            catch (exception) {
+                const { data, response } = exception;
+                (0, utils_1.LogError)(response.status, `/mlb/game/score`, data.message);
                 const error = {
                     message: data.message,
                     statusCode: response.status,
@@ -230,23 +369,27 @@ let MlbController = class MlbController {
     }
     /**
      * Gets the game for a given team. Will use current day, unless day, month, and year are passed into function
-     * @param teamLocation The team's location (lower case), e.g. milwaukee
-     * @param teamName The team's name (lower case), e.g. brewers
-     * @param month The numerical month, e.g. 8
-     * @param day The numerical day, e.g. 12
-     * @param year The year, e.g. 2022
+     * @param {string} location - The team's location (lower case), e.g. milwaukee
+     * @param {string} name - The team's name (lower case), e.g. brewers
+     * @param {string} abbreviation - The team's abbreviation
+     * @param {string} date - The date in MM/DD/YYYY format
      * @returns {IGameByTeamNameResponse}
      */
-    getGameForTeam(teamLocation, teamName, month, day, year) {
+    getGameForTeam(location, name, abbreviation, date) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!month || !day || !year) {
+            if (!date) {
                 const today = new Date();
-                month = (today.getMonth() + 1).toString();
-                day = today.getDate().toString();
-                year = today.getFullYear().toString();
+                const month = (today.getMonth() + 1).toString();
+                const day = today.getDate().toString();
+                const year = today.getFullYear().toString();
+                date = `${month}/${day}/${year}`;
+            }
+            else {
+                if (!(0, date_1.validateDate)(date))
+                    return invalidDateError;
             }
             try {
-                const data = yield (yield mlbTransport.get((0, urls_1.dailyGamesUrl)(month, day, year))).data;
+                const data = yield (yield mlbTransport.get((0, urls_1.dailyGamesUrl)(date))).data;
                 if (data.totalGames === 0) {
                     const response = {
                         totalGames: 0,
@@ -255,14 +398,26 @@ let MlbController = class MlbController {
                     };
                     return response;
                 }
-                const inputTeam = `${teamLocation.trim().toLowerCase()} ${teamName.trim().toLowerCase()}`;
                 const games = data.dates[0].games.filter((g) => {
                     const { away, home } = g.teams;
                     const { team: awayTeam } = away;
-                    const { name: awayName } = awayTeam;
+                    const { name: awayName, abbreviation: awayAbbreviation } = awayTeam;
                     const { team: homeTeam } = home;
-                    const { name: homeName } = homeTeam;
-                    return awayName.toLowerCase() === inputTeam || homeName.toLowerCase() === inputTeam;
+                    const { name: homeName, abbreviation: homeAbbreviation } = homeTeam;
+                    if (location && name) {
+                        const inputTeam = `${location.trim().toLowerCase()} ${name.trim().toLowerCase()}`;
+                        return awayName.toLowerCase() === inputTeam || homeName.toLowerCase() === inputTeam;
+                    }
+                    else if (abbreviation) {
+                        return awayAbbreviation.toLowerCase() === abbreviation.toLowerCase() || homeAbbreviation.toLowerCase() === abbreviation.toLowerCase();
+                    }
+                    else {
+                        const error = {
+                            message: 'Could not find team!',
+                            statusCode: 400,
+                        };
+                        return error;
+                    }
                 });
                 const response = {
                     totalGames: games.length,
@@ -273,7 +428,7 @@ let MlbController = class MlbController {
             }
             catch (exception) {
                 const { data, response } = exception;
-                (0, utils_1.LogError)(response.status, `/mlb/game/${teamLocation.trim().toLowerCase()}-${teamName.trim().toLowerCase()}`, data.message);
+                (0, utils_1.LogError)(response.status, `/mlb/game`, data.message);
                 const error = {
                     message: data.message,
                     statusCode: response.status
@@ -381,9 +536,10 @@ let MlbController = class MlbController {
      * @param {string} location - The team's location
      * @param {string} name - The team's name
      * @param {string} abbreviation - The team's abbreviation
-     * @returns {(HTMLOrSVGElement | IError)}
+     * @param {string} format - Optional format input, accepts SVG and PNG; if not provided, SVG will be provided
+     * @returns {(HTMLOrSVGElement | Buffer | IError)}
      */
-    getTeamLogo(id, location, name, abbreviation) {
+    getTeamLogo(id, location, name, abbreviation, format) {
         return __awaiter(this, void 0, void 0, function* () {
             const route = '/mlb/game/team/logo';
             try {
@@ -431,8 +587,25 @@ let MlbController = class MlbController {
                     }
                     id = teamIdResponse;
                 }
-                const data = yield mlbTransport.get((0, urls_1.teamLogosUrl)(id));
-                return data.data;
+                const response = yield mlbTransport.get((0, urls_1.teamLogosUrl)(id));
+                let image = response.data;
+                if (format) {
+                    if (format.toLowerCase() === "png") {
+                        console.log('here');
+                        try {
+                            image = yield (0, sharp_1.default)(Buffer.from(image)).png().toBuffer();
+                        }
+                        catch (ex) {
+                            const message = "Image conversion from SVG to PNG failed";
+                            const error = {
+                                message,
+                                statusCode: 500
+                            };
+                            return error;
+                        }
+                    }
+                }
+                return image;
             }
             catch (exception) {
                 const message = 'Failed to retrieve logo';
@@ -686,7 +859,7 @@ let MlbController = class MlbController {
         });
     }
     /**
-     * Gets the player via player id
+     * Gets the player's basic information
      * @param {string} id - The MLB player id
      * @param {string} firstName - The player's first name
      * @param {string} lastName - The player's last name
@@ -732,6 +905,67 @@ let MlbController = class MlbController {
                     }
                 }
                 const data = yield mlbTransport.get((0, urls_1.playerUrl)(id));
+                const extractedData = data.data;
+                return extractedData.messageNumber === 11 ? extractedData.message : extractedData;
+            }
+            catch (exception) {
+                const { data, response } = exception;
+                (0, utils_1.LogError)(response.status, `/mlb/player/${id}`, data.message);
+                const error = {
+                    message: data.message,
+                    statusCode: response.status,
+                };
+                return error;
+            }
+        });
+    }
+    /**
+   * Gets the player stats
+   * @param {string} id - The MLB player id
+   * @param {string} firstName - The player's first name
+   * @param {string} lastName - The player's last name
+   * @param {string} location - The location of the team
+   * @param {string} name - The name of the team
+   * @param {string} abbreviation - The abbreviation for the team
+   * @returns {(IPlayerResponse | IError)}
+   */
+    getPlayerStats(id, firstName, lastName, location, name, abbreviation) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                if (!id) {
+                    const inputPlayer = `${firstName.trim().toLowerCase()} ${lastName.trim().toLowerCase()}`;
+                    const teams = yield (yield mlbTransport.get((0, urls_1.teamUrl)(''))).data;
+                    const foundTeam = teams.teams.find((t) => {
+                        if (location && name) {
+                            const inputTeam = `${location.trim().toLowerCase()} ${name.trim().toLowerCase()}`;
+                            return t.name.toLowerCase() === inputTeam;
+                        }
+                        else if (abbreviation) {
+                            return t.abbreviation.toLowerCase() === abbreviation;
+                        }
+                        else {
+                            return false;
+                        }
+                    });
+                    if (!foundTeam) {
+                        return {
+                            message: `Could not find team`,
+                            statusCode: 400,
+                        };
+                    }
+                    const rosterData = yield (yield mlbTransport.get((0, urls_1.rosterUrl)(foundTeam.id.toString()))).data;
+                    const foundPlayer = rosterData.roster.find((r) => r.person.fullName.toLowerCase() === inputPlayer);
+                    if (!foundPlayer) {
+                        return {
+                            message: `Could not find player: ${inputPlayer}`,
+                            statusCode: 400,
+                        };
+                    }
+                    else {
+                        id = foundPlayer.person.id.toString();
+                    }
+                }
+                const data = yield mlbTransport.get((0, urls_1.playerStatsUrl)(id));
                 const extractedData = data.data;
                 return extractedData.messageNumber === 11 ? extractedData.message : extractedData;
             }
@@ -808,12 +1042,77 @@ let MlbController = class MlbController {
     }
     /**
      * Gets the current standings for the MLB
+     * @param {string} year - The year requested for standings
+     * @param {string} date - The date in MM/DD/YYYY format
+     * @param {string} location - The MLB team location
+     * @param {string} name - The MLB team name
+     * @param {string} abbreviation - The MLB team's abbreviation
      * @returns {(IStandingsResponse | IError)}
      */
-    getStandings() {
+    getStandings(year, date, location, name, abbreviation) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield (yield mlbTransport.get((0, urls_1.standingsUrl)())).data;
+                if (!year && !date) {
+                    const today = new Date();
+                    const month = (today.getMonth() + 1).toString();
+                    const day = today.getDate().toString();
+                    year = today.getFullYear().toString();
+                    date = `${month}/${day}/${year}`;
+                }
+                else if (!year && date) {
+                    if (!(0, date_1.validateDate)(date))
+                        return invalidDateError;
+                    year = date.split('/')[2];
+                }
+                else if (year && date) {
+                    if (!(0, date_1.validateDate)(date))
+                        return invalidDateError;
+                    if (year !== date.split('/')[2]) {
+                        return {
+                            message: 'The input year and input date\'s year must match',
+                            statusCode: 400,
+                        };
+                    }
+                }
+                const standings = yield (yield mlbTransport.get((0, urls_1.standingsUrl)(year, date))).data;
+                if (!location && !name && !abbreviation)
+                    return standings;
+                const teamRecords = standings.records.find((r) => {
+                    return r.teamRecords.find((tr) => {
+                        const { team } = tr;
+                        if (location && name) {
+                            const inputTeam = `${location.trim().toLowerCase()} ${name.trim().toLowerCase()}`;
+                            return team.name.toLowerCase() === inputTeam;
+                        }
+                        else if (abbreviation) {
+                            return team.abbreviation.toLowerCase() === abbreviation.toLowerCase();
+                        }
+                        else {
+                            return false;
+                        }
+                    });
+                });
+                if (teamRecords) {
+                    const actualTeamRecord = teamRecords.teamRecords.find((tr) => {
+                        const { team } = tr;
+                        if (location && name) {
+                            const inputTeam = `${location.trim().toLowerCase()} ${name.trim().toLowerCase()}`;
+                            return team.name.toLowerCase() === inputTeam;
+                        }
+                        else {
+                            return team.abbreviation.toLowerCase() === abbreviation.toLowerCase();
+                        }
+                    });
+                    return actualTeamRecord;
+                }
+                else {
+                    const inputTeam = location && name ? `${location.toLowerCase()} ${name.toLowerCase()}` : abbreviation.toLowerCase();
+                    const error = {
+                        message: `Could not find team: ${inputTeam}`,
+                        statusCode: 400
+                    };
+                    return error;
+                }
             }
             catch (exception) {
                 const { data, response } = exception;
@@ -830,10 +1129,8 @@ let MlbController = class MlbController {
 __decorate([
     (0, tsoa_1.Get)('/games'),
     __param(0, (0, tsoa_1.Query)()),
-    __param(1, (0, tsoa_1.Query)()),
-    __param(2, (0, tsoa_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String]),
+    __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], MlbController.prototype, "getGames", null);
 __decorate([
@@ -843,9 +1140,8 @@ __decorate([
     __param(2, (0, tsoa_1.Query)()),
     __param(3, (0, tsoa_1.Query)()),
     __param(4, (0, tsoa_1.Query)()),
-    __param(5, (0, tsoa_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String, String, String, String]),
+    __metadata("design:paramtypes", [String, String, String, String, String]),
     __metadata("design:returntype", Promise)
 ], MlbController.prototype, "getFeed", null);
 __decorate([
@@ -855,9 +1151,8 @@ __decorate([
     __param(2, (0, tsoa_1.Query)()),
     __param(3, (0, tsoa_1.Query)()),
     __param(4, (0, tsoa_1.Query)()),
-    __param(5, (0, tsoa_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String, String, String, String]),
+    __metadata("design:paramtypes", [String, String, String, String, String]),
     __metadata("design:returntype", Promise)
 ], MlbController.prototype, "getBoxscore", null);
 __decorate([
@@ -867,20 +1162,29 @@ __decorate([
     __param(2, (0, tsoa_1.Query)()),
     __param(3, (0, tsoa_1.Query)()),
     __param(4, (0, tsoa_1.Query)()),
-    __param(5, (0, tsoa_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String, String, String, String]),
+    __metadata("design:paramtypes", [String, String, String, String, String]),
     __metadata("design:returntype", Promise)
 ], MlbController.prototype, "getGameProbables", null);
 __decorate([
-    (0, tsoa_1.Get)('/game/{teamLocation}-{teamName}'),
-    __param(0, (0, tsoa_1.Path)()),
-    __param(1, (0, tsoa_1.Path)()),
+    (0, tsoa_1.Get)('/game/score'),
+    __param(0, (0, tsoa_1.Query)()),
+    __param(1, (0, tsoa_1.Query)()),
     __param(2, (0, tsoa_1.Query)()),
     __param(3, (0, tsoa_1.Query)()),
     __param(4, (0, tsoa_1.Query)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String, String, String, String]),
+    __metadata("design:returntype", Promise)
+], MlbController.prototype, "getGameScore", null);
+__decorate([
+    (0, tsoa_1.Get)('/game'),
+    __param(0, (0, tsoa_1.Query)()),
+    __param(1, (0, tsoa_1.Query)()),
+    __param(2, (0, tsoa_1.Query)()),
+    __param(3, (0, tsoa_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String, String]),
     __metadata("design:returntype", Promise)
 ], MlbController.prototype, "getGameForTeam", null);
 __decorate([
@@ -901,13 +1205,14 @@ __decorate([
 ], MlbController.prototype, "getTeam", null);
 __decorate([
     (0, tsoa_1.Get)('/team/logo'),
-    (0, tsoa_1.Produces)('image/svg'),
+    (0, tsoa_1.Produces)('image/*'),
     __param(0, (0, tsoa_1.Query)()),
     __param(1, (0, tsoa_1.Query)()),
     __param(2, (0, tsoa_1.Query)()),
     __param(3, (0, tsoa_1.Query)()),
+    __param(4, (0, tsoa_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String, String]),
+    __metadata("design:paramtypes", [String, String, String, String, String]),
     __metadata("design:returntype", Promise)
 ], MlbController.prototype, "getTeamLogo", null);
 __decorate([
@@ -953,6 +1258,18 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], MlbController.prototype, "getPlayer", null);
 __decorate([
+    (0, tsoa_1.Get)('/player/stats'),
+    __param(0, (0, tsoa_1.Query)()),
+    __param(1, (0, tsoa_1.Query)()),
+    __param(2, (0, tsoa_1.Query)()),
+    __param(3, (0, tsoa_1.Query)()),
+    __param(4, (0, tsoa_1.Query)()),
+    __param(5, (0, tsoa_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String, String, String, String]),
+    __metadata("design:returntype", Promise)
+], MlbController.prototype, "getPlayerStats", null);
+__decorate([
     (0, tsoa_1.Get)('/player/headshot'),
     __param(0, (0, tsoa_1.Query)()),
     __param(1, (0, tsoa_1.Query)()),
@@ -967,8 +1284,13 @@ __decorate([
 ], MlbController.prototype, "getPlayerHeadshot", null);
 __decorate([
     (0, tsoa_1.Get)('/standings'),
+    __param(0, (0, tsoa_1.Query)()),
+    __param(1, (0, tsoa_1.Query)()),
+    __param(2, (0, tsoa_1.Query)()),
+    __param(3, (0, tsoa_1.Query)()),
+    __param(4, (0, tsoa_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [String, String, String, String, String]),
     __metadata("design:returntype", Promise)
 ], MlbController.prototype, "getStandings", null);
 MlbController = __decorate([
