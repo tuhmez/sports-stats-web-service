@@ -6377,11 +6377,15 @@
 					"200": {
 						"description": "Ok",
 						"content": {
-							"image/svg": {
+							"image/*": {
 								"schema": {
 									"anyOf": [
 										{
 											"$ref": "#/components/schemas/HTMLOrSVGElement"
+										},
+										{
+											"type": "string",
+											"format": "byte"
 										},
 										{
 											"$ref": "#/components/schemas/IError"
@@ -6432,6 +6436,43 @@
 						"required": false,
 						"schema": {
 							"type": "string"
+						}
+					},
+					{
+						"description": "- Optional format input, accepts SVG and PNG; if not provided, SVG will be provided",
+						"in": "query",
+						"name": "format",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "output",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"enum": [
+								"Element",
+								"Buffer"
+							]
+						}
+					},
+					{
+						"in": "query",
+						"name": "url",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "urlHasId",
+						"required": false,
+						"schema": {
+							"type": "boolean"
 						}
 					}
 				]
@@ -6976,6 +7017,77 @@
 						"description": "- The MLB team's abbreviation",
 						"in": "query",
 						"name": "abbreviation",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/mlb/game/matchup/graphic": {
+			"get": {
+				"operationId": "GetMatchupGraphic",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"image/png": {
+								"schema": {
+									"anyOf": [
+										{
+											"type": "string",
+											"format": "byte"
+										},
+										{
+											"$ref": "#/components/schemas/IError"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"MLB"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "location",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "name",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "abbreviation",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "date",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "display",
 						"required": false,
 						"schema": {
 							"type": "string"

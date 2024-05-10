@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import { MlbController } from '../controllers/mlb';
+import { IGameByTeamNameResponse } from '../interfaces';
+import sharp from 'sharp';
 
 export class MLBRoutes {
   constructor(router: Router) {
@@ -143,6 +145,31 @@ export class MLBRoutes {
       return res.json(response);
     });
 
+    router.get("/mlb/game/matchup/graphic", async (_req, res) => {
+      const location = _req.query.location as string;
+      const name = _req.query.name as string;
+      const abbreviation = _req.query.abbreviation as string;
+
+      const date = _req.query.date as string;
+
+      const display = _req.query.display as string;
+
+      const graphic = await mlbController.getMatchupGraphic(location, name, abbreviation, date);
+
+      if (display === 'immediate') {
+        console.log(`data:image/png;base64,${graphic.toString('base64')}`)
+        return res.send(`<img src={data:image/png;base64,${graphic.toString('base64')}}`);
+      } else {
+        // @ts-ignore
+        if (graphic.message) {
+          res.send(graphic);
+        } else {
+          res.setHeader('content-type', 'image/png');
+          return res.send(graphic);
+        }
+      }
+    });
+
     // ===== games ===== //
 
     // ===== teams ===== //
@@ -176,12 +203,13 @@ export class MLBRoutes {
       const location = _req.query.location as string;
       const name = _req.query.name as string;
       const abbreviation = _req.query.abbreviation as string;
-
+      const format = _req.query.format as string;
+      
       if (!id && !location && !name && !abbreviation) {
         return res.send('Inputs invalid, must have a query entry for: id, location, name, or abbreviation');
       }
 
-      const response = await mlbController.getTeamLogo(id, location, name, abbreviation);
+      const response = await mlbController.getTeamLogo(id, location, name, abbreviation, format);
       return res.send(response);
     });
 
@@ -235,6 +263,8 @@ export class MLBRoutes {
       mainDivString += '</div>';
       return res.send(mainDivString);
     });
+
+    // ===== teams ===== //
 
     // ===== players ===== //
 

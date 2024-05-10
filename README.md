@@ -18,7 +18,7 @@ The v1 will only support MLB with v2 open to support any additional sports such 
 
 ## Use
 
-Currently (Aug, 9, 2022) the API is unpublished to the public.
+Currently (May 8, 2024) the API is unpublished to the public.
 
 ### Routes to know
 

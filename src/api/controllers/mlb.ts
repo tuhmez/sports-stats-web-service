@@ -1,6 +1,8 @@
-import { Get, Route, Tags, Produces, Path, Query } from 'tsoa';
+import { Get, Route, Tags, Produces, Query, Hidden } from 'tsoa';
 import axios from 'axios';
 import { load } from 'cheerio';
+import sharp from 'sharp';
+import Color from 'color';
 
 import { LogError } from '../../utils';
 import {
@@ -37,6 +39,7 @@ import {
 } from '../interfaces';
 import { getTeamIdByFullTeamName, getTeamIdByTeamAbbreviation, getTeamIdByTeamLocation, getTeamIdByTeamName } from '../utils';
 import { validateDate } from '../../utils/date';
+import { logos } from '../../data';
 
 const invalidDateError: IError = {
   message: 'Input date is invalid. Valid format is MM/DD/YYYY (e.g. 10/01/2018)',
@@ -573,16 +576,21 @@ export class MlbController {
    * @param {string} location - The team's location
    * @param {string} name - The team's name
    * @param {string} abbreviation - The team's abbreviation
-   * @returns {(HTMLOrSVGElement | IError)}
+   * @param {string} format - Optional format input, accepts SVG and PNG; if not provided, SVG will be provided
+   * @returns {(HTMLOrSVGElement | Buffer | IError)}
    */
   @Get('/team/logo')
-  @Produces('image/svg')
+  @Produces('image/*')
   public async getTeamLogo(
     @Query() id?: string,
     @Query() location?: string,
     @Query() name?: string,
     @Query() abbreviation?: string,
-  ): Promise<HTMLOrSVGElement | IError> {
+    @Query() format?: string,
+    @Query() output?: 'Element' | 'Buffer',
+    @Query() url?: string,
+    @Query() urlHasId?: boolean
+  ): Promise<HTMLOrSVGElement | Buffer | IError> {
     const route = '/mlb/game/team/logo';
     try {
       if (!id) {
@@ -629,8 +637,43 @@ export class MlbController {
         id = teamIdResponse;
       }
 
-      const data = await mlbTransport.get(teamLogosUrl(id));
-      return data.data;
+      let urlToUse: string = teamLogosUrl(id);
+
+      if (url) {
+        if (urlHasId) {
+          urlToUse = url;
+        } else {
+          urlToUse = `${url}/${id}.svg`;
+        }
+      }
+      const response = await mlbTransport.get(urlToUse);
+
+      let image = response.data;
+
+      if (format) {
+        if (format.toLowerCase() === "png") {
+          try {
+            image = await sharp(Buffer.from(image)).png().toBuffer();
+          } catch (ex) {
+            const message = "Image conversion from SVG to PNG failed";
+            const error: IError = {
+              message,
+              statusCode: 500
+            };
+            return error;
+          }
+        } else {
+          if (output) {
+            if (output === 'Buffer') {
+              return Buffer.from(image);
+            } else {
+              return image;
+            }
+          }
+        }
+      }
+
+      return image;
     } catch (exception) {
       const message = 'Failed to retrieve logo';
       LogError(400, `/mlb/team/logo`, message);
@@ -853,8 +896,8 @@ export class MlbController {
 
       const data: ITeamResponse = await (await mlbTransport.get(teamUrl(id))).data;
       const team = data.teams[0];
-      location = team.locationName;
-      name = team.teamName;
+      location = team.franchiseName;
+      name = team.clubName;
     }
     const data = await mlbTransport.get(teamColorCodesPageUrl());
     const teamToLookFor = `${location.toLowerCase().trim()} ${name.toLowerCase().trim()}`;
@@ -878,7 +921,7 @@ export class MlbController {
     // loop until we find the team we want
     let teamColorRow = undefined;
     $(tables[hexTableIndex]).find('tr').each((i, e) => {
-      const teamRow = $(e).find('th').text().toLowerCase();
+      const teamRow = $(e).find('th').text().toLowerCase().trim();
       if (teamRow === teamToLookFor) {
         teamColorRow = e;
         return false;
@@ -898,9 +941,9 @@ export class MlbController {
     const teamColors: string[] = [];
     $(teamColorRow).find('td').each((i, e) => {
       const tdStrings = $(e).text().split('#');
-      teamColors.push(`#${tdStrings[tdStrings.length - 1]}`);
+      teamColors.push(`#${tdStrings[tdStrings.length - 1]}`.trim());
     });
-
+  
     return teamColors.filter((tc) => tc !== '#');
   }
 
@@ -1203,5 +1246,146 @@ export class MlbController {
       };
       return error;
     }
+  }
+
+  @Get('/game/matchup/graphic')
+  @Produces('image/png')
+  public async getMatchupGraphic(
+    @Query() location?: string,
+    @Query() name?: string,
+    @Query() abbreviation?: string,
+    @Query() date?: string,
+    @Query() display?: string
+  ): Promise<Buffer | IError> {
+    const gameResponse = await this.getGameForTeam(location, name, abbreviation, date);
+
+      // @ts-ignore
+      if (gameResponse.message) {
+        return gameResponse as IError;
+      }
+
+      if ((gameResponse as IGameByTeamNameResponse).games.length === 0) {
+        return {
+          message: `No games found`,
+          statusCode: 200
+        } as IError;
+      }
+
+      const { teams } = (gameResponse as IGameByTeamNameResponse).games[0];
+
+      let homeTeam = '';
+      let homeTeamProperty = '';
+
+      if (location) {
+        homeTeam = teams.home.team.locationName.toLowerCase();
+        homeTeamProperty = 'location';
+      } else if (name) {
+        homeTeam = teams.home.team.name.toLowerCase();
+        homeTeamProperty = 'name';
+      } else {
+        homeTeam = teams.home.team.abbreviation.toLowerCase();
+        homeTeamProperty = 'abbreviation';
+      }
+
+      const isHomeTeamDesiredTeam =
+        homeTeamProperty === 'location' ? homeTeam === location.toLowerCase() :
+        homeTeamProperty === 'name' ? homeTeam === name.toLowerCase() :
+        homeTeam === abbreviation.toLowerCase();
+
+      const desiredTeam = isHomeTeamDesiredTeam ? teams.home : teams.away;
+      const againstTeam = isHomeTeamDesiredTeam ? teams.away : teams.home;
+
+      const desiredTeamId = desiredTeam.team.id.toString();
+      const againstTeamId = againstTeam.team.id.toString();
+      const desiredTeamAbbreviation = desiredTeam.team.abbreviation.toLowerCase();
+      const againstTeamAbbreviation = againstTeam.team.abbreviation.toLowerCase();
+
+      const desiredTeamColorResponse = await this.getTeamColors(desiredTeamId);
+      const againstTeamColorResponse = await this.getTeamColors(againstTeamId);
+
+      if (!Array.isArray(desiredTeamColorResponse)) return desiredTeamColorResponse as IError;
+      if (!Array.isArray(againstTeamColorResponse)) return againstTeamColorResponse as IError;
+      
+      let desiredColor = Color(desiredTeamColorResponse[0]);
+      let againstColor = Color(againstTeamColorResponse[0]);
+
+      const useSecondaryColorDesired = logos.useSecondaryColor.includes(desiredTeamAbbreviation);
+      const useSecondaryColorAgainst = logos.useSecondaryColor.includes(againstTeamAbbreviation);
+      const useTeamCapOnDarkDesired = logos.useTeamCapOnDark.includes(desiredTeamAbbreviation);
+      const useTeamCapOnDarkAgainst = logos.useTeamCapOnDark.includes(againstTeamAbbreviation);
+      const useOtherUrlDesired = logos.useOtherUrl.includes(desiredTeamAbbreviation);
+      const useOtherUrlAgainst = logos.useOtherUrl.includes(againstTeamAbbreviation);
+
+      let desiredTeamLogo: Buffer;
+      let againstTeamLogo: Buffer;
+
+      if (useTeamCapOnDarkDesired) {
+        desiredTeamLogo = await this.getTeamLogo(desiredTeamId, null, null, null, null, 'Buffer', logos.urlTeamCapOnDark, false) as Buffer;
+      } else if (useOtherUrlDesired) {
+        desiredTeamLogo = await this.getTeamLogo(desiredTeamId, null, null, null, null, 'Buffer', logos.otherUrls[desiredTeamAbbreviation], true) as Buffer;
+      } else {
+        desiredTeamLogo = await this.getTeamLogo(desiredTeamId, null, null, null, null, 'Buffer') as Buffer;
+      }
+
+      if (useTeamCapOnDarkAgainst) {
+        againstTeamLogo = await this.getTeamLogo(againstTeamId, null, null, null, null, 'Buffer', logos.urlTeamCapOnDark, false) as Buffer;
+      } else if (useOtherUrlAgainst) {
+        againstTeamLogo = await this.getTeamLogo(againstTeamId, null, null, null, null, 'Buffer', logos.otherUrls[againstTeamAbbreviation], true) as Buffer;
+      } else {
+        againstTeamLogo = await this.getTeamLogo(againstTeam.team.id.toString(), null, null, null, null, 'Buffer') as Buffer;
+      }
+
+      if (useSecondaryColorDesired) {
+        desiredColor = Color(desiredTeamColorResponse[1]);
+      }
+
+      if (useSecondaryColorAgainst) {
+        againstColor = Color(againstTeamColorResponse[1]);
+      }
+
+      const svgHeightAndWidth = 400;
+      const translateFactor = (Math.SQRT2 / 2) * -1;
+
+      const background = `
+        <svg width="${svgHeightAndWidth}" height="${svgHeightAndWidth}" version="1.1" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="home-away-gradient" gradientTransform="translate(1, ${translateFactor}) rotate(45)">
+              <stop stop-color='${(isHomeTeamDesiredTeam ? againstColor.hex() : desiredColor.hex())}' offset="0%" />
+              <stop stop-color='${(isHomeTeamDesiredTeam ? againstColor.hex() : desiredColor.hex())}' offset="50%" />
+              <stop stop-color='${(isHomeTeamDesiredTeam ? desiredColor.hex() : againstColor.hex())}' offset="50%" />
+              <stop stop-color='${(isHomeTeamDesiredTeam ? desiredColor.hex() : againstColor.hex())}' offset="100%" />
+            </linearGradient>
+          </defs>
+          <style>
+            #matchup-background {
+              fill: url(#home-away-gradient)
+            }
+          </style>
+          <rect id="matchup-background" width="400" height="400" />
+        </svg>
+    `;
+
+    // console.log(desiredTeamLogo.viewportElement);
+    const desiredGraphic = sharp(Buffer.from(desiredTeamLogo)).resize(150, 150, { fit: 'inside' });
+    const againstGraphic = sharp(Buffer.from(againstTeamLogo)).resize(150, 150, { fit: 'inside' });
+    const centerOfTriangle = Math.floor((svgHeightAndWidth / 2) / 3);
+
+    const graphic = sharp(Buffer.from(background))
+    .composite([
+      {
+        input: await desiredGraphic.toBuffer(),
+        // gravity: isHomeTeamDesiredTeam ? 'southeast' : 'northwest',
+        top: isHomeTeamDesiredTeam ? centerOfTriangle + 150 : centerOfTriangle - 25,
+        left: isHomeTeamDesiredTeam ? centerOfTriangle + 150 : centerOfTriangle - 25
+      },
+      {
+        input: await againstGraphic.toBuffer(),
+        // gravity: isHomeTeamDesiredTeam ? 'northwest' : 'southeast',
+        top: isHomeTeamDesiredTeam ? centerOfTriangle - 25 : centerOfTriangle + 150,
+        left: isHomeTeamDesiredTeam ? centerOfTriangle - 25 : centerOfTriangle + 150
+      }
+    ]);
+
+    return await graphic.png().toBuffer();
   }
 }
