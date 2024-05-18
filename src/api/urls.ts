@@ -9,7 +9,7 @@ export const rosterUrl = (teamId: string) => `https://statsapi.mlb.com/api/v1/te
 export const matchupUrl = (gameId: string) => `https://bdfed.stitch.mlbinfra.com/bdfed/matchup/${gameId}`;
 export const promotionalSponsorsUrl = (teamAbvreviation: string) => `http://mlb.mlb.com/shared/properties/style/${teamAbvreviation}.json`;
 export const playerUrl = (playerId: string) => `https://statsapi.mlb.com/api/v1/people/${playerId}`;
-export const playerStatsUrl = (playerId: string) => `https://statsapi.mlb.com/api/v1/people/${playerId}?hydrate=currentTeam,team,stats(type=[yearByYear,yearByYearAdvanced,careerRegularSeason,careerAdvanced,availableStats](team(league)),leagueListId=mlb_milb)&site=en`
+export const playerStatsUrl = (playerId: string) => `https://statsapi.mlb.com/api/v1/people/${playerId}?hydrate=currentTeam,team,stats(type=[yearByYear,yearByYearAdvanced,careerRegularSeason,careerAdvanced,availableStats](team(league)),leagueListId=mlb_hist)&site=en`
 export const teamLeadersUrl = (teamId: string) => `https://statsapi.mlb.com/api/v1/teams/${teamId}/leaders?leaderCategories=wins,saves,earnedRunAverage,strikeouts,walksAndHitsPerInningPitched,battingAverage,runs,homeRuns,runsBattedIn,stolenBases&leaderGameTypes=R&season=2022&hydrate=person,team&limit=1`
 export const playerCurrentHeadshotUrl = (playerId: string, maginification: string = '1') => `https://content.mlb.com/images/headshots/current/60x60/${playerId}@${maginification}x.png`;
 export const teamColorCodesPageUrl = () => `https://teamcolorcodes.com/mlb-color-codes/`;
