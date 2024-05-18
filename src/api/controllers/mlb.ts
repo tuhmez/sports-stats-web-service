@@ -1300,11 +1300,15 @@ export class MlbController {
       const desiredTeamAbbreviation = desiredTeam.team.abbreviation.toLowerCase();
       const againstTeamAbbreviation = againstTeam.team.abbreviation.toLowerCase();
 
-      const desiredTeamColorResponse = await this.getTeamColors(desiredTeamId);
-      const againstTeamColorResponse = await this.getTeamColors(againstTeamId);
+      let desiredTeamColorResponse = await this.getTeamColors(desiredTeamId);
+      let againstTeamColorResponse = await this.getTeamColors(againstTeamId);
 
-      if (!Array.isArray(desiredTeamColorResponse)) return desiredTeamColorResponse as IError;
-      if (!Array.isArray(againstTeamColorResponse)) return againstTeamColorResponse as IError;
+      if (!Array.isArray(desiredTeamColorResponse)) {
+        desiredTeamColorResponse = ['#FFFFFF'];
+      }
+      if (!Array.isArray(againstTeamColorResponse)) {
+        againstTeamColorResponse = ['#FFFFFF'];
+      }
       
       let desiredColor = Color(desiredTeamColorResponse[0]);
       let againstColor = Color(againstTeamColorResponse[0]);
@@ -1374,13 +1378,11 @@ export class MlbController {
     .composite([
       {
         input: await desiredGraphic.toBuffer(),
-        // gravity: isHomeTeamDesiredTeam ? 'southeast' : 'northwest',
         top: isHomeTeamDesiredTeam ? centerOfTriangle + 150 : centerOfTriangle - 25,
         left: isHomeTeamDesiredTeam ? centerOfTriangle + 150 : centerOfTriangle - 25
       },
       {
         input: await againstGraphic.toBuffer(),
-        // gravity: isHomeTeamDesiredTeam ? 'northwest' : 'southeast',
         top: isHomeTeamDesiredTeam ? centerOfTriangle - 25 : centerOfTriangle + 150,
         left: isHomeTeamDesiredTeam ? centerOfTriangle - 25 : centerOfTriangle + 150
       }
