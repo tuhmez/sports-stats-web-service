@@ -92,6 +92,28 @@ class MLBRoutes {
             const response = yield mlbController.getGameForTeam(location, name, abbreviation, date);
             return res.json(response);
         }));
+        router.get("/mlb/game/matchup/graphic", (_req, res) => __awaiter(this, void 0, void 0, function* () {
+            const location = _req.query.location;
+            const name = _req.query.name;
+            const abbreviation = _req.query.abbreviation;
+            const date = _req.query.date;
+            const display = _req.query.display;
+            const graphic = yield mlbController.getMatchupGraphic(location, name, abbreviation, date);
+            if (display === 'immediate') {
+                console.log(`data:image/png;base64,${graphic.toString('base64')}`);
+                return res.send(`<img src={data:image/png;base64,${graphic.toString('base64')}}`);
+            }
+            else {
+                // @ts-ignore
+                if (graphic.message) {
+                    res.send(graphic);
+                }
+                else {
+                    res.setHeader('content-type', 'image/png');
+                    return res.send(graphic);
+                }
+            }
+        }));
         // ===== games ===== //
         // ===== teams ===== //
         router.get("/mlb/teams", (_req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -162,6 +184,7 @@ class MLBRoutes {
             mainDivString += '</div>';
             return res.send(mainDivString);
         }));
+        // ===== teams ===== //
         // ===== players ===== //
         router.get("/mlb/player", (_req, res) => __awaiter(this, void 0, void 0, function* () {
             const id = _req.query.id;
@@ -206,12 +229,19 @@ class MLBRoutes {
         // ===== players ===== //
         // ===== standings ===== //
         router.get("/mlb/standings", (_req, res) => __awaiter(this, void 0, void 0, function* () {
+            const date = _req.query.date;
+            const type = _req.query.type;
+            const specificType = _req.query.specificType;
+            const response = yield mlbController.getStandings(date, type, specificType);
+            return res.json(response);
+        }));
+        router.get("/mlb/record", (_req, res) => __awaiter(this, void 0, void 0, function* () {
             const year = _req.query.year;
             const date = _req.query.date;
             const location = _req.query.location;
             const name = _req.query.name;
             const abbreviation = _req.query.abbreviation;
-            const response = yield mlbController.getStandings(year, date, location, name, abbreviation);
+            const response = yield mlbController.getRecord(year, date, location, name, abbreviation);
             return res.json(response);
         }));
         // ===== standings ===== //

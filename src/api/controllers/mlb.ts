@@ -14,11 +14,12 @@ import {
   playerUrl,
   playerStatsUrl,
   rosterUrl,
-  standingsUrl,
+  recordUrl,
   teamColorCodesPageUrl,
   teamLeadersUrl,
   teamLogosUrl,
-  teamUrl
+  teamUrl,
+  standingsUrl
 } from '../urls';
 import {
   IError,
@@ -31,11 +32,12 @@ import {
   IPlayerResponse,
   IProbablesResponse,
   IRosterResponse,
-  IStandingsResponse,
+  IRecordsResponse,
   ITeamByTeamNameResponse,
   ITeamLeadersResponse,
   ITeamRecord,
-  ITeamResponse
+  ITeamResponse,
+  IStandingsResponse
 } from '../interfaces';
 import { getTeamIdByFullTeamName, getTeamIdByTeamAbbreviation, getTeamIdByTeamLocation, getTeamIdByTeamName } from '../utils';
 import { validateDate } from '../../utils/date';
@@ -1163,22 +1165,22 @@ export class MlbController {
   }
 
   /**
-   * Gets the current standings for the MLB
-   * @param {string} year - The year requested for standings
+   * Gets the current record for an MLB team
+   * @param {string} year - The year requested for record
    * @param {string} date - The date in MM/DD/YYYY format
    * @param {string} location - The MLB team location
    * @param {string} name - The MLB team name
    * @param {string} abbreviation - The MLB team's abbreviation
-   * @returns {(IStandingsResponse | IError)}
+   * @returns {(IRecordsResponse | IError)}
    */
-  @Get('/standings')
-  public async getStandings(
+  @Get('/record')
+  public async getRecord(
     @Query() year?: string,
     @Query() date?: string,
     @Query() location?: string,
     @Query() name?: string,
     @Query() abbreviation?: string,
-  ): Promise<IStandingsResponse | ITeamRecord | IError> {
+  ): Promise<IRecordsResponse | ITeamRecord | IError> {
     try {
       if (!year && !date) {
         const today = new Date();
@@ -1199,11 +1201,11 @@ export class MlbController {
         }
       }
 
-      const standings: IStandingsResponse = await(await mlbTransport.get(standingsUrl(year, date))).data
+      const record: IRecordsResponse = await(await mlbTransport.get(recordUrl(year, date))).data
 
-      if (!location && !name && !abbreviation) return standings;
+      if (!location && !name && !abbreviation) return record;
 
-      const teamRecords = standings.records.find((r) => {
+      const teamRecords = record.records.find((r) => {
         return r.teamRecords.find((tr) => {
           const { team } = tr;
           if (location && name) {
@@ -1239,7 +1241,7 @@ export class MlbController {
       }
     } catch (exception) {
       const { data, response } = exception;
-      LogError(response.status, `/mlb/standings`, data.message);
+      LogError(response.status, `/mlb/record`, data.message);
       const error: IError = {
         message: data.message,
         statusCode: response.status
@@ -1389,5 +1391,96 @@ export class MlbController {
     ]);
 
     return await graphic.png().toBuffer();
+  }
+
+/**
+   * Gets the current standings for an MLB division, league, sport. can also include playoffs
+   * @param {string} year - The year requested for record
+   * @param {string} date - The date in MM/DD/YYYY format
+   * @param {string} location - The MLB team location
+   * @param {string} name - The MLB team name
+   * @param {string} abbreviation - The MLB team's abbreviation
+   * @returns {(IRecordsResponse | IError)}
+   */
+  @Get('/standings')
+  public async getStandings(
+    @Query() date?: string,
+    @Query() type?: string,
+    @Query() specificType?: string
+  ): Promise<IStandingsResponse | IError> {
+    try {
+      let year = null;
+
+      if (!date) {
+        const today = new Date();
+        const month = (today.getMonth() + 1).toString();
+        const day = today.getDate().toString();
+        year = today.getFullYear().toString();
+        date = `${month}/${day}/${year}`;
+      } else {
+        year = new Date(date).getFullYear().toString()
+      }
+
+      let standings: IStandingsResponse = await(await mlbTransport.get(standingsUrl(year, date, type))).data;
+
+      if (specificType) {
+        let idToFind = -1;
+        let leagueIndex = -1;
+        let propertyToUse = 'division';
+
+        switch(specificType) {
+          case 'al':
+            propertyToUse = 'league';
+            idToFind = standings.structure.sports[0].leagues.find(l => l.abbreviation.toLowerCase() === 'al').id;
+            break;
+          case 'nl':
+            propertyToUse = 'league';
+            idToFind = standings.structure.sports[0].leagues.find(l => l.abbreviation.toLowerCase() === 'nl').id;
+            break;
+          case 'alc':
+            leagueIndex = standings.structure.sports[0].leagues.findIndex(l => l.abbreviation.toLowerCase() === 'al');
+            idToFind = standings.structure.sports[0].leagues[leagueIndex].divisions.find(d => d.abbreviation.toLowerCase() === 'alc').id;
+            break;
+          case 'ale':
+            leagueIndex = standings.structure.sports[0].leagues.findIndex(l => l.abbreviation.toLowerCase() === 'al');
+            idToFind = standings.structure.sports[0].leagues[leagueIndex].divisions.find(d => d.abbreviation.toLowerCase() === 'ale').id;
+            break;
+          case 'alw':
+            leagueIndex = standings.structure.sports[0].leagues.findIndex(l => l.abbreviation.toLowerCase() === 'al');
+            idToFind = standings.structure.sports[0].leagues[leagueIndex].divisions.find(d => d.abbreviation.toLowerCase() === 'alw').id;
+            break;
+          case 'nlc':
+            leagueIndex = standings.structure.sports[0].leagues.findIndex(l => l.abbreviation.toLowerCase() === 'nl');
+            idToFind = standings.structure.sports[0].leagues[leagueIndex].divisions.find(d => d.abbreviation.toLowerCase() === 'nlc').id;
+            break;
+          case 'nle':
+            leagueIndex = standings.structure.sports[0].leagues.findIndex(l => l.abbreviation.toLowerCase() === 'nl');
+            idToFind = standings.structure.sports[0].leagues[leagueIndex].divisions.find(d => d.abbreviation.toLowerCase() === 'nle').id;
+            break;
+          case 'nlw':
+            leagueIndex = standings.structure.sports[0].leagues.findIndex(l => l.abbreviation.toLowerCase() === 'nl');
+            idToFind = standings.structure.sports[0].leagues[leagueIndex].divisions.find(d => d.abbreviation.toLowerCase() === 'nlw').id;
+            break;
+          default:
+            break;
+        }
+
+        //@ts-ignore
+        const actualRecords = standings.records.filter(r => r[propertyToUse] === idToFind);
+        // console.log(idToFind);
+        standings.records = actualRecords;
+      }
+
+      return standings;
+    } catch (exception) {
+      console.log(exception)
+      const { data, response } = exception;
+      LogError(response.status, `/mlb/standings`, data.message);
+      const error: IError = {
+        message: data.message,
+        statusCode: response.status
+      };
+      return error;
+    }
   }
 }

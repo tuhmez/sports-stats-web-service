@@ -63,7 +63,7 @@ export interface ITeamLeadersResponse {
   teamLeaders: ITeamLeaderCategory[];
 }
 
-export interface IStandingsResponse {
+export interface IRecordsResponse {
   copyright: string;
   records: IRecord[];
 }
@@ -75,6 +75,18 @@ export interface IGameScoreResponse {
   game: IGameDataGame;
   datetime: IGameDatetime;
   status: IGameStatus;
+}
+
+export interface IStandingsResponse {
+  clinchIcons: string[];
+  "common-version": number;
+  lastUpdated: string;
+  records: IStandingsRecord[];
+  structure: {
+    sports: IStandingsStructure[];
+  };
+  tiedGames: any;
+  version: number;
 }
 
 export enum GameType {
@@ -1299,7 +1311,7 @@ export interface ITeamLeaderCategory {
   totalSplits: number;
 }
 
-export interface IStandingsDivision {
+export interface IRecordDivision {
   abbreviation: string;
   active: boolean;
   hasWildCard: boolean;
@@ -1337,7 +1349,7 @@ export interface ISeasonDateInfo {
   springStartDate: string;
 }
 
-export interface IStandingsLeague {
+export interface IRecordLeague {
   abbreviation: string;
   active: boolean;
   conferencesInUse: boolean;
@@ -1358,7 +1370,7 @@ export interface IStandingsLeague {
   sport: ISportId;
 }
 
-export interface IStandingsSport {
+export interface IRecordSport {
   abbreviation: string;
   activeStatus: boolean;
   code: string;
@@ -1369,11 +1381,11 @@ export interface IStandingsSport {
 }
 
 export interface IRecord {
-  division: IStandingsDivision;
+  division: IRecordDivision;
   lastUpdated: string;
-  league: IStandingsLeague;
+  league: IRecordLeague;
   standingsType: string;
-  sport: IStandingsSport;
+  sport: IRecordSport;
   teamRecords: ITeamRecord[];
 }
 
@@ -1423,5 +1435,147 @@ export interface IExpandedSplitRecord {
   losses: number;
   pct: string;
   type: string;
+  wins: number;
+}
+
+export interface IStandingsStructure {
+  abbreviation: string;
+  activeStatus: boolean;
+  code: string;
+  id: number;
+  leagues: IStandingsLeague[];
+  link: string;
+  name: string;
+  sortIndex1: number;
+  sortIndex2: number;
+  sortIndex3: number;
+  sortOrder: number;
+  standingsUtils: IStandingsUtils;
+}
+
+export interface IStandingsLeague {
+  abbreviation: string;
+  active: boolean;
+  conferencesInUse: boolean;
+  divisions?: IStandingsDivision[];
+  divisionsInUse: boolean;
+  hasPlayoffPoints: boolean;
+  hasSplitSeason: boolean;
+  hasWildCard: boolean;
+  id: number;
+  link: string;
+  name: string;
+  nameShort: string;
+  numGames: number;
+  numTeams: number;
+  numWildcardTeams: number;
+  orgCode: string;
+  season: string;
+  seasonDateInfo: ISeasonDateInfo;
+  seasonState: string;
+  sortIndex1: number;
+  sortIndex2: number;
+  sortindex3: number;
+  sortOrder: number;
+  sport: ISportId;
+  standingsUtils: IStandingsUtils;
+}
+
+export interface IStandingsDivision {
+  abbreviation: string;
+  active: boolean;
+  hasWildcard: boolean;
+  id: number;
+  league: ILeagueId;
+  link: string;
+  name: string;
+  nameShort: string;
+  numPlayoffTeams: number;
+  season: string;
+  sortIndex1: number;
+  sortIndex2: number;
+  sortIndex3: number;
+  sport: ISportId;
+  standingsUtils: IStandingsUtils;
+}
+
+export interface IStandingsUtils {
+  hasContextItem: boolean;
+  hasFavorites: boolean;
+  hasFollowed: boolean;
+  hasMostFavorite: boolean;
+}
+
+export interface IStandingsRecord {
+  clinchIcons: string[];
+  division: number;
+  lastUpdated: string;
+  standingsType: string;
+  teamRecords: IStandingsTeamRecord[];
+}
+
+export interface IStandingsTeamRecord {
+  abbreviation: string;
+  clinchIndicator: string;
+  clinched: boolean;
+  conferenceGamesBack: string;
+  conferenceRank: number;
+  division: number;
+  divisionChamp: boolean;
+  divisionGamesBack: string;
+  divisionLeader: boolean;
+  divisionRank: number;
+  eliminationNumber: string;
+  id: string;
+  isContextTeam: boolean;
+  isFavorite: boolean;
+  isFollowed: boolean;
+  league: number;
+  leagueGamesBack: string;
+  leagueRank: number;
+  losses: number;
+  name: string;
+  pct: string;
+  record_away: string;
+  record_day: string;
+  record_division: string;
+  record_extraInning: string;
+  record_grass: string;
+  record_home: string;
+  record_interLeague: string;
+  record_lastTen: string;
+  record_league_103: string;
+  record_league_104: string;
+  record_left: string;
+  record_leftAway: string;
+  record_leftHome: string;
+  record_night: string;
+  record_oneRun: string;
+  record_right: string;
+  record_rightAway: string;
+  record_rightHome: string;
+  record_turf: string;
+  record_vsDivisionCentral: string;
+  record_vsDivisionEast: string;
+  record_vsDivisionWest: string;
+  record_winnners: string;
+  record_xWinLoss: string;
+  record_xWinLossSeason: string;
+  runDifferential: number;
+  runsAllowed: number;
+  runsScored: number;
+  shortName: string;
+  sortStreak: number;
+  sport: number;
+  sportGamesBack: string;
+  sportRank: number;
+  streak: string;
+  team: ITeam;
+  viewGamesBack: string;
+  viewRank: number;
+  wildCardEliminationNumber: string;
+  wildCardGamesBack: string;
+  wildCardLeader: boolean;
+  wildCardRank: number;
   wins: number;
 }

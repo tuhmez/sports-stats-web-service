@@ -5485,7 +5485,7 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"IStandingsDivision": {
+			"IRecordDivision": {
 				"properties": {
 					"abbreviation": {
 						"type": "string"
@@ -5634,7 +5634,7 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"IStandingsLeague": {
+			"IRecordLeague": {
 				"properties": {
 					"abbreviation": {
 						"type": "string"
@@ -5718,7 +5718,7 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"IStandingsSport": {
+			"IRecordSport": {
 				"properties": {
 					"abbreviation": {
 						"type": "string"
@@ -5759,19 +5759,19 @@
 			"IRecord": {
 				"properties": {
 					"division": {
-						"$ref": "#/components/schemas/IStandingsDivision"
+						"$ref": "#/components/schemas/IRecordDivision"
 					},
 					"lastUpdated": {
 						"type": "string"
 					},
 					"league": {
-						"$ref": "#/components/schemas/IStandingsLeague"
+						"$ref": "#/components/schemas/IRecordLeague"
 					},
 					"standingsType": {
 						"type": "string"
 					},
 					"sport": {
-						"$ref": "#/components/schemas/IStandingsSport"
+						"$ref": "#/components/schemas/IRecordSport"
 					},
 					"teamRecords": {
 						"items": {
@@ -5791,7 +5791,7 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"IStandingsResponse": {
+			"IRecordsResponse": {
 				"properties": {
 					"copyright": {
 						"type": "string"
@@ -5806,6 +5806,648 @@
 				"required": [
 					"copyright",
 					"records"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IStandingsTeamRecord": {
+				"properties": {
+					"abbreviation": {
+						"type": "string"
+					},
+					"clinchIndicator": {
+						"type": "string"
+					},
+					"clinched": {
+						"type": "boolean"
+					},
+					"conferenceGamesBack": {
+						"type": "string"
+					},
+					"conferenceRank": {
+						"type": "number",
+						"format": "double"
+					},
+					"division": {
+						"type": "number",
+						"format": "double"
+					},
+					"divisionChamp": {
+						"type": "boolean"
+					},
+					"divisionGamesBack": {
+						"type": "string"
+					},
+					"divisionLeader": {
+						"type": "boolean"
+					},
+					"divisionRank": {
+						"type": "number",
+						"format": "double"
+					},
+					"eliminationNumber": {
+						"type": "string"
+					},
+					"id": {
+						"type": "string"
+					},
+					"isContextTeam": {
+						"type": "boolean"
+					},
+					"isFavorite": {
+						"type": "boolean"
+					},
+					"isFollowed": {
+						"type": "boolean"
+					},
+					"league": {
+						"type": "number",
+						"format": "double"
+					},
+					"leagueGamesBack": {
+						"type": "string"
+					},
+					"leagueRank": {
+						"type": "number",
+						"format": "double"
+					},
+					"losses": {
+						"type": "number",
+						"format": "double"
+					},
+					"name": {
+						"type": "string"
+					},
+					"pct": {
+						"type": "string"
+					},
+					"record_away": {
+						"type": "string"
+					},
+					"record_day": {
+						"type": "string"
+					},
+					"record_division": {
+						"type": "string"
+					},
+					"record_extraInning": {
+						"type": "string"
+					},
+					"record_grass": {
+						"type": "string"
+					},
+					"record_home": {
+						"type": "string"
+					},
+					"record_interLeague": {
+						"type": "string"
+					},
+					"record_lastTen": {
+						"type": "string"
+					},
+					"record_league_103": {
+						"type": "string"
+					},
+					"record_league_104": {
+						"type": "string"
+					},
+					"record_left": {
+						"type": "string"
+					},
+					"record_leftAway": {
+						"type": "string"
+					},
+					"record_leftHome": {
+						"type": "string"
+					},
+					"record_night": {
+						"type": "string"
+					},
+					"record_oneRun": {
+						"type": "string"
+					},
+					"record_right": {
+						"type": "string"
+					},
+					"record_rightAway": {
+						"type": "string"
+					},
+					"record_rightHome": {
+						"type": "string"
+					},
+					"record_turf": {
+						"type": "string"
+					},
+					"record_vsDivisionCentral": {
+						"type": "string"
+					},
+					"record_vsDivisionEast": {
+						"type": "string"
+					},
+					"record_vsDivisionWest": {
+						"type": "string"
+					},
+					"record_winnners": {
+						"type": "string"
+					},
+					"record_xWinLoss": {
+						"type": "string"
+					},
+					"record_xWinLossSeason": {
+						"type": "string"
+					},
+					"runDifferential": {
+						"type": "number",
+						"format": "double"
+					},
+					"runsAllowed": {
+						"type": "number",
+						"format": "double"
+					},
+					"runsScored": {
+						"type": "number",
+						"format": "double"
+					},
+					"shortName": {
+						"type": "string"
+					},
+					"sortStreak": {
+						"type": "number",
+						"format": "double"
+					},
+					"sport": {
+						"type": "number",
+						"format": "double"
+					},
+					"sportGamesBack": {
+						"type": "string"
+					},
+					"sportRank": {
+						"type": "number",
+						"format": "double"
+					},
+					"streak": {
+						"type": "string"
+					},
+					"team": {
+						"$ref": "#/components/schemas/ITeam"
+					},
+					"viewGamesBack": {
+						"type": "string"
+					},
+					"viewRank": {
+						"type": "number",
+						"format": "double"
+					},
+					"wildCardEliminationNumber": {
+						"type": "string"
+					},
+					"wildCardGamesBack": {
+						"type": "string"
+					},
+					"wildCardLeader": {
+						"type": "boolean"
+					},
+					"wildCardRank": {
+						"type": "number",
+						"format": "double"
+					},
+					"wins": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"abbreviation",
+					"clinchIndicator",
+					"clinched",
+					"conferenceGamesBack",
+					"conferenceRank",
+					"division",
+					"divisionChamp",
+					"divisionGamesBack",
+					"divisionLeader",
+					"divisionRank",
+					"eliminationNumber",
+					"id",
+					"isContextTeam",
+					"isFavorite",
+					"isFollowed",
+					"league",
+					"leagueGamesBack",
+					"leagueRank",
+					"losses",
+					"name",
+					"pct",
+					"record_away",
+					"record_day",
+					"record_division",
+					"record_extraInning",
+					"record_grass",
+					"record_home",
+					"record_interLeague",
+					"record_lastTen",
+					"record_league_103",
+					"record_league_104",
+					"record_left",
+					"record_leftAway",
+					"record_leftHome",
+					"record_night",
+					"record_oneRun",
+					"record_right",
+					"record_rightAway",
+					"record_rightHome",
+					"record_turf",
+					"record_vsDivisionCentral",
+					"record_vsDivisionEast",
+					"record_vsDivisionWest",
+					"record_winnners",
+					"record_xWinLoss",
+					"record_xWinLossSeason",
+					"runDifferential",
+					"runsAllowed",
+					"runsScored",
+					"shortName",
+					"sortStreak",
+					"sport",
+					"sportGamesBack",
+					"sportRank",
+					"streak",
+					"team",
+					"viewGamesBack",
+					"viewRank",
+					"wildCardEliminationNumber",
+					"wildCardGamesBack",
+					"wildCardLeader",
+					"wildCardRank",
+					"wins"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IStandingsRecord": {
+				"properties": {
+					"clinchIcons": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"division": {
+						"type": "number",
+						"format": "double"
+					},
+					"lastUpdated": {
+						"type": "string"
+					},
+					"standingsType": {
+						"type": "string"
+					},
+					"teamRecords": {
+						"items": {
+							"$ref": "#/components/schemas/IStandingsTeamRecord"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"clinchIcons",
+					"division",
+					"lastUpdated",
+					"standingsType",
+					"teamRecords"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IStandingsUtils": {
+				"properties": {
+					"hasContextItem": {
+						"type": "boolean"
+					},
+					"hasFavorites": {
+						"type": "boolean"
+					},
+					"hasFollowed": {
+						"type": "boolean"
+					},
+					"hasMostFavorite": {
+						"type": "boolean"
+					}
+				},
+				"required": [
+					"hasContextItem",
+					"hasFavorites",
+					"hasFollowed",
+					"hasMostFavorite"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IStandingsDivision": {
+				"properties": {
+					"abbreviation": {
+						"type": "string"
+					},
+					"active": {
+						"type": "boolean"
+					},
+					"hasWildcard": {
+						"type": "boolean"
+					},
+					"id": {
+						"type": "number",
+						"format": "double"
+					},
+					"league": {
+						"$ref": "#/components/schemas/ILeagueId"
+					},
+					"link": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"nameShort": {
+						"type": "string"
+					},
+					"numPlayoffTeams": {
+						"type": "number",
+						"format": "double"
+					},
+					"season": {
+						"type": "string"
+					},
+					"sortIndex1": {
+						"type": "number",
+						"format": "double"
+					},
+					"sortIndex2": {
+						"type": "number",
+						"format": "double"
+					},
+					"sortIndex3": {
+						"type": "number",
+						"format": "double"
+					},
+					"sport": {
+						"$ref": "#/components/schemas/ISportId"
+					},
+					"standingsUtils": {
+						"$ref": "#/components/schemas/IStandingsUtils"
+					}
+				},
+				"required": [
+					"abbreviation",
+					"active",
+					"hasWildcard",
+					"id",
+					"league",
+					"link",
+					"name",
+					"nameShort",
+					"numPlayoffTeams",
+					"season",
+					"sortIndex1",
+					"sortIndex2",
+					"sortIndex3",
+					"sport",
+					"standingsUtils"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IStandingsLeague": {
+				"properties": {
+					"abbreviation": {
+						"type": "string"
+					},
+					"active": {
+						"type": "boolean"
+					},
+					"conferencesInUse": {
+						"type": "boolean"
+					},
+					"divisions": {
+						"items": {
+							"$ref": "#/components/schemas/IStandingsDivision"
+						},
+						"type": "array"
+					},
+					"divisionsInUse": {
+						"type": "boolean"
+					},
+					"hasPlayoffPoints": {
+						"type": "boolean"
+					},
+					"hasSplitSeason": {
+						"type": "boolean"
+					},
+					"hasWildCard": {
+						"type": "boolean"
+					},
+					"id": {
+						"type": "number",
+						"format": "double"
+					},
+					"link": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"nameShort": {
+						"type": "string"
+					},
+					"numGames": {
+						"type": "number",
+						"format": "double"
+					},
+					"numTeams": {
+						"type": "number",
+						"format": "double"
+					},
+					"numWildcardTeams": {
+						"type": "number",
+						"format": "double"
+					},
+					"orgCode": {
+						"type": "string"
+					},
+					"season": {
+						"type": "string"
+					},
+					"seasonDateInfo": {
+						"$ref": "#/components/schemas/ISeasonDateInfo"
+					},
+					"seasonState": {
+						"type": "string"
+					},
+					"sortIndex1": {
+						"type": "number",
+						"format": "double"
+					},
+					"sortIndex2": {
+						"type": "number",
+						"format": "double"
+					},
+					"sortindex3": {
+						"type": "number",
+						"format": "double"
+					},
+					"sortOrder": {
+						"type": "number",
+						"format": "double"
+					},
+					"sport": {
+						"$ref": "#/components/schemas/ISportId"
+					},
+					"standingsUtils": {
+						"$ref": "#/components/schemas/IStandingsUtils"
+					}
+				},
+				"required": [
+					"abbreviation",
+					"active",
+					"conferencesInUse",
+					"divisionsInUse",
+					"hasPlayoffPoints",
+					"hasSplitSeason",
+					"hasWildCard",
+					"id",
+					"link",
+					"name",
+					"nameShort",
+					"numGames",
+					"numTeams",
+					"numWildcardTeams",
+					"orgCode",
+					"season",
+					"seasonDateInfo",
+					"seasonState",
+					"sortIndex1",
+					"sortIndex2",
+					"sortindex3",
+					"sortOrder",
+					"sport",
+					"standingsUtils"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IStandingsStructure": {
+				"properties": {
+					"abbreviation": {
+						"type": "string"
+					},
+					"activeStatus": {
+						"type": "boolean"
+					},
+					"code": {
+						"type": "string"
+					},
+					"id": {
+						"type": "number",
+						"format": "double"
+					},
+					"leagues": {
+						"items": {
+							"$ref": "#/components/schemas/IStandingsLeague"
+						},
+						"type": "array"
+					},
+					"link": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"sortIndex1": {
+						"type": "number",
+						"format": "double"
+					},
+					"sortIndex2": {
+						"type": "number",
+						"format": "double"
+					},
+					"sortIndex3": {
+						"type": "number",
+						"format": "double"
+					},
+					"sortOrder": {
+						"type": "number",
+						"format": "double"
+					},
+					"standingsUtils": {
+						"$ref": "#/components/schemas/IStandingsUtils"
+					}
+				},
+				"required": [
+					"abbreviation",
+					"activeStatus",
+					"code",
+					"id",
+					"leagues",
+					"link",
+					"name",
+					"sortIndex1",
+					"sortIndex2",
+					"sortIndex3",
+					"sortOrder",
+					"standingsUtils"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IStandingsResponse": {
+				"properties": {
+					"clinchIcons": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"common-version": {
+						"type": "number",
+						"format": "double"
+					},
+					"lastUpdated": {
+						"type": "string"
+					},
+					"records": {
+						"items": {
+							"$ref": "#/components/schemas/IStandingsRecord"
+						},
+						"type": "array"
+					},
+					"structure": {
+						"properties": {
+							"sports": {
+								"items": {
+									"$ref": "#/components/schemas/IStandingsStructure"
+								},
+								"type": "array"
+							}
+						},
+						"required": [
+							"sports"
+						],
+						"type": "object"
+					},
+					"tiedGames": {},
+					"version": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"clinchIcons",
+					"common-version",
+					"lastUpdated",
+					"records",
+					"structure",
+					"tiedGames",
+					"version"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -6946,9 +7588,9 @@
 				]
 			}
 		},
-		"/mlb/standings": {
+		"/mlb/record": {
 			"get": {
-				"operationId": "GetStandings",
+				"operationId": "GetRecord",
 				"responses": {
 					"200": {
 						"description": "Ok",
@@ -6957,7 +7599,7 @@
 								"schema": {
 									"anyOf": [
 										{
-											"$ref": "#/components/schemas/IStandingsResponse"
+											"$ref": "#/components/schemas/IRecordsResponse"
 										},
 										{
 											"$ref": "#/components/schemas/ITeamRecord"
@@ -6971,14 +7613,14 @@
 						}
 					}
 				},
-				"description": "Gets the current standings for the MLB",
+				"description": "Gets the current record for an MLB team",
 				"tags": [
 					"MLB"
 				],
 				"security": [],
 				"parameters": [
 					{
-						"description": "- The year requested for standings",
+						"description": "- The year requested for record",
 						"in": "query",
 						"name": "year",
 						"required": false,
@@ -7088,6 +7730,62 @@
 					{
 						"in": "query",
 						"name": "display",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/mlb/standings": {
+			"get": {
+				"operationId": "GetStandings",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/IStandingsResponse"
+										},
+										{
+											"$ref": "#/components/schemas/IError"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"description": "Gets the current standings for an MLB division, league, sport. can also include playoffs",
+				"tags": [
+					"MLB"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "- The date in MM/DD/YYYY format",
+						"in": "query",
+						"name": "date",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "type",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "specificType",
 						"required": false,
 						"schema": {
 							"type": "string"

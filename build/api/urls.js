@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.standingsUrl = exports.teamColorCodesPageUrl = exports.playerCurrentHeadshotUrl = exports.teamLeadersUrl = exports.playerStatsUrl = exports.playerUrl = exports.promotionalSponsorsUrl = exports.matchupUrl = exports.rosterUrl = exports.teamUrl = exports.teamLogosUrl = exports.gameBoxscoreUrl = exports.gameFeedUrl = exports.dailyGamesUrl = void 0;
+exports.standingsUrl = exports.recordUrl = exports.teamColorCodesPageUrl = exports.playerCurrentHeadshotUrl = exports.teamLeadersUrl = exports.playerStatsUrl = exports.playerUrl = exports.promotionalSponsorsUrl = exports.matchupUrl = exports.rosterUrl = exports.teamUrl = exports.teamLogosUrl = exports.gameBoxscoreUrl = exports.gameFeedUrl = exports.dailyGamesUrl = void 0;
 const dailyGamesUrl = (date) => {
-    return `https://statsapi.mlb.com/api/v1/schedule?language=en&sportId=1&date=${date}&sortBy=gameDate&hydrate=game(content(summary,media(epg))),linescore(runners),flags,team,review`;
+    return `https://statsapi.mlb.com/api/v1/schedule?language=en&sportId=1,11,12,13,14,16&date=${date}&sortBy=gameDate&hydrate=game(content(summary,media(epg))),linescore(runners),flags,team,review`;
 };
 exports.dailyGamesUrl = dailyGamesUrl;
 const gameFeedUrl = (gameId) => `https://statsapi.mlb.com/api/v1.1/game/${gameId}/feed/live`;
@@ -29,12 +29,26 @@ const playerCurrentHeadshotUrl = (playerId, maginification = '1') => `https://co
 exports.playerCurrentHeadshotUrl = playerCurrentHeadshotUrl;
 const teamColorCodesPageUrl = () => `https://teamcolorcodes.com/mlb-color-codes/`;
 exports.teamColorCodesPageUrl = teamColorCodesPageUrl;
-const standingsUrl = (year, date) => {
+const recordUrl = (year, date) => {
     let url = `https://statsapi.mlb.com/api/v1/standings?leagueId=103,104&season=${year}&standingsTypes=regularSeason,springTraining,firstHalf,secondHalf&hydrate=division,conference,sport,league,team`;
     if (date) {
         url = `${url}&date=${date}`;
     }
     return url;
 };
+exports.recordUrl = recordUrl;
+const standingsUrl = (year, date, type) => {
+    let standingsType = 'regularSeason';
+    let standingsView = type;
+    if (type === 'playoff') {
+        type = 'wildCard';
+        standingsView = 'league';
+    }
+    return `https://bdfed.stitch.mlbinfra.com/bdfed/transform-mlb-standings?&splitPcts=false&numberPcts=false&standingsView=${standingsView}&sortTemplate=3&season=${year}&leagueIds=103&&leagueIds=104&standingsTypes=${standingsType}&contextTeamId=&date=${date}&hydrateAlias=noSchedule`;
+};
 exports.standingsUrl = standingsUrl;
+/**
+ * minor league gameday, score, live data
+ * https://ws.statsapi.mlb.com/api/v1.1/game/751942/feed/live?language=en
+ */
 //# sourceMappingURL=urls.js.map

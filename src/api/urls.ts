@@ -13,13 +13,23 @@ export const playerStatsUrl = (playerId: string) => `https://statsapi.mlb.com/ap
 export const teamLeadersUrl = (teamId: string) => `https://statsapi.mlb.com/api/v1/teams/${teamId}/leaders?leaderCategories=wins,saves,earnedRunAverage,strikeouts,walksAndHitsPerInningPitched,battingAverage,runs,homeRuns,runsBattedIn,stolenBases&leaderGameTypes=R&season=2022&hydrate=person,team&limit=1`
 export const playerCurrentHeadshotUrl = (playerId: string, maginification: string = '1') => `https://content.mlb.com/images/headshots/current/60x60/${playerId}@${maginification}x.png`;
 export const teamColorCodesPageUrl = () => `https://teamcolorcodes.com/mlb-color-codes/`;
-export const standingsUrl = (year: string, date?: string) => {
+export const recordUrl = (year: string, date?: string) => {
   let url = `https://statsapi.mlb.com/api/v1/standings?leagueId=103,104&season=${year}&standingsTypes=regularSeason,springTraining,firstHalf,secondHalf&hydrate=division,conference,sport,league,team`;
   if (date) {
     url = `${url}&date=${date}`;
   }
   return url;
 };
+export const standingsUrl = (year: string, date: string, type: string) => {
+  let standingsType = 'regularSeason';
+  let standingsView = type;
+  if (type === 'playoff') {
+    type = 'wildCard';
+    standingsView = 'league';
+  }
+
+  return `https://bdfed.stitch.mlbinfra.com/bdfed/transform-mlb-standings?&splitPcts=false&numberPcts=false&standingsView=${standingsView}&sortTemplate=3&season=${year}&leagueIds=103&&leagueIds=104&standingsTypes=${standingsType}&contextTeamId=&date=${date}&hydrateAlias=noSchedule`;
+}
 
 /**
  * minor league gameday, score, live data

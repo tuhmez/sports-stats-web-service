@@ -328,14 +328,23 @@ export class MLBRoutes {
 
     // ===== standings ===== //
 
-    router.get("/mlb/standings", async (_req, res) => {
+    router.get("/mlb/standings", async(_req, res) => {
+      const date = _req.query.date  as string;
+      const type = _req.query.type as string;
+      const specificType = _req.query.specificType as string;
+
+      const response = await mlbController.getStandings(date, type, specificType);
+      return res.json(response);
+    });
+
+    router.get("/mlb/record", async (_req, res) => {
       const year = _req.query.year as string;
       const date = _req.query.date as string;
       const location = _req.query.location as string;
       const name = _req.query.name as string;
       const abbreviation = _req.query.abbreviation as string;
 
-      const response = await mlbController.getStandings(
+      const response = await mlbController.getRecord(
         year,
         date,
         location,

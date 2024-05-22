@@ -28,11 +28,13 @@ exports.MlbController = void 0;
 const tsoa_1 = require("tsoa");
 const axios_1 = __importDefault(require("axios"));
 const cheerio_1 = require("cheerio");
+const sharp_1 = __importDefault(require("sharp"));
+const color_1 = __importDefault(require("color"));
 const utils_1 = require("../../utils");
 const urls_1 = require("../urls");
 const utils_2 = require("../utils");
 const date_1 = require("../../utils/date");
-const sharp_1 = __importDefault(require("sharp"));
+const data_1 = require("../../data");
 const invalidDateError = {
     message: 'Input date is invalid. Valid format is MM/DD/YYYY (e.g. 10/01/2018)',
     statusCode: 400,
@@ -539,7 +541,7 @@ let MlbController = class MlbController {
      * @param {string} format - Optional format input, accepts SVG and PNG; if not provided, SVG will be provided
      * @returns {(HTMLOrSVGElement | Buffer | IError)}
      */
-    getTeamLogo(id, location, name, abbreviation, format) {
+    getTeamLogo(id, location, name, abbreviation, format, output, url, urlHasId) {
         return __awaiter(this, void 0, void 0, function* () {
             const route = '/mlb/game/team/logo';
             try {
@@ -587,11 +589,19 @@ let MlbController = class MlbController {
                     }
                     id = teamIdResponse;
                 }
-                const response = yield mlbTransport.get((0, urls_1.teamLogosUrl)(id));
+                let urlToUse = (0, urls_1.teamLogosUrl)(id);
+                if (url) {
+                    if (urlHasId) {
+                        urlToUse = url;
+                    }
+                    else {
+                        urlToUse = `${url}/${id}.svg`;
+                    }
+                }
+                const response = yield mlbTransport.get(urlToUse);
                 let image = response.data;
                 if (format) {
                     if (format.toLowerCase() === "png") {
-                        console.log('here');
                         try {
                             image = yield (0, sharp_1.default)(Buffer.from(image)).png().toBuffer();
                         }
@@ -602,6 +612,16 @@ let MlbController = class MlbController {
                                 statusCode: 500
                             };
                             return error;
+                        }
+                    }
+                    else {
+                        if (output) {
+                            if (output === 'Buffer') {
+                                return Buffer.from(image);
+                            }
+                            else {
+                                return image;
+                            }
                         }
                     }
                 }
@@ -813,8 +833,8 @@ let MlbController = class MlbController {
                 }
                 const data = yield (yield mlbTransport.get((0, urls_1.teamUrl)(id))).data;
                 const team = data.teams[0];
-                location = team.locationName;
-                name = team.teamName;
+                location = team.franchiseName;
+                name = team.clubName;
             }
             const data = yield mlbTransport.get((0, urls_1.teamColorCodesPageUrl)());
             const teamToLookFor = `${location.toLowerCase().trim()} ${name.toLowerCase().trim()}`;
@@ -834,7 +854,7 @@ let MlbController = class MlbController {
             // loop until we find the team we want
             let teamColorRow = undefined;
             $(tables[hexTableIndex]).find('tr').each((i, e) => {
-                const teamRow = $(e).find('th').text().toLowerCase();
+                const teamRow = $(e).find('th').text().toLowerCase().trim();
                 if (teamRow === teamToLookFor) {
                     teamColorRow = e;
                     return false;
@@ -853,7 +873,7 @@ let MlbController = class MlbController {
             const teamColors = [];
             $(teamColorRow).find('td').each((i, e) => {
                 const tdStrings = $(e).text().split('#');
-                teamColors.push(`#${tdStrings[tdStrings.length - 1]}`);
+                teamColors.push(`#${tdStrings[tdStrings.length - 1]}`.trim());
             });
             return teamColors.filter((tc) => tc !== '#');
         });
@@ -1041,15 +1061,15 @@ let MlbController = class MlbController {
         });
     }
     /**
-     * Gets the current standings for the MLB
-     * @param {string} year - The year requested for standings
+     * Gets the current record for an MLB team
+     * @param {string} year - The year requested for record
      * @param {string} date - The date in MM/DD/YYYY format
      * @param {string} location - The MLB team location
      * @param {string} name - The MLB team name
      * @param {string} abbreviation - The MLB team's abbreviation
-     * @returns {(IStandingsResponse | IError)}
+     * @returns {(IRecordsResponse | IError)}
      */
-    getStandings(year, date, location, name, abbreviation) {
+    getRecord(year, date, location, name, abbreviation) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 if (!year && !date) {
@@ -1074,10 +1094,10 @@ let MlbController = class MlbController {
                         };
                     }
                 }
-                const standings = yield (yield mlbTransport.get((0, urls_1.standingsUrl)(year, date))).data;
+                const record = yield (yield mlbTransport.get((0, urls_1.recordUrl)(year, date))).data;
                 if (!location && !name && !abbreviation)
-                    return standings;
-                const teamRecords = standings.records.find((r) => {
+                    return record;
+                const teamRecords = record.records.find((r) => {
                     return r.teamRecords.find((tr) => {
                         const { team } = tr;
                         if (location && name) {
@@ -1115,6 +1135,208 @@ let MlbController = class MlbController {
                 }
             }
             catch (exception) {
+                const { data, response } = exception;
+                (0, utils_1.LogError)(response.status, `/mlb/record`, data.message);
+                const error = {
+                    message: data.message,
+                    statusCode: response.status
+                };
+                return error;
+            }
+        });
+    }
+    getMatchupGraphic(location, name, abbreviation, date, display) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const gameResponse = yield this.getGameForTeam(location, name, abbreviation, date);
+            // @ts-ignore
+            if (gameResponse.message) {
+                return gameResponse;
+            }
+            if (gameResponse.games.length === 0) {
+                return {
+                    message: `No games found`,
+                    statusCode: 200
+                };
+            }
+            const { teams } = gameResponse.games[0];
+            let homeTeam = '';
+            let homeTeamProperty = '';
+            if (location) {
+                homeTeam = teams.home.team.locationName.toLowerCase();
+                homeTeamProperty = 'location';
+            }
+            else if (name) {
+                homeTeam = teams.home.team.name.toLowerCase();
+                homeTeamProperty = 'name';
+            }
+            else {
+                homeTeam = teams.home.team.abbreviation.toLowerCase();
+                homeTeamProperty = 'abbreviation';
+            }
+            const isHomeTeamDesiredTeam = homeTeamProperty === 'location' ? homeTeam === location.toLowerCase() :
+                homeTeamProperty === 'name' ? homeTeam === name.toLowerCase() :
+                    homeTeam === abbreviation.toLowerCase();
+            const desiredTeam = isHomeTeamDesiredTeam ? teams.home : teams.away;
+            const againstTeam = isHomeTeamDesiredTeam ? teams.away : teams.home;
+            const desiredTeamId = desiredTeam.team.id.toString();
+            const againstTeamId = againstTeam.team.id.toString();
+            const desiredTeamAbbreviation = desiredTeam.team.abbreviation.toLowerCase();
+            const againstTeamAbbreviation = againstTeam.team.abbreviation.toLowerCase();
+            let desiredTeamColorResponse = yield this.getTeamColors(desiredTeamId);
+            let againstTeamColorResponse = yield this.getTeamColors(againstTeamId);
+            if (!Array.isArray(desiredTeamColorResponse)) {
+                desiredTeamColorResponse = ['#FFFFFF'];
+            }
+            if (!Array.isArray(againstTeamColorResponse)) {
+                againstTeamColorResponse = ['#FFFFFF'];
+            }
+            let desiredColor = (0, color_1.default)(desiredTeamColorResponse[0]);
+            let againstColor = (0, color_1.default)(againstTeamColorResponse[0]);
+            const useSecondaryColorDesired = data_1.logos.useSecondaryColor.includes(desiredTeamAbbreviation);
+            const useSecondaryColorAgainst = data_1.logos.useSecondaryColor.includes(againstTeamAbbreviation);
+            const useTeamCapOnDarkDesired = data_1.logos.useTeamCapOnDark.includes(desiredTeamAbbreviation);
+            const useTeamCapOnDarkAgainst = data_1.logos.useTeamCapOnDark.includes(againstTeamAbbreviation);
+            const useOtherUrlDesired = data_1.logos.useOtherUrl.includes(desiredTeamAbbreviation);
+            const useOtherUrlAgainst = data_1.logos.useOtherUrl.includes(againstTeamAbbreviation);
+            let desiredTeamLogo;
+            let againstTeamLogo;
+            if (useTeamCapOnDarkDesired) {
+                desiredTeamLogo = (yield this.getTeamLogo(desiredTeamId, null, null, null, null, 'Buffer', data_1.logos.urlTeamCapOnDark, false));
+            }
+            else if (useOtherUrlDesired) {
+                desiredTeamLogo = (yield this.getTeamLogo(desiredTeamId, null, null, null, null, 'Buffer', data_1.logos.otherUrls[desiredTeamAbbreviation], true));
+            }
+            else {
+                desiredTeamLogo = (yield this.getTeamLogo(desiredTeamId, null, null, null, null, 'Buffer'));
+            }
+            if (useTeamCapOnDarkAgainst) {
+                againstTeamLogo = (yield this.getTeamLogo(againstTeamId, null, null, null, null, 'Buffer', data_1.logos.urlTeamCapOnDark, false));
+            }
+            else if (useOtherUrlAgainst) {
+                againstTeamLogo = (yield this.getTeamLogo(againstTeamId, null, null, null, null, 'Buffer', data_1.logos.otherUrls[againstTeamAbbreviation], true));
+            }
+            else {
+                againstTeamLogo = (yield this.getTeamLogo(againstTeam.team.id.toString(), null, null, null, null, 'Buffer'));
+            }
+            if (useSecondaryColorDesired) {
+                desiredColor = (0, color_1.default)(desiredTeamColorResponse[1]);
+            }
+            if (useSecondaryColorAgainst) {
+                againstColor = (0, color_1.default)(againstTeamColorResponse[1]);
+            }
+            const svgHeightAndWidth = 400;
+            const translateFactor = (Math.SQRT2 / 2) * -1;
+            const background = `
+        <svg width="${svgHeightAndWidth}" height="${svgHeightAndWidth}" version="1.1" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="home-away-gradient" gradientTransform="translate(1, ${translateFactor}) rotate(45)">
+              <stop stop-color='${(isHomeTeamDesiredTeam ? againstColor.hex() : desiredColor.hex())}' offset="0%" />
+              <stop stop-color='${(isHomeTeamDesiredTeam ? againstColor.hex() : desiredColor.hex())}' offset="50%" />
+              <stop stop-color='${(isHomeTeamDesiredTeam ? desiredColor.hex() : againstColor.hex())}' offset="50%" />
+              <stop stop-color='${(isHomeTeamDesiredTeam ? desiredColor.hex() : againstColor.hex())}' offset="100%" />
+            </linearGradient>
+          </defs>
+          <style>
+            #matchup-background {
+              fill: url(#home-away-gradient)
+            }
+          </style>
+          <rect id="matchup-background" width="400" height="400" />
+        </svg>
+    `;
+            // console.log(desiredTeamLogo.viewportElement);
+            const desiredGraphic = (0, sharp_1.default)(Buffer.from(desiredTeamLogo)).resize(150, 150, { fit: 'inside' });
+            const againstGraphic = (0, sharp_1.default)(Buffer.from(againstTeamLogo)).resize(150, 150, { fit: 'inside' });
+            const centerOfTriangle = Math.floor((svgHeightAndWidth / 2) / 3);
+            const graphic = (0, sharp_1.default)(Buffer.from(background))
+                .composite([
+                {
+                    input: yield desiredGraphic.toBuffer(),
+                    top: isHomeTeamDesiredTeam ? centerOfTriangle + 150 : centerOfTriangle - 25,
+                    left: isHomeTeamDesiredTeam ? centerOfTriangle + 150 : centerOfTriangle - 25
+                },
+                {
+                    input: yield againstGraphic.toBuffer(),
+                    top: isHomeTeamDesiredTeam ? centerOfTriangle - 25 : centerOfTriangle + 150,
+                    left: isHomeTeamDesiredTeam ? centerOfTriangle - 25 : centerOfTriangle + 150
+                }
+            ]);
+            return yield graphic.png().toBuffer();
+        });
+    }
+    /**
+       * Gets the current standings for an MLB division, league, sport. can also include playoffs
+       * @param {string} year - The year requested for record
+       * @param {string} date - The date in MM/DD/YYYY format
+       * @param {string} location - The MLB team location
+       * @param {string} name - The MLB team name
+       * @param {string} abbreviation - The MLB team's abbreviation
+       * @returns {(IRecordsResponse | IError)}
+       */
+    getStandings(date, type, specificType) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                let year = null;
+                if (!date) {
+                    const today = new Date();
+                    const month = (today.getMonth() + 1).toString();
+                    const day = today.getDate().toString();
+                    year = today.getFullYear().toString();
+                    date = `${month}/${day}/${year}`;
+                }
+                else {
+                    year = new Date(date).getFullYear().toString();
+                }
+                let standings = yield (yield mlbTransport.get((0, urls_1.standingsUrl)(year, date, type))).data;
+                if (specificType) {
+                    let idToFind = -1;
+                    let leagueIndex = -1;
+                    let propertyToUse = 'division';
+                    switch (specificType) {
+                        case 'al':
+                            propertyToUse = 'league';
+                            idToFind = standings.structure.sports[0].leagues.find(l => l.abbreviation.toLowerCase() === 'al').id;
+                            break;
+                        case 'nl':
+                            propertyToUse = 'league';
+                            idToFind = standings.structure.sports[0].leagues.find(l => l.abbreviation.toLowerCase() === 'nl').id;
+                            break;
+                        case 'alc':
+                            leagueIndex = standings.structure.sports[0].leagues.findIndex(l => l.abbreviation.toLowerCase() === 'al');
+                            idToFind = standings.structure.sports[0].leagues[leagueIndex].divisions.find(d => d.abbreviation.toLowerCase() === 'alc').id;
+                            break;
+                        case 'ale':
+                            leagueIndex = standings.structure.sports[0].leagues.findIndex(l => l.abbreviation.toLowerCase() === 'al');
+                            idToFind = standings.structure.sports[0].leagues[leagueIndex].divisions.find(d => d.abbreviation.toLowerCase() === 'ale').id;
+                            break;
+                        case 'alw':
+                            leagueIndex = standings.structure.sports[0].leagues.findIndex(l => l.abbreviation.toLowerCase() === 'al');
+                            idToFind = standings.structure.sports[0].leagues[leagueIndex].divisions.find(d => d.abbreviation.toLowerCase() === 'alw').id;
+                            break;
+                        case 'nlc':
+                            leagueIndex = standings.structure.sports[0].leagues.findIndex(l => l.abbreviation.toLowerCase() === 'nl');
+                            idToFind = standings.structure.sports[0].leagues[leagueIndex].divisions.find(d => d.abbreviation.toLowerCase() === 'nlc').id;
+                            break;
+                        case 'nle':
+                            leagueIndex = standings.structure.sports[0].leagues.findIndex(l => l.abbreviation.toLowerCase() === 'nl');
+                            idToFind = standings.structure.sports[0].leagues[leagueIndex].divisions.find(d => d.abbreviation.toLowerCase() === 'nle').id;
+                            break;
+                        case 'nlw':
+                            leagueIndex = standings.structure.sports[0].leagues.findIndex(l => l.abbreviation.toLowerCase() === 'nl');
+                            idToFind = standings.structure.sports[0].leagues[leagueIndex].divisions.find(d => d.abbreviation.toLowerCase() === 'nlw').id;
+                            break;
+                        default:
+                            break;
+                    }
+                    //@ts-ignore
+                    const actualRecords = standings.records.filter(r => r[propertyToUse] === idToFind);
+                    // console.log(idToFind);
+                    standings.records = actualRecords;
+                }
+                return standings;
+            }
+            catch (exception) {
+                console.log(exception);
                 const { data, response } = exception;
                 (0, utils_1.LogError)(response.status, `/mlb/standings`, data.message);
                 const error = {
@@ -1211,8 +1433,11 @@ __decorate([
     __param(2, (0, tsoa_1.Query)()),
     __param(3, (0, tsoa_1.Query)()),
     __param(4, (0, tsoa_1.Query)()),
+    __param(5, (0, tsoa_1.Query)()),
+    __param(6, (0, tsoa_1.Query)()),
+    __param(7, (0, tsoa_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String, String, String]),
+    __metadata("design:paramtypes", [String, String, String, String, String, String, String, Boolean]),
     __metadata("design:returntype", Promise)
 ], MlbController.prototype, "getTeamLogo", null);
 __decorate([
@@ -1283,7 +1508,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], MlbController.prototype, "getPlayerHeadshot", null);
 __decorate([
-    (0, tsoa_1.Get)('/standings'),
+    (0, tsoa_1.Get)('/record'),
     __param(0, (0, tsoa_1.Query)()),
     __param(1, (0, tsoa_1.Query)()),
     __param(2, (0, tsoa_1.Query)()),
@@ -1291,6 +1516,27 @@ __decorate([
     __param(4, (0, tsoa_1.Query)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String, String, String, String]),
+    __metadata("design:returntype", Promise)
+], MlbController.prototype, "getRecord", null);
+__decorate([
+    (0, tsoa_1.Get)('/game/matchup/graphic'),
+    (0, tsoa_1.Produces)('image/png'),
+    __param(0, (0, tsoa_1.Query)()),
+    __param(1, (0, tsoa_1.Query)()),
+    __param(2, (0, tsoa_1.Query)()),
+    __param(3, (0, tsoa_1.Query)()),
+    __param(4, (0, tsoa_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String, String, String]),
+    __metadata("design:returntype", Promise)
+], MlbController.prototype, "getMatchupGraphic", null);
+__decorate([
+    (0, tsoa_1.Get)('/standings'),
+    __param(0, (0, tsoa_1.Query)()),
+    __param(1, (0, tsoa_1.Query)()),
+    __param(2, (0, tsoa_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String]),
     __metadata("design:returntype", Promise)
 ], MlbController.prototype, "getStandings", null);
 MlbController = __decorate([
