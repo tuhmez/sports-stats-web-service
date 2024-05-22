@@ -24,7 +24,7 @@ export const standingsUrl = (year: string, date: string, type: string) => {
   let standingsType = 'regularSeason';
   let standingsView = type;
   if (type === 'playoff') {
-    type = 'wildCard';
+    standingsType = 'wildCard';
     standingsView = 'league';
   }
 
