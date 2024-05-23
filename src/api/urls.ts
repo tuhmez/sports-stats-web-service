@@ -35,3 +35,8 @@ export const standingsUrl = (year: string, date: string, type: string) => {
  * minor league gameday, score, live data
  * https://ws.statsapi.mlb.com/api/v1.1/game/751942/feed/live?language=en
  */
+
+/**
+ * lots of good in-game stats :)
+ * https://bdfed.stitch.mlbinfra.com/bdfed/playMetrics/745500?keyMoments=true&scoringPlays=true&homeRuns=true&strikeouts=true&hardHits=true&highLeverage=false&leadChange=true&winProb=true
+ */
