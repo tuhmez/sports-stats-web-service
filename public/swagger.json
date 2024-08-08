@@ -6452,6 +6452,171 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"ILeague": {
+				"properties": {
+					"abbreviation": {
+						"type": "string"
+					},
+					"active": {
+						"type": "boolean"
+					},
+					"conferencesInUse": {
+						"type": "boolean"
+					},
+					"divisionsInUse": {
+						"type": "boolean"
+					},
+					"hasPlayoffPoints": {
+						"type": "boolean"
+					},
+					"hasWildCard": {
+						"type": "boolean"
+					},
+					"id": {
+						"type": "number",
+						"format": "double"
+					},
+					"link": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"nameShort": {
+						"type": "string"
+					},
+					"numGames": {
+						"type": "number",
+						"format": "double"
+					},
+					"numTeams": {
+						"type": "number",
+						"format": "double"
+					},
+					"numWildcardTeams": {
+						"type": "number",
+						"format": "double"
+					},
+					"orgCode": {
+						"type": "string"
+					},
+					"season": {
+						"type": "string"
+					},
+					"seasonDateInfo": {
+						"$ref": "#/components/schemas/ISeasonDateInfo"
+					},
+					"seasonState": {
+						"type": "string"
+					},
+					"sortOrder": {
+						"type": "number",
+						"format": "double"
+					},
+					"sport": {
+						"$ref": "#/components/schemas/ISportId"
+					}
+				},
+				"required": [
+					"abbreviation",
+					"active",
+					"conferencesInUse",
+					"divisionsInUse",
+					"hasPlayoffPoints",
+					"hasWildCard",
+					"id",
+					"link",
+					"name",
+					"nameShort",
+					"numGames",
+					"numTeams",
+					"numWildcardTeams",
+					"orgCode",
+					"season",
+					"seasonDateInfo",
+					"seasonState",
+					"sortOrder",
+					"sport"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ILeagueResponse": {
+				"properties": {
+					"copyright": {
+						"type": "string"
+					},
+					"leagues": {
+						"items": {
+							"$ref": "#/components/schemas/ILeague"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"copyright",
+					"leagues"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ISport": {
+				"properties": {
+					"abbreviation": {
+						"type": "string"
+					},
+					"activeStatus": {
+						"type": "boolean"
+					},
+					"code": {
+						"type": "string"
+					},
+					"id": {
+						"type": "number",
+						"format": "double"
+					},
+					"link": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"sortOrder": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"abbreviation",
+					"activeStatus",
+					"code",
+					"id",
+					"link",
+					"name",
+					"sortOrder"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ISportResponse": {
+				"properties": {
+					"copyright": {
+						"type": "string"
+					},
+					"sports": {
+						"items": {
+							"$ref": "#/components/schemas/ISport"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"copyright",
+					"sports"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"PingResponse": {
 				"properties": {
 					"message": {
@@ -7786,6 +7951,122 @@
 					{
 						"in": "query",
 						"name": "specificType",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/mlb/leagues": {
+			"get": {
+				"operationId": "GetLeague",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/ILeagueResponse"
+										},
+										{
+											"$ref": "#/components/schemas/IError"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"description": "Gets a league",
+				"tags": [
+					"MLB"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "- The league's ID",
+						"in": "query",
+						"name": "id",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The league's name",
+						"in": "query",
+						"name": "name",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The league's abbreviation",
+						"in": "query",
+						"name": "abbreviation",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/mlb/sports": {
+			"get": {
+				"operationId": "GetSport",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/ISportResponse"
+										},
+										{
+											"$ref": "#/components/schemas/IError"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"description": "Gets a sport",
+				"tags": [
+					"MLB"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "- The sport's ID",
+						"in": "query",
+						"name": "id",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The sport's name",
+						"in": "query",
+						"name": "name",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The sport's abbreviation",
+						"in": "query",
+						"name": "abbreviation",
 						"required": false,
 						"schema": {
 							"type": "string"

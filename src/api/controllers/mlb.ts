@@ -19,7 +19,9 @@ import {
   teamLeadersUrl,
   teamLogosUrl,
   teamUrl,
-  standingsUrl
+  standingsUrl,
+  leagueUrl,
+  sportUrl
 } from '../urls';
 import {
   IError,
@@ -37,7 +39,9 @@ import {
   ITeamLeadersResponse,
   ITeamRecord,
   ITeamResponse,
-  IStandingsResponse
+  IStandingsResponse,
+  ILeagueResponse,
+  ISportResponse
 } from '../interfaces';
 import { getTeamIdByFullTeamName, getTeamIdByTeamAbbreviation, getTeamIdByTeamLocation, getTeamIdByTeamName } from '../utils';
 import { validateDate } from '../../utils/date';
@@ -1481,6 +1485,61 @@ export class MlbController {
         statusCode: response.status
       };
       return error;
+    }
+  }
+
+  /**
+   * Gets a league
+   * @param id - The league's ID
+   * @param name - The league's name
+   * @param abbreviation - The league's abbreviation
+   * @returns {(ILeagueResponse | IError)}
+   */
+  @Get('/leagues')
+  public async getLeague(
+    @Query() id?: string,
+    @Query() name?: string,
+    @Query() abbreviation?: string,
+  ): Promise<ILeagueResponse | IError> {
+    if (id) {
+      return await (await mlbTransport.get(leagueUrl(id))).data;
+    } else {
+      const leagues: ILeagueResponse = await (await mlbTransport.get(leagueUrl(''))).data;
+
+      if (name) {
+        leagues.leagues = leagues.leagues.filter((l) => l.name === name);
+      } else if (abbreviation) {
+        leagues.leagues = leagues.leagues.filter((l) => l.abbreviation.toLowerCase() === abbreviation.toLowerCase());
+      }
+
+      return leagues;
+    }
+  }
+
+  /**
+   * Gets a sport
+   * @param id  - The sport's ID
+   * @param name - The sport's name
+   * @param abbreviation - The sport's abbreviation
+   */
+  @Get('/sports')
+  public async getSport(
+    @Query() id?: string,
+    @Query() name?: string,
+    @Query() abbreviation?: string,
+  ): Promise<ISportResponse | IError> {
+    if (id) {
+      return await (await mlbTransport.get(sportUrl(id))).data;
+    } else {
+      const sports: ISportResponse = await (await mlbTransport.get(sportUrl(''))).data;
+
+      if (name) {
+        sports.sports = sports.sports.filter((s) => s.name === name);
+      } else if (abbreviation) {
+        sports.sports = sports.sports.filter((s) => s.abbreviation.toLowerCase() === abbreviation.toLowerCase());
+      }
+
+      return sports;
     }
   }
 }

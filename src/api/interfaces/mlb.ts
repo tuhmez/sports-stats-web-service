@@ -89,6 +89,16 @@ export interface IStandingsResponse {
   version: number;
 }
 
+export interface ILeagueResponse {
+  copyright: string,
+  leagues: ILeague[];
+}
+
+export interface ISportResponse {
+  copyright: string;
+  sports: ISport[];
+}
+
 export enum GameType {
   // All-star
   A = 'A',
@@ -1578,4 +1588,36 @@ export interface IStandingsTeamRecord {
   wildCardLeader: boolean;
   wildCardRank: number;
   wins: number;
+}
+
+export interface ILeague {
+  abbreviation: string;
+  active: boolean;
+  conferencesInUse: boolean;
+  divisionsInUse: boolean;
+  hasPlayoffPoints: boolean;
+  hasWildCard: boolean;
+  id: number;
+  link: string;
+  name: string;
+  nameShort: string;
+  numGames: number;
+  numTeams: number;
+  numWildcardTeams: number;
+  orgCode: string;
+  season: string;
+  seasonDateInfo: ISeasonDateInfo;
+  seasonState: string;
+  sortOrder: number;
+  sport: ISportId;
+}
+
+export interface ISport {
+  abbreviation: string;
+  activeStatus: boolean;
+  code: string;
+  id: number;
+  link: string;
+  name: string;
+  sortOrder: number;
 }

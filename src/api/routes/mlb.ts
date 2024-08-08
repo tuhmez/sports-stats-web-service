@@ -172,6 +172,32 @@ export class MLBRoutes {
 
     // ===== games ===== //
 
+    // ===== sports ===== //
+
+    router.get("/mlb/sports", async (_req, res) => {
+      const id = _req.query.id as string;
+      const name = _req.query.name as string;
+      const abbreviation = _req.query.abbreviation as string;
+
+      const response = await mlbController.getSport(id, name, abbreviation);
+      return res.json(response);
+    });
+
+    // ===== sports ===== //
+
+    // ===== leagues ===== //
+
+    router.get("/mlb/leagues", async (_req, res) => {
+      const id = _req.query.id as string;
+      const name = _req.query.name as string;
+      const abbreviation = _req.query.abbreviation as string;
+
+      const response = await mlbController.getLeague(id, name, abbreviation);
+      return res.json(response);
+    });
+
+    // ===== leagues ===== //
+
     // ===== teams ===== //
 
     router.get("/mlb/teams", async (_req, res) => {
