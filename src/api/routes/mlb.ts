@@ -1,7 +1,5 @@
 import { Router } from 'express';
 import { MlbController } from '../controllers/mlb';
-import { IGameByTeamNameResponse } from '../interfaces';
-import sharp from 'sharp';
 
 export class MLBRoutes {
   constructor(router: Router) {
@@ -197,6 +195,20 @@ export class MLBRoutes {
     });
 
     // ===== leagues ===== //
+
+    // ===== divisions ===== //
+
+    router.get("/mlb/divisions", async (_req, res) => {
+      const id = _req.query.id as string;
+      const name = _req.query.name as string;
+      const abbreviation = _req.query.abbreviation as string;
+
+      const response = await mlbController.getDivision(id, name, abbreviation);
+      return res.json(response);
+    });
+
+    // ===== divisions ===== //
+
 
     // ===== teams ===== //
 

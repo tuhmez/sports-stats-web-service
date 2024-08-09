@@ -6617,6 +6617,79 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"IDivision": {
+				"properties": {
+					"abbreviation": {
+						"type": "string"
+					},
+					"active": {
+						"type": "boolean"
+					},
+					"hasWildcard": {
+						"type": "boolean"
+					},
+					"id": {
+						"type": "number",
+						"format": "double"
+					},
+					"league": {
+						"$ref": "#/components/schemas/ILeagueId"
+					},
+					"link": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"nameShort": {
+						"type": "string"
+					},
+					"season": {
+						"type": "string"
+					},
+					"sortOrder": {
+						"type": "number",
+						"format": "double"
+					},
+					"sport": {
+						"$ref": "#/components/schemas/ISportId"
+					}
+				},
+				"required": [
+					"abbreviation",
+					"active",
+					"hasWildcard",
+					"id",
+					"league",
+					"link",
+					"name",
+					"nameShort",
+					"season",
+					"sortOrder",
+					"sport"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IDivisionResponse": {
+				"properties": {
+					"copyright": {
+						"type": "string"
+					},
+					"divisions": {
+						"items": {
+							"$ref": "#/components/schemas/IDivision"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"copyright",
+					"divisions"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"PingResponse": {
 				"properties": {
 					"message": {
@@ -8065,6 +8138,60 @@
 					},
 					{
 						"description": "- The sport's abbreviation",
+						"in": "query",
+						"name": "abbreviation",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/mlb/divisions": {
+			"get": {
+				"operationId": "GetDivision",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/IDivisionResponse"
+										},
+										{
+											"$ref": "#/components/schemas/IError"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"MLB"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "id",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "name",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
 						"in": "query",
 						"name": "abbreviation",
 						"required": false,

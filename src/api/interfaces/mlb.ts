@@ -99,6 +99,11 @@ export interface ISportResponse {
   sports: ISport[];
 }
 
+export interface IDivisionResponse {
+  copyright: string;
+  divisions: IDivision[];
+}
+
 export enum GameType {
   // All-star
   A = 'A',
@@ -1620,4 +1625,18 @@ export interface ISport {
   link: string;
   name: string;
   sortOrder: number;
+}
+
+export interface IDivision {
+  abbreviation: string;
+  active: boolean;
+  hasWildcard: boolean;
+  id: number;
+  league: ILeagueId;
+  link: string;
+  name: string;
+  nameShort: string;
+  season: string;
+  sortOrder: number;
+  sport: ISportId;
 }

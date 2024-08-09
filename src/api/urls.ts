@@ -30,6 +30,7 @@ export const standingsUrl = (year: string, date: string, type: string) => {
 
   return `https://bdfed.stitch.mlbinfra.com/bdfed/transform-mlb-standings?&splitPcts=false&numberPcts=false&standingsView=${standingsView}&sortTemplate=3&season=${year}&leagueIds=103&&leagueIds=104&standingsTypes=${standingsType}&contextTeamId=&date=${date}&hydrateAlias=noSchedule`;
 }
+export const divisionUrl = (divisionId?: string) => `https://statsapi.mlb.com/api/v1/divisions/${divisionId}`;
 export const leagueUrl = (leagueId?: string) => `https://statsapi.mlb.com/api/v1/league/${leagueId}`;
 export const sportUrl = (sportId?: string) => `https://statsapi.mlb.com/api/v1/sports/${sportId}`;
 

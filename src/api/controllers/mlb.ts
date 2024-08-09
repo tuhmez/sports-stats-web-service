@@ -21,7 +21,8 @@ import {
   teamUrl,
   standingsUrl,
   leagueUrl,
-  sportUrl
+  sportUrl,
+  divisionUrl
 } from '../urls';
 import {
   IError,
@@ -41,7 +42,9 @@ import {
   ITeamResponse,
   IStandingsResponse,
   ILeagueResponse,
-  ISportResponse
+  ISportResponse,
+  IDivision,
+  IDivisionResponse
 } from '../interfaces';
 import { getTeamIdByFullTeamName, getTeamIdByTeamAbbreviation, getTeamIdByTeamLocation, getTeamIdByTeamName } from '../utils';
 import { validateDate } from '../../utils/date';
@@ -1501,12 +1504,17 @@ export class MlbController {
     @Query() name?: string,
     @Query() abbreviation?: string,
   ): Promise<ILeagueResponse | IError> {
-    if (id) {
+    if (id && !id.includes(",")) {
       return await (await mlbTransport.get(leagueUrl(id))).data;
     } else {
       const leagues: ILeagueResponse = await (await mlbTransport.get(leagueUrl(''))).data;
 
-      if (name) {
+      if (id && id.includes(",")) {
+        leagues.leagues = leagues.leagues.filter((l) => {
+          const idArr = id.split(",").map((id) => parseInt(id));
+          return idArr.indexOf(l.id) !== -1;
+        });
+      } else if (name) {
         leagues.leagues = leagues.leagues.filter((l) => {
           if (name.includes(",")) {
             const nameArr = name.split(",").map((n) => n.toLowerCase());
@@ -1542,12 +1550,17 @@ export class MlbController {
     @Query() name?: string,
     @Query() abbreviation?: string,
   ): Promise<ISportResponse | IError> {
-    if (id) {
+    if (id && !id.includes(",")) {
       return await (await mlbTransport.get(sportUrl(id))).data;
     } else {
       const sports: ISportResponse = await (await mlbTransport.get(sportUrl(''))).data;
 
-      if (name) {
+      if (id && id.includes(",")) {
+        sports.sports = sports.sports.filter((s) => {
+          const idArr = id.split(",").map((id) => parseInt(id));
+          return idArr.indexOf(s.id) !== -1;
+        });
+      } else if (name) {
         sports.sports = sports.sports.filter((s) => {
           if (name.includes(",")) {
             const nameArr = name.split(",").map((n) => n.toLowerCase());
@@ -1568,6 +1581,46 @@ export class MlbController {
       }
 
       return sports;
+    }
+  }
+
+  @Get("/divisions")
+  public async getDivision(
+    @Query() id?: string,
+    @Query() name?: string,
+    @Query() abbreviation?: string,
+  ): Promise<IDivisionResponse | IError> {
+    if (id && !id.includes(",")) {
+      return await (await mlbTransport.get(divisionUrl(id))).data;
+    } else {
+      const divisions: IDivisionResponse = await (await mlbTransport.get(divisionUrl(''))).data;
+
+      if (id && id.includes(",")) {
+        divisions.divisions = divisions.divisions.filter((d) => {
+          const idArr = id.split(",").map((id) => parseInt(id));
+          return idArr.indexOf(d.id) !== -1;
+        });
+      } else if (name) {
+        divisions.divisions = divisions.divisions.filter((d) => {
+          if (name.includes(",")) {
+            const nameArr = name.split(",").map((n) => n.toLowerCase());
+            return nameArr.indexOf(d.name.toLowerCase()) !== -1;
+          } else {
+            return d.name.toLowerCase() === name.toLowerCase();
+          }
+        });
+      } else if (abbreviation) {
+        divisions.divisions = divisions.divisions.filter((d) => {
+          if (abbreviation.includes(",")) {
+            const abbrevArr = abbreviation.split(",").map((a) => a.toLowerCase());
+            return abbrevArr.indexOf(d.abbreviation.toLowerCase()) !== -1;
+          } else {
+            return d.abbreviation.toLowerCase() === abbreviation.toLowerCase();
+          }
+        });
+      }
+
+      return divisions;
     }
   }
 }
