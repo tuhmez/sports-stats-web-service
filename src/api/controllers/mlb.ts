@@ -1507,9 +1507,23 @@ export class MlbController {
       const leagues: ILeagueResponse = await (await mlbTransport.get(leagueUrl(''))).data;
 
       if (name) {
-        leagues.leagues = leagues.leagues.filter((l) => l.name === name);
+        leagues.leagues = leagues.leagues.filter((l) => {
+          if (name.includes(",")) {
+            const nameArr = name.split(",").map((n) => n.toLowerCase());
+            return nameArr.indexOf(l.name.toLowerCase()) !== -1;
+          } else {
+            return l.name.toLowerCase() === name.toLowerCase();
+          }
+        });
       } else if (abbreviation) {
-        leagues.leagues = leagues.leagues.filter((l) => l.abbreviation.toLowerCase() === abbreviation.toLowerCase());
+        leagues.leagues = leagues.leagues.filter((l) => {
+          if (abbreviation.includes(",")) {
+            const abbrevArr = abbreviation.split(",").map((a) => a.toLowerCase());
+            return abbrevArr.indexOf(l.abbreviation.toLowerCase()) !== -1;
+          } else {
+            return l.abbreviation.toLowerCase() === abbreviation.toLowerCase();
+          }
+        });
       }
 
       return leagues;
@@ -1534,9 +1548,23 @@ export class MlbController {
       const sports: ISportResponse = await (await mlbTransport.get(sportUrl(''))).data;
 
       if (name) {
-        sports.sports = sports.sports.filter((s) => s.name === name);
+        sports.sports = sports.sports.filter((s) => {
+          if (name.includes(",")) {
+            const nameArr = name.split(",").map((n) => n.toLowerCase());
+            return nameArr.indexOf(s.name.toLowerCase()) !== -1;
+          } else {
+            return s.name.toLowerCase() === name.toLowerCase();
+          }
+        });
       } else if (abbreviation) {
-        sports.sports = sports.sports.filter((s) => s.abbreviation.toLowerCase() === abbreviation.toLowerCase());
+        sports.sports = sports.sports.filter((s) => {
+          if (abbreviation.includes(",")) {
+            const abbrevArr = abbreviation.split(",").map((a) => a.toLowerCase());
+            return abbrevArr.indexOf(s.abbreviation.toLowerCase()) !== -1;
+          } else {
+            return s.abbreviation.toLowerCase() === abbreviation.toLowerCase();
+          }
+        });
       }
 
       return sports;
