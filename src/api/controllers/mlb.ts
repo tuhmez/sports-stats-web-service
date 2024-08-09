@@ -48,7 +48,7 @@ import {
 } from '../interfaces';
 import { getTeamIdByFullTeamName, getTeamIdByTeamAbbreviation, getTeamIdByTeamLocation, getTeamIdByTeamName } from '../utils';
 import { validateDate } from '../../utils/date';
-import { logos } from '../../data';
+import { getAlternateTeamSrc, logos } from '../../data';
 
 const invalidDateError: IError = {
   message: 'Input date is invalid. Valid format is MM/DD/YYYY (e.g. 10/01/2018)',
@@ -598,7 +598,8 @@ export class MlbController {
     @Query() format?: string,
     @Query() output?: 'Element' | 'Buffer',
     @Query() url?: string,
-    @Query() urlHasId?: boolean
+    @Query() urlHasId?: boolean,
+    @Query() useAltSrc?: boolean,
   ): Promise<HTMLOrSVGElement | Buffer | IError> {
     const route = '/mlb/game/team/logo';
     try {
@@ -654,7 +655,18 @@ export class MlbController {
         } else {
           urlToUse = `${url}/${id}.svg`;
         }
+      } else if (useAltSrc) {
+        const { exists, includesId, src } = getAlternateTeamSrc({ id });
+
+        if (exists) {
+          if (includesId) {
+            urlToUse = src;
+          } else {
+            urlToUse = `${src}/${id}.svg`;
+          }
+        }
       }
+
       const response = await mlbTransport.get(urlToUse);
 
       let image = response.data;
