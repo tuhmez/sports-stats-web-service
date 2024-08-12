@@ -15,11 +15,15 @@ export const logos: ILogo = {
   useTeamCapOnDark: ['nyy', 'tb', 'det', 'stl', 'wsh', 'col', 'lad', 'sd', 'cin', 'kc'],
   useTeamCapOnDarkId: ['113', '115', '116', '118', '119', '120', '135', '138', '139', '147'],
   urlTeamCapOnDark: 'https://www.mlbstatic.com/team-logos/team-cap-on-dark',
-  useOtherUrl: ['min', 'tex'],
-  useOtherUrlId: ['140', '142'],
+  useOtherUrl: ['min', 'tex', 'oak'],
+  useOtherUrlId: ['133', '140', '142'],
   otherUrls: {
     min: 'https://images.ctfassets.net/iiozhi00a8lc/t142_header_primaryMN_TC_19_blue_svg/c0f95eb9469a7d98b24498395d4f4dc9/MIN23_Dark_Active.svg',
-    tex: 'https://images.ctfassets.net/iiozhi00a8lc/6HSwMP9twv0hrrHVF4Nyo0/0f0063a3fb5f029ac4dadd420b1f1142/140.svg'
+    '142': 'https://images.ctfassets.net/iiozhi00a8lc/t142_header_primaryMN_TC_19_blue_svg/c0f95eb9469a7d98b24498395d4f4dc9/MIN23_Dark_Active.svg',
+    tex: 'https://images.ctfassets.net/iiozhi00a8lc/6HSwMP9twv0hrrHVF4Nyo0/0f0063a3fb5f029ac4dadd420b1f1142/140.svg',
+    '140': 'https://images.ctfassets.net/iiozhi00a8lc/6HSwMP9twv0hrrHVF4Nyo0/0f0063a3fb5f029ac4dadd420b1f1142/140.svg',
+    oak: 'https://images.ctfassets.net/iiozhi00a8lc/6pTfb3rol9EuujxQMapyVn/e58bc760571f353a06ae8fb8ccb31c40/133_gold.svg',
+    '133': 'https://images.ctfassets.net/iiozhi00a8lc/6pTfb3rol9EuujxQMapyVn/e58bc760571f353a06ae8fb8ccb31c40/133_gold.svg',
   }
 };
 
@@ -48,7 +52,7 @@ export const getAlternateTeamSrc = (args: IAlternateTeamSrcRequest): IAlternateT
     } else if (logos.useOtherUrlId.includes(id)) {
       result.exists = true;
       result.includesId = true;
-      result.src = id === '140' ? logos.otherUrls.tex : logos.otherUrls.min;
+      result.src = logos.otherUrls[id];
     }
   } else if (args.abbreviation) {
     const { abbreviation } = args;
