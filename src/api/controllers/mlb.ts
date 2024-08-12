@@ -973,6 +973,10 @@ export class MlbController {
         const secondaryColor = teamColorsResult.splice(1, 1);
 
         teamColorsResult.splice(0, 0, secondaryColor[0]);
+      } else if (logos.useTertiaryColorId.includes(id)) {
+        const tertiaryColor = teamColorsResult.splice(2, 1);
+
+        teamColorsResult.splice(0, 0, tertiaryColor[0]);
       }
     }
 
@@ -1347,6 +1351,8 @@ export class MlbController {
 
       const useSecondaryColorDesired = logos.useSecondaryColor.includes(desiredTeamAbbreviation);
       const useSecondaryColorAgainst = logos.useSecondaryColor.includes(againstTeamAbbreviation);
+      const useTertiaryColorDesired = logos.useTertiaryColor.includes(desiredTeamAbbreviation);
+      const useTertiaryColorAgainst = logos.useTertiaryColor.includes(againstTeamAbbreviation);
       const useTeamCapOnDarkDesired = logos.useTeamCapOnDark.includes(desiredTeamAbbreviation);
       const useTeamCapOnDarkAgainst = logos.useTeamCapOnDark.includes(againstTeamAbbreviation);
       const useOtherUrlDesired = logos.useOtherUrl.includes(desiredTeamAbbreviation);
@@ -1373,10 +1379,14 @@ export class MlbController {
 
       if (useSecondaryColorDesired) {
         desiredColor = Color(desiredTeamColorResponse[1]);
+      } else if (useTertiaryColorDesired) {
+        desiredColor = Color(desiredTeamColorResponse[2]);
       }
 
       if (useSecondaryColorAgainst) {
         againstColor = Color(againstTeamColorResponse[1]);
+      } else if (useTertiaryColorAgainst) {
+        againstColor = Color(againstTeamColorResponse[2]);
       }
 
       const svgHeightAndWidth = 400;

@@ -1,6 +1,8 @@
 interface ILogo {
   useSecondaryColor: string[];
   useSecondaryColorId: string[];
+  useTertiaryColor: string[];
+  useTertiaryColorId: string[];
   useTeamCapOnDark: string[];
   useTeamCapOnDarkId: string[];
   urlTeamCapOnDark: string;
@@ -12,6 +14,8 @@ interface ILogo {
 export const logos: ILogo = {
   useSecondaryColor: ['bal', 'tex', 'sf'],
   useSecondaryColorId: ['110', '137', '140'],
+  useTertiaryColor: ['nyy'],
+  useTertiaryColorId: ['147'],
   useTeamCapOnDark: ['nyy', 'tb', 'det', 'stl', 'wsh', 'col', 'lad', 'sd', 'cin', 'kc'],
   useTeamCapOnDarkId: ['113', '115', '116', '118', '119', '120', '135', '138', '139', '147'],
   urlTeamCapOnDark: 'https://www.mlbstatic.com/team-logos/team-cap-on-dark',
