@@ -286,12 +286,13 @@ export class MLBRoutes {
       const name = _req.query.name as string;
       const abbreviation = _req.query.abbreviation as string;
       const output = _req.query.output as string;
+      const useAltColor = _req.query.useAltColor as string;
 
       if (!id && !location && !name && !abbreviation) {
         return res.send('Inputs invalid, must have a query entry for: id, location, name, or abbreviation');
       }
 
-      const response = await mlbController.getTeamColors(id, location, name, abbreviation);
+      const response = await mlbController.getTeamColors(id, location, name, abbreviation, useAltColor);
 
       if (output) {
         if (output === "arr") {

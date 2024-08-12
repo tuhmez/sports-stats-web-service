@@ -7566,6 +7566,14 @@
 						"schema": {
 							"type": "string"
 						}
+					},
+					{
+						"in": "query",
+						"name": "useAltColor",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
 					}
 				]
 			}

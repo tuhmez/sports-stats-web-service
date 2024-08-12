@@ -872,6 +872,7 @@ export class MlbController {
     @Query() location?: string,
     @Query() name?: string,
     @Query() abbreviation?: string,
+    @Query() useAltColor?: string,
   ): Promise<string[] | IError> {
     const route = '/mlb/team/colors';
     if (!location && !name) {
@@ -964,8 +965,18 @@ export class MlbController {
       const tdStrings = $(e).text().split('#');
       teamColors.push(`#${tdStrings[tdStrings.length - 1]}`.trim());
     });
-  
-    return teamColors.filter((tc) => tc !== '#');
+    
+    const teamColorsResult = teamColors.filter((tc) => tc !== '#');
+
+    if (useAltColor) {
+      if (logos.useSecondaryColorId.includes(id)) {
+        const secondaryColor = teamColorsResult.splice(1, 1);
+
+        teamColorsResult.splice(0, 0, secondaryColor[0]);
+      }
+    }
+
+    return teamColorsResult;
   }
 
   /**
