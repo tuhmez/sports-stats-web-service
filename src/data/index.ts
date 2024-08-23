@@ -12,15 +12,15 @@ interface ILogo {
 }
 
 export const logos: ILogo = {
-  useSecondaryColor: ['bal', 'tex', 'sf'],
-  useSecondaryColorId: ['110', '137', '140'],
+  useSecondaryColor: ['bal', 'sf'],
+  useSecondaryColorId: ['110', '137'],
   useTertiaryColor: ['nyy'],
   useTertiaryColorId: ['147'],
-  useTeamCapOnDark: ['nyy', 'tb', 'det', 'stl', 'wsh', 'col', 'lad', 'sd', 'cin', 'kc'],
-  useTeamCapOnDarkId: ['113', '115', '116', '118', '119', '120', '135', '138', '139', '147'],
+  useTeamCapOnDark: ['nyy', 'tb', 'det', 'stl', 'wsh', 'col', 'lad', 'sd', 'cin', 'kc', 'tex'],
+  useTeamCapOnDarkId: ['113', '115', '116', '118', '119', '120', '135', '138', '139', '140', '147'],
   urlTeamCapOnDark: 'https://www.mlbstatic.com/team-logos/team-cap-on-dark',
-  useOtherUrl: ['min', 'tex', 'oak'],
-  useOtherUrlId: ['133', '140', '142'],
+  useOtherUrl: ['min', 'oak'],
+  useOtherUrlId: ['133', '142'],
   otherUrls: {
     min: 'https://images.ctfassets.net/iiozhi00a8lc/t142_header_primaryMN_TC_19_blue_svg/c0f95eb9469a7d98b24498395d4f4dc9/MIN23_Dark_Active.svg',
     '142': 'https://images.ctfassets.net/iiozhi00a8lc/t142_header_primaryMN_TC_19_blue_svg/c0f95eb9469a7d98b24498395d4f4dc9/MIN23_Dark_Active.svg',
