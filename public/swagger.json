@@ -6754,6 +6754,14 @@
 						"schema": {
 							"type": "string"
 						}
+					},
+					{
+						"in": "query",
+						"name": "sport",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
 					}
 				]
 			}

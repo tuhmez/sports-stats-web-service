@@ -1,5 +1,11 @@
-export const dailyGamesUrl = (date: string) => {
-  return `https://statsapi.mlb.com/api/v1/schedule?language=en&sportId=1,11,12,13,14,16&date=${date}&sortBy=gameDate&hydrate=game(content(summary,media(epg))),linescore(runners),flags,team,review`
+export const dailyGamesUrl = (date: string, sport?: string) => {
+  let sportIds = "1,11,12,13,14,16";
+
+  if (sport) {
+    sportIds = sport;
+  }
+
+  return `https://statsapi.mlb.com/api/v1/schedule?language=en&sportId=${sportIds}&date=${date}&sortBy=gameDate&hydrate=game(content(summary,media(epg))),linescore(runners),flags,team,review`
 };
 export const gameFeedUrl = (gameId: string) => `https://statsapi.mlb.com/api/v1.1/game/${gameId}/feed/live`;
 export const gameBoxscoreUrl = (gameId: string) => `http://statsapi.mlb.com:80/api/v1/game/${gameId}/boxscore`;

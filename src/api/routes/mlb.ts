@@ -21,7 +21,9 @@ export class MLBRoutes {
     // ===== games ===== //
     router.get("/mlb/games", async (_req, res) => {
       const date = _req.query.date as string;
-      const response = await mlbController.getGames(date);
+      const sport = _req.query.sport as string;
+
+      const response = await mlbController.getGames(date, sport);
       return res.json(response);
     });
 

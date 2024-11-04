@@ -68,6 +68,7 @@ export class MlbController {
   @Get('/games')
   public async getGames(
     @Query() date?: string,
+    @Query() sport?: string,
   ): Promise<IGamesResponse | IError> {
     if (!date) {
       const today = new Date();
@@ -80,8 +81,9 @@ export class MlbController {
     }
 
     try {
-      const data = await mlbTransport.get(dailyGamesUrl(date));
-      return data.data;
+      const data: IGamesResponse = await (await mlbTransport.get(dailyGamesUrl(date, sport))).data as IGamesResponse;
+
+      return data;
     } catch (exception) {
       const { data, response } = exception;
       LogError(response.status, `/mlb/games`, data.message);
